@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Компас — плата системы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pcb:#0b2818;
+    --pcb2:#0e3320;
+    --copper:#c99a4b;
+    --copper-bright:#e8bd6e;
+    --silk:#e9f5ec;
+    --silk-dim:#7fa08c;
+    --chip:#0a1a12;
+    --chip-border:#2f5c40;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle, #17402a 1px, transparent 1.2px) 0 0/26px 26px,
+      var(--pcb);
+    color:var(--silk);
+    font-family:'IBM Plex Mono',monospace;
+    padding:36px;
+  }
+  .board{
+    max-width:1340px;
+    margin:0 auto;
+    border:2px solid var(--copper);
+    border-radius:6px;
+    padding:26px 30px 22px;
+    position:relative;
+    background:linear-gradient(180deg, var(--pcb2), var(--pcb));
+  }
+  .board::before{
+    content:"";
+    position:absolute;inset:8px;
+    border:1px dashed var(--chip-border);
+    border-radius:4px;
+    pointer-events:none;
+  }
+  /* уголки-крепёж как на платах */
+  .mount{
+    position:absolute;width:14px;height:14px;
+    border:1.5px solid var(--copper);
+    border-radius:50%;
+  }
+  .mount::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--pcb);}
+  .mount.tl{top:10px;left:10px;} .mount.tr{top:10px;right:10px;}
+  .mount.bl{bottom:10px;left:10px;} .mount.br{bottom:10px;right:10px;}
+
+  .head{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:26px;padding-bottom:14px;
+    border-bottom:1px solid var(--chip-border);
+  }
+  .head h1{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:30px;
+    text-transform:uppercase;
+    letter-spacing:3px;
+    margin:0;
+    color:var(--silk);
+  }
+  .head h1 span{color:var(--copper-bright);}
+  .head .sub{font-size:10.5px;color:var(--silk-dim);letter-spacing:1px;margin-top:4px;text-transform:uppercase;}
+  .board-id{
+    font-size:10px;color:var(--copper-bright);
+    text-align:right;letter-spacing:1px;line-height:1.8;
+  }
+
+  /* компоненты-чипы с соединительными дорожками */
+  .chips-wrap{position:relative;padding:10px 0 26px;}
+  .trace-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+
+  .chips{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:46px;
+    position:relative;
+    z-index:2;
+  }
+  .chip{
+    background:var(--chip);
+    border:1.5px solid var(--chip-border);
+    border-radius:3px;
+    padding:14px 14px 16px;
+    position:relative;
+    min-height:250px;
+  }
+  /* выводы чипа (пины) сверху и снизу */
+  .pins-top, .pins-bottom{
+    position:absolute;left:14px;right:14px;
+    display:flex;justify-content:space-between;
+  }
+  .pins-top{top:-7px;} .pins-bottom{bottom:-7px;}
+  .pin{width:10px;height:6px;background:var(--copper);border-radius:1px;}
+
+  .chip-id{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:600;
+    font-size:11px;
+    color:var(--copper-bright);
+    letter-spacing:1px;
+    margin-bottom:2px;
+  }
+  .chip-name{
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:3px;
+  }
+  .chip-stack{font-size:9.5px;color:var(--silk-dim);margin-bottom:12px;letter-spacing:0.3px;}
+  .chip-block{
+    border-top:1px dotted var(--chip-border);
+    padding-top:8px;margin-top:8px;
+  }
+  .chip-block .lbl{font-size:9.5px;color:var(--copper-bright);letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase;}
+  .chip-block ul{margin:0;padding-left:13px;font-size:9.8px;color:#c9ddd0;line-height:1.6;}
+  .chip-block ul li::marker{color:var(--copper);}
+  .highlight-li{color:var(--copper-bright) !important;font-weight:600;}
+
+  /* сигнальный путь снизу */
+  .signal{
+    border:1px solid var(--chip-border);
+    border-radius:3px;
+    padding:16px 22px 12px;
+    margin-top:6px;
+  }
+  .signal-title{
+    font-family:'Chakra Petch',sans-serif;
+    font-size:12px;font-weight:600;letter-spacing:2px;
+    text-transform:uppercase;color:var(--copper-bright);
+    margin-bottom:14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .signal-title::after{content:"";flex:1;height:1px;background:var(--chip-border);}
+  .sig-row{display:flex;align-items:flex-start;gap:0;}
+  .sig-step{flex:1;text-align:center;}
+  .sig-step .dot{
+    width:9px;height:9px;border-radius:50%;background:var(--copper);
+    margin:0 auto 6px;
+  }
+  .sig-step .n{font-size:9px;color:var(--copper-bright);margin-bottom:4px;}
+  .sig-step p{font-size:8.8px;color:#b7cfc0;line-height:1.4;margin:0;padding:0 5px;}
+  .sig-line{flex:0 0 16px;height:1px;background:var(--chip-border);margin-top:4px;position:relative;top:0;}
+
+  /* BOM — перечень элементов вместо легенды */
+  .bom{
+    margin-top:22px;
+    border:1px solid var(--chip-border);
+    border-radius:3px;
+    padding:14px 20px;
+  }
+  .bom-title{
+    font-family:'Chakra Petch',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:2px;
+    color:var(--copper-bright);text-transform:uppercase;margin-bottom:10px;
+  }
+  table{width:100%;border-collapse:collapse;font-size:9.8px;}
+  th{
+    text-align:left;color:var(--silk-dim);font-weight:500;
+    text-transform:uppercase;letter-spacing:0.5px;font-size:8.5px;
+    padding:4px 10px 6px;border-bottom:1px solid var(--chip-border);
+  }
+  td{padding:6px 10px;border-bottom:1px dotted var(--chip-border);color:#c9ddd0;}
+  tr:last-child td{border-bottom:none;}
+  td.ref{color:var(--copper-bright);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="mount tl"></div><div class="mount tr"></div>
+  <div class="mount bl"></div><div class="mount br"></div>
+
+  <div class="head">
+    <div>
+      <h1>КОМПАС <span>// PCB-01</span></h1>
+      <div class="sub">Схема системы · MAX Mini App · Хакатон «Идея фикс»</div>
+    </div>
+    <div class="board-id">
+      REV 03 — KIMI K3 INTEGRATED<br>
+      LAYER STACK: 4<br>
+      DESIGNED FOR: MAX / СФЕРУМ
+    </div>
+  </div>
+
+  <div class="chips-wrap">
+    <svg class="trace-svg" viewBox="0 0 1280 20" preserveAspectRatio="none">
+      <line x1="160" y1="10" x2="1120" y2="10" stroke="#c99a4b" stroke-width="1.5" stroke-dasharray="2 4"/>
+    </svg>
+
+    <div class="chips">
+
+      <!-- U1 -->
+      <div class="chip">
+        <div class="pins-top"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="pins-bottom"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="chip-id">U1</div>
+        <div class="chip-name">MAX Client</div>
+        <div class="chip-stack">Источник входного сигнала</div>
+        <div class="chip-block">
+          <div class="lbl">Interface</div>
+          <ul>
+            <li>MAX Mini App (WebView)</li>
+            <li>MAX Bridge → initData</li>
+          </ul>
+        </div>
+        <div class="chip-block">
+          <div class="lbl">Payload</div>
+          <ul>
+            <li>Блок A — интересы, 12</li>
+            <li>Блок B — знания, 52</li>
+            <li>Блок C — софт-скиллы, 10</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- U2 -->
+      <div class="chip">
+        <div class="pins-top"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="pins-bottom"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="chip-id">U2</div>
+        <div class="chip-name">Frontend</div>
+        <div class="chip-stack">React · TypeScript · Vite</div>
+        <div class="chip-block">
+          <div class="lbl">Views</div>
+          <ul>
+            <li>Онбординг</li>
+            <li>Тест (3 блока)</li>
+            <li>Результаты + radar-диаграмма</li>
+            <li>История / кабинет педагога</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- U3 — Backend с Kimi K3 внутри -->
+      <div class="chip" style="border-color:var(--copper-bright);">
+        <div class="pins-top"><div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="pins-bottom"><div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="chip-id">U3</div>
+        <div class="chip-name">Backend</div>
+        <div class="chip-stack">FastAPI · Python 3.12 · nginx</div>
+        <div class="chip-block">
+          <div class="lbl">Core functions</div>
+          <ul>
+            <li>HMAC-валидация initData</li>
+            <li>calculate_scores()</li>
+            <li>Запись в PostgreSQL</li>
+          </ul>
+        </div>
+        <div class="chip-block">
+          <div class="lbl">AI-модуль (встроен в узел)</div>
+          <ul>
+            <li class="highlight-li">OpenRouter API — Kimi K3</li>
+            <li>Генерация топ-5 профессий</li>
+            <li>Fallback: rule-based алгоритм</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- U4 -->
+      <div class="chip">
+        <div class="pins-top"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="pins-bottom"><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
+        <div class="chip-id">U4</div>
+        <div class="chip-name">Storage</div>
+        <div class="chip-stack">PostgreSQL 16</div>
+        <div class="chip-block">
+          <div class="lbl">Tables</div>
+          <ul>
+            <li>users</li>
+            <li>test_results</li>
+            <li>recommendations</li>
+            <li>professions</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- сигнальный путь -->
+  <div class="signal">
+    <div class="signal-title">Сигнальный путь (сквозной процесс)</div>
+    <div class="sig-row">
+      <div class="sig-step"><div class="dot"></div><div class="n">01</div><p>Открытие Mini App, авторизация MAX Bridge</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">02</div><p>U3 валидирует HMAC-подпись</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">03</div><p>Прохождение теста, 3 блока</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">04</div><p>Ответы поступают на U3</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">05</div><p>Подсчёт баллов, запись в U4</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">06</div><p>AI-модуль U3 → Kimi K3 запрос</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">07</div><p>Рекомендация записана в U4</p></div>
+      <div class="sig-line"></div>
+      <div class="sig-step"><div class="dot"></div><div class="n">08</div><p>U2 отображает результат</p></div>
+    </div>
+  </div>
+
+  <!-- BOM -->
+  <div class="bom">
+    <div class="bom-title">Перечень элементов (BOM)</div>
+    <table>
+      <tr><th>Поз.</th><th>Наименование</th><th>Назначение</th></tr>
+      <tr><td class="ref">U1</td><td>MAX Client</td><td>WebView-контейнер, точка входа пользователя</td></tr>
+      <tr><td class="ref">U2</td><td>Frontend (React)</td><td>Интерфейс, с которым работает ученик и педагог</td></tr>
+      <tr><td class="ref">U3</td><td>Backend (FastAPI) + AI-модуль Kimi K3</td><td>Бизнес-логика, авторизация, генерация рекомендаций</td></tr>
+      <tr><td class="ref">U4</td><td>PostgreSQL 16</td><td>Персистентное хранилище данных</td></tr>
+      <tr><td class="ref">—</td><td>nginx</td><td>Reverse proxy, единая точка входа по HTTPS</td></tr>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>
