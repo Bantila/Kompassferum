@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Secrets
+.env
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Промпты, ТЗ, макеты и служебные артефакты — в репозиторий не идут
+claude-code-prompt*.md
+*.docx
+graphify-out/
+kompas-screens-*.html
+kompas-architecture-*.html
+.claude/
