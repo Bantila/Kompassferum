@@ -1,4 +1,19 @@
 {
+  "subject_titles": {
+      "mathematics": "Математика",
+      "physics": "Физика",
+      "chemistry": "Химия",
+      "biology": "Биология",
+      "history": "История",
+      "social_studies": "Обществознание",
+      "literature": "Литература",
+      "russian": "Русский язык",
+      "foreign_language": "Английский язык",
+      "informatics": "Информатика",
+      "geography": "География",
+      "arts_music": "ИЗО и музыка",
+      "pe_safety": "Физкультура и ОБЖ"
+  },
   "subject_groups": {
     "exact": ["mathematics", "physics", "chemistry", "informatics"],
     "natural": ["biology", "geography", "pe_safety"],

@@ -58,7 +58,7 @@ def get_question(question_id: str) -> dict[str, Any] | None:
 
 def public_questions(
     block: str | None = None, subject_group: str | None = None
-) -> dict[str, list[dict[str, Any]]]:
+) -> dict[str, Any]:
     """Вопросы для показа ученику — БЕЗ поля correct_index.
 
     Правильный ответ никогда не покидает бэкенд вместе с вопросом: иначе его
@@ -82,7 +82,10 @@ def public_questions(
             raise ScoringError(f"Неизвестная группа предметов: {subject_group!r}")
         subjects = set(groups[subject_group])
 
-    result: dict[str, list[dict[str, Any]]] = {}
+    result: dict[str, Any] = {
+        "subject_titles": data["subject_titles"],
+        "subject_groups": data["subject_groups"],
+    }
     for key in wanted:
         items = []
         for question in data[key]:

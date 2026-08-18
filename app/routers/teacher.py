@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models import TestResult, User, UserRole
 from app.schemas.user import ClassSummaryResponse
+from app.services.test_scoring import load_questions
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +80,14 @@ async def class_summary(
                 categories[profession.get("category", "не указана")] += 1
                 professions[profession.get("name", "—")] += 1
 
+    titles = load_questions()["subject_titles"]
     weakest = sorted(
         (
-            {"subject": subject, "average_knowledge": round(sum(v) / len(v), 2)}
+            {
+                "subject": subject,
+                "title": titles.get(subject, subject),
+                "average_knowledge": round(sum(v) / len(v), 2),
+            }
             for subject, v in knowledge.items()
         ),
         key=lambda item: item["average_knowledge"],

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101114">
+<title>Компас — сводка по классу</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23007AFF'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M20 12l-2.5 5.5L12 20l2.5-5.5L20 12z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="desk">
+  <div class="bar tall" style="border-radius:14px;margin-bottom:16px">
+    <div class="h4">Компас · сводка по классу</div>
+    <a href="/" class="link" style="text-decoration:none">К тесту</a>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px">
+    <div class="cols" style="gap:8px;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="label">Ваш ID в MAX</div>
+        <input class="field" id="teacher-id" placeholder="teacher_1" autocomplete="off">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="label">Класс</div>
+        <input class="field" id="school-class" placeholder="7Б" autocomplete="off">
+      </div>
+      <div class="btn md" id="load" style="flex:0 0 auto">Показать сводку</div>
+    </div>
+    <div class="t4s">Сводка обезличена: показываются только агрегаты по классу, без результатов отдельных учеников.</div>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+const out = document.getElementById('out');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const SOFTSKILL_TITLES = {
+  teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
+  analytical: 'Аналитика', resilience: 'Усидчивость',
+};
+const HOLLAND_TITLES = {
+  realistic: 'Реалист', investigative: 'Исследователь', artistic: 'Артист',
+  social: 'Социальный', enterprising: 'Предприним.', conventional: 'Конвенц.',
+};
+
+function message(title, text, tone = 'var(--t3)') {
+  out.innerHTML = `<div class="panel"><div class="h4">${esc(title)}</div><div style="font-size:15px;line-height:21px;color:${tone}">${esc(text)}</div></div>`;
+}
+
+function bars(entries, max, format) {
+  return entries.map(([name, value]) => `
+    <div class="barline">
+      <div class="name">${esc(name)}</div>
+      <div class="track"><i style="width:${Math.round((value / max) * 100)}%"></i></div>
+      <div class="val">${format(value)}</div>
+    </div>`).join('');
+}
+
+async function loadSummary() {
+  const teacherId = document.getElementById('teacher-id').value.trim();
+  const schoolClass = document.getElementById('school-class').value.trim();
+  if (!teacherId || !schoolClass) return message('Заполните поля', 'Нужны ваш ID в MAX и номер класса.');
+
+  localStorage.setItem('kompas_teacher', JSON.stringify({ teacherId, schoolClass }));
+  out.innerHTML = '<div class="panel" style="flex-direction:row;align-items:center;gap:12px"><div class="spinner"></div><div class="t3">Считаем агрегаты…</div></div>';
+
+  let data;
+  try {
+    const response = await fetch(`/api/teacher/${encodeURIComponent(teacherId)}/class-summary?school_class=${encodeURIComponent(schoolClass)}`);
+    data = await response.json();
+    if (!response.ok) return message('Сводка недоступна', data.detail || `Ошибка ${response.status}`, 'var(--orange)');
+  } catch (error) {
+    return message('Нет связи с сервером', String(error), 'var(--orange)');
+  }
+
+  const categories = Object.entries(data.category_distribution);
+  const maxCategory = Math.max(1, ...categories.map(([, n]) => n));
+  const interests = Object.entries(data.average_interests).sort((a, b) => b[1] - a[1]);
+  const softskills = Object.entries(data.average_softskills).sort((a, b) => b[1] - a[1]);
+
+  out.innerHTML = `
+    <div class="stats" style="margin-bottom:16px">
+      <div class="stat"><div class="t3">Прошли тест</div><div class="num">${data.students_tested}</div><div class="t4s">учеников класса ${esc(data.school_class)}</div></div>
+      <div class="stat"><div class="t3">Всего прохождений</div><div class="num">${data.tests_completed}</div><div class="t4s">включая повторные</div></div>
+      <div class="stat"><div class="t3">Ведущее направление</div><div class="num" style="font-size:20px;line-height:26px">${esc(categories[0]?.[0] || '—')}</div><div class="t4s">${categories[0]?.[1] || 0} упоминаний</div></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel" style="flex:1.4 1 340px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <div class="h5" style="font-size:16px">Категории профессий в рекомендациях</div>
+          <div class="t4s">${data.students_tested} учеников</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${categories.length ? bars(categories, maxCategory, (n) => n) : '<div class="t3">Пока нет рекомендаций.</div>'}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Слабые предметы класса</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${data.weakest_subjects.length ? data.weakest_subjects.map((item, i) => `
+            ${i ? '<div style="height:1px;background:var(--line)"></div>' : ''}
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="flex:1;font-size:14px;color:var(--t2)">${esc(item.title || item.subject)}</div>
+              <div style="font-size:14px;color:var(--t3)">средний ${Math.round((item.average_knowledge / 5) * 100)}%</div>
+            </div>`).join('') : '<div class="t3">Данных пока нет.</div>'}
+        </div>
+        <div class="t4s" style="margin-top:auto">Балл знаний по шкале 1–5 переведён в проценты.</div>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:16px">
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Средний профиль интересов</div>
+        <div style="display:flex;flex-direction:column;gap:12px">${bars(interests.map(([k, v]) => [HOLLAND_TITLES[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
+      </div>
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Soft skills класса</div>
+        <div style="display:flex;flex-direction:column;gap:12px">${bars(softskills.map(([k, v]) => [SOFTSKILL_TITLES[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('load').onclick = loadSummary;
+document.addEventListener('keydown', (e) => e.key === 'Enter' && loadSummary());
+
+try {
+  const saved = JSON.parse(localStorage.getItem('kompas_teacher'));
+  if (saved) {
+    document.getElementById('teacher-id').value = saved.teacherId;
+    document.getElementById('school-class').value = saved.schoolClass;
+  }
+} catch { /* нет сохранённых значений — оставляем пустыми */ }
+</script>
+</body>
+</html>
