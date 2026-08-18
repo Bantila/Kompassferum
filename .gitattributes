@@ -1,0 +1,5 @@
+# Shell-скрипты всегда с LF: CRLF внутри Linux-контейнера ломает shebang
+# («/bin/sh^M: bad interpreter») и контейнер не стартует.
+*.sh text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf

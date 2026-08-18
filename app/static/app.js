@@ -95,6 +95,9 @@ const subjectQuestions = (code) => Q.block_b_subjects.filter((q) => q.subject ==
 const answeredCount = () => Object.keys(S.answers).length;
 const totalCount = () => blockA().length + Q.block_b_subjects.length + blockC().length;
 const isAnswered = (id) => S.answers[id] !== undefined;
+// Бэкенд считает профиль и по части ответов, поэтому предварительный результат
+// можно показать сразу после блока A — не заставляя пройти все 74 вопроса.
+const canPreview = () => blockA().every((q) => isAnswered(q.id));
 
 /* ---------- экран: онбординг ---------- */
 
@@ -114,6 +117,7 @@ function screenOnboarding() {
         <div class="t3">Ответы сохранены на этом устройстве — можно продолжить с того же места.</div>
       </div>
       <div class="btn" data-go="next">Продолжить</div>
+      ${canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
       <div class="list">
         <div class="row" data-go="restart"><div style="font-size:16px;flex:1">Начать заново</div></div>
         <div class="sep"></div>
@@ -251,7 +255,10 @@ function screenSubjects() {
         </div>`).join('')}
     </div>
     <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
-    <div class="btn bottom" data-go="next">${remaining.length ? `Продолжить с предмета «${esc(remaining[0].title)}»` : 'Дальше'}</div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:10px">
+      <div class="btn" data-go="next">${remaining.length ? `Продолжить с предмета «${esc(remaining[0].title)}»` : 'Дальше'}</div>
+      ${canPreview() && remaining.length ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
+    </div>
   `, { title: 'Предметы', progress: answeredCount() / totalCount() });
 
   view.querySelectorAll('[data-subject]').forEach((row) => {
@@ -393,7 +400,7 @@ async function screenSubmit() {
     });
     S.lastResultId = data.test_result_id;
     save();
-    screenResults(data.recommendations, data.computed_scores, data.fallback);
+    screenResults(data.recommendations, data.computed_scores, data.fallback, data.progress);
   } catch (error) {
     screenError(error, screenSubmit);
   }
@@ -435,7 +442,7 @@ function radarSVG(interests) {
   </svg>`;
 }
 
-function screenResults(professions, scores, fallback) {
+function screenResults(professions, scores, fallback, progress = null) {
   const [top, ...rest] = professions;
   const softskills = Object.entries(scores.softskills || {});
 
@@ -489,11 +496,16 @@ function screenResults(professions, scores, fallback) {
         </div>
       </div>` : ''}
 
+    ${progress && !progress.is_complete ? `
+      <div class="hint"><i style="background:var(--orange)"></i><p>Это предварительный результат — пройдено ${progress.answered} из ${progress.total} вопросов. Чем больше ответов, тем точнее подборка.</p></div>
+    ` : ''}
+
     ${fallback ? `
       <div class="hint"><i style="background:var(--orange)"></i><p>Рекомендации подобраны упрощённым алгоритмом — ИИ был недоступен. Результаты теста сохранены, можно обновить подборку позже.</p></div>
     ` : ''}
 
     <div style="display:flex;flex-direction:column;gap:8px">
+      ${progress && !progress.is_complete ? '<div class="btn" data-go="next">Продолжить тест</div>' : ''}
       <div class="btn sec" data-go="history">История прохождений</div>
       <div class="btn sec" data-go="restart">Пройти тест заново</div>
     </div>
@@ -574,6 +586,7 @@ view.addEventListener('click', (event) => {
   if (!target) return;
   const actions = {
     next,
+    preview: screenSubmit,
     home: screenOnboarding,
     history: screenHistory,
     teacher: () => { window.location.href = '/static/teacher.html'; },
