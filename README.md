@@ -30,6 +30,21 @@ MAX/Сферум. Нейросеть по результатам подбира�
 Наружу торчит только nginx. uvicorn и PostgreSQL живут внутри docker-сети и портов
 не пробрасывают.
 
+## Живой стенд
+
+**https://testmaxapp.vltx.eu.cc** — развёрнутая версия со всем стеком:
+FastAPI, PostgreSQL и nginx в Docker, HTTPS от Let's Encrypt.
+
+| Адрес | Что там |
+|---|---|
+| https://testmaxapp.vltx.eu.cc/ | мини-приложение ученика |
+| https://testmaxapp.vltx.eu.cc/static/teacher.html | кабинет педагога (ID `teacher_demo`, класс `7Б`) |
+| https://testmaxapp.vltx.eu.cc/docs | Swagger-документация API |
+
+Ключ OpenRouter на стенде не задан, поэтому рекомендации приходят от запасного
+rule-based алгоритма с честной пометкой. Как только ключ появится в `.env`,
+подборки начнёт готовить модель.
+
 ## Посмотреть без установки
 
 В `demo/kompas-demo.html` лежит автономная демо-страница: весь фронтенд с
