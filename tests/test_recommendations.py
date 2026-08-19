@@ -183,3 +183,14 @@ async def test_submit_stores_and_returns_recommendations(
 async def test_unknown_recommendation_returns_404(client) -> None:
     response = await client.get("/api/recommendations/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 404
+
+
+async def test_frontend_is_served(client) -> None:
+    """Мини-приложение отдаётся с того же origin, что и API."""
+    page = await client.get("/")
+    assert page.status_code == 200
+    assert "<div class=\"phone\">" in page.text
+
+    script = await client.get("/static/app.js")
+    assert script.status_code == 200
+    assert "kompas_state_v1" in script.text

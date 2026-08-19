@@ -46,3 +46,4 @@ class ClassSummaryResponse(BaseModel):
     average_softskills: dict[str, float] = Field(default_factory=dict)
     # предметы с самым низким средним knowledge_score — куда смотреть педагогу
     weakest_subjects: list[dict[str, float | str]] = Field(default_factory=list)
+

@@ -17,6 +17,7 @@ from typing import Any
 import httpx
 
 from app.config import get_settings
+from app.services.test_scoring import load_questions
 
 logger = logging.getLogger(__name__)
 
@@ -80,15 +81,15 @@ FALLBACK_PROFESSIONS: dict[str, list[dict[str, Any]]] = {
     ],
     "artistic": [
         {"name": "Дизайнер интерфейсов", "category": "творчество",
-         "subjects_to_improve": ["ИЗО/музыка", "информатика"]},
+         "subjects_to_improve": ["ИЗО и музыка", "информатика"]},
         {"name": "Режиссёр монтажа", "category": "творчество",
-         "subjects_to_improve": ["литература", "ИЗО/музыка"]},
+         "subjects_to_improve": ["литература", "ИЗО и музыка"]},
         {"name": "Иллюстратор", "category": "творчество",
-         "subjects_to_improve": ["ИЗО/музыка", "история"]},
+         "subjects_to_improve": ["ИЗО и музыка", "история"]},
         {"name": "Копирайтер", "category": "творчество",
          "subjects_to_improve": ["русский язык", "литература"]},
         {"name": "Архитектор", "category": "творчество",
-         "subjects_to_improve": ["математика", "ИЗО/музыка"]},
+         "subjects_to_improve": ["математика", "ИЗО и музыка"]},
     ],
     "social": [
         {"name": "Учитель", "category": "образование",
@@ -100,7 +101,7 @@ FALLBACK_PROFESSIONS: dict[str, list[dict[str, Any]]] = {
         {"name": "Социальный работник", "category": "услуги",
          "subjects_to_improve": ["обществознание", "литература"]},
         {"name": "HR-специалист", "category": "менеджмент",
-         "subjects_to_improve": ["обществознание", "иностранный язык"]},
+         "subjects_to_improve": ["обществознание", "английский язык"]},
     ],
     "enterprising": [
         {"name": "Предприниматель", "category": "менеджмент",
@@ -108,11 +109,11 @@ FALLBACK_PROFESSIONS: dict[str, list[dict[str, Any]]] = {
         {"name": "Маркетолог", "category": "менеджмент",
          "subjects_to_improve": ["обществознание", "информатика"]},
         {"name": "Продакт-менеджер", "category": "менеджмент",
-         "subjects_to_improve": ["информатика", "иностранный язык"]},
+         "subjects_to_improve": ["информатика", "английский язык"]},
         {"name": "Юрист", "category": "услуги",
          "subjects_to_improve": ["обществознание", "русский язык"]},
         {"name": "Event-менеджер", "category": "менеджмент",
-         "subjects_to_improve": ["обществознание", "иностранный язык"]},
+         "subjects_to_improve": ["обществознание", "английский язык"]},
     ],
     "conventional": [
         {"name": "Бухгалтер", "category": "услуги",
@@ -151,6 +152,20 @@ def _strip_markdown_fence(content: str) -> str:
     return cleaned
 
 
+STRONG_SUBJECT_THRESHOLD = 4.0
+
+
+def _strong_subjects(scores: dict[str, Any]) -> set[str]:
+    """Предметы, которые ученику подтягивать не нужно — он и так их знает."""
+    titles = load_questions()["subject_titles"]
+    strong = set()
+    for code, data in (scores.get("subjects") or {}).items():
+        score = data.get("subject_score") if isinstance(data, dict) else None
+        if score is not None and score >= STRONG_SUBJECT_THRESHOLD:
+            strong.add(titles.get(code, code).lower())
+    return strong
+
+
 def build_fallback(scores: dict[str, Any]) -> dict[str, Any]:
     """Rule-based подбор по самому выраженному типу Голланда."""
     interests = scores.get("interests") or {}
@@ -161,12 +176,19 @@ def build_fallback(scores: dict[str, Any]) -> dict[str, Any]:
     top_score = interests.get(top_type)
 
     label = _TYPE_LABELS.get(top_type, top_type)
+    strong = _strong_subjects(scores)
     professions = []
     for item in FALLBACK_PROFESSIONS.get(top_type, FALLBACK_PROFESSIONS["investigative"]):
         score_hint = f" (балл {top_score})" if top_score is not None else ""
         professions.append(
             {
                 **item,
+                # не советуем подтягивать то, что ученик и так знает на 4+
+                "subjects_to_improve": [
+                    subject
+                    for subject in item["subjects_to_improve"]
+                    if subject.lower() not in strong
+                ],
                 "reasoning": (
                     f"У тебя ярче всего выражен {label}{score_hint}. "
                     f"Профессия «{item['name']}» опирается именно на этот склад. "

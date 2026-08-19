@@ -25,6 +25,9 @@ class QuestionOut(BaseModel):
 
 
 class QuestionsResponse(BaseModel):
+    # справочники отдаём вместе с вопросами, чтобы у фронта не было своей копии
+    subject_titles: dict[str, str] = Field(default_factory=dict)
+    subject_groups: dict[str, list[str]] = Field(default_factory=dict)
     block_a_interests: list[QuestionOut] = Field(default_factory=list)
     block_b_subjects: list[QuestionOut] = Field(default_factory=list)
     block_c_softskills: list[QuestionOut] = Field(default_factory=list)
