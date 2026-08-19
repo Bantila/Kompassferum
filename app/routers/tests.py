@@ -1,0 +1,131 @@
+"""Эндпоинты тестирования: выдача вопросов, проверка ответа, приём результатов."""
+
+from __future__ import annotations
+
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_session
+from app.models import Recommendation, TestResult, User, UserRole
+from app.schemas.test import (
+    CheckAnswerRequest,
+    CheckAnswerResponse,
+    QuestionsResponse,
+    TestSubmitRequest,
+    TestSubmitResponse,
+)
+from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
+from app.services.test_scoring import (
+    ScoringError,
+    calculate_scores,
+    completion_progress,
+    get_question,
+    public_questions,
+)
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/api/tests", tags=["tests"])
+
+
+@router.get("/questions", response_model=QuestionsResponse)
+async def get_questions(
+    block: str | None = Query(default=None, description="a | b | c"),
+    subject_group: str | None = Query(
+        default=None, description="exact | natural | humanities | creative"
+    ),
+) -> QuestionsResponse:
+    """Вопросы для показа ученику.
+
+    correct_index сюда не попадает никогда — иначе правильный ответ виден в
+    теле ответа API ещё до того, как ученик выберет вариант.
+    Параметры block и subject_group позволяют дробить тест из 74 вопросов
+    на короткие сессии («сегодня — точные науки»).
+    """
+    try:
+        return QuestionsResponse(**public_questions(block=block, subject_group=subject_group))
+    except ScoringError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+
+@router.post("/check-answer", response_model=CheckAnswerResponse)
+async def check_answer(payload: CheckAnswerRequest) -> CheckAnswerResponse:
+    """Проверка одного знаниевого вопроса — сравнение происходит на бэкенде."""
+    question = get_question(payload.question_id)
+    if question is None or question.get("type") != "knowledge":
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            f"Знаниевый вопрос {payload.question_id!r} не найден",
+        )
+    correct_index = question["correct_index"]
+    return CheckAnswerResponse(
+        question_id=payload.question_id,
+        is_correct=payload.selected_index == correct_index,
+        correct_index=correct_index,
+    )
+
+
+@router.post("/submit", response_model=TestSubmitResponse, status_code=status.HTTP_201_CREATED)
+async def submit_test(
+    payload: TestSubmitRequest, session: AsyncSession = Depends(get_session)
+) -> TestSubmitResponse:
+    """Приём ответов: считает баллы, зовёт ИИ и сохраняет всё одной транзакцией."""
+    try:
+        scores = calculate_scores(payload.answers)
+    except ScoringError as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
+
+    user = await session.scalar(select(User).where(User.max_user_id == payload.max_user_id))
+    if user is None:
+        user = User(
+            max_user_id=payload.max_user_id,
+            role=UserRole(payload.role),
+            full_name=payload.full_name,
+            school_class=payload.school_class,
+        )
+        session.add(user)
+        await session.flush()
+    else:
+        # данные профиля могли уточниться между прохождениями
+        if payload.full_name:
+            user.full_name = payload.full_name
+        if payload.school_class:
+            user.school_class = payload.school_class
+
+    test_result = TestResult(
+        user_id=user.id, raw_answers=payload.answers, computed_scores=scores
+    )
+    session.add(test_result)
+    await session.flush()
+
+    ai_result = await recommend_professions(scores)
+    session.add(
+        Recommendation(
+            test_result_id=test_result.id,
+            ai_response=ai_result.get("raw_response") or {},
+            professions=ai_result["professions"],
+            model_used=ai_result["model_used"],
+        )
+    )
+    await session.commit()
+    await session.refresh(test_result)
+
+    logger.info(
+        "Тест %s сохранён для пользователя %s (fallback=%s)",
+        test_result.id,
+        payload.max_user_id,
+        ai_result["model_used"] == FALLBACK_MODEL_NAME,
+    )
+
+    return TestSubmitResponse(
+        test_result_id=test_result.id,
+        completed_at=test_result.completed_at,
+        progress=completion_progress(payload.answers),
+        computed_scores=scores,
+        recommendations=ai_result["professions"],
+        fallback=ai_result["model_used"] == FALLBACK_MODEL_NAME,
+        model_used=ai_result["model_used"],
+    )
