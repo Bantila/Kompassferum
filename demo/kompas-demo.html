@@ -1,0 +1,1232 @@
+<title>Компас</title>
+<style>
+/* ---- дизайн-система приложения (app/static/styles.css) ---- */
+
+  /* Палитра — darkPalette из max-ui src/styles/variables/appearance.scss */
+  :root{
+    --page:rgb(16 17 20);
+    --bg:rgb(23 24 28);
+    --card:rgb(37 38 45);
+    --bar:rgb(30 31 36);
+    --sheet:rgb(23 23 24);
+    --overlay:rgb(13 13 13 / .64);
+    --t1:rgb(255 255 255 / .8);
+    --t2:rgb(255 255 255 / .74);
+    --t3:rgb(255 255 255 / .44);
+    --t4:rgb(255 255 255 / .28);
+    --accent:rgb(0 122 255);
+    --sec:rgb(67 68 85);
+    --green:rgb(43 198 68);
+    --red:rgb(206 66 87);
+    --orange:rgb(255 159 10);
+    --fill:rgb(255 255 255 / .09);
+    --fill2:rgb(255 255 255 / .06);
+    --line:rgb(255 255 255 / .06);
+    --grad-blue:linear-gradient(157deg,#08D7F3 6.38%,#5398FF 85%);
+    --grad-violet:linear-gradient(155deg,#BF97FF 6.6%,#526EFF 84.12%);
+    --grad-green:linear-gradient(158deg,#14E1D5 6.15%,#03C722 85.68%);
+    --grad-pink:linear-gradient(153deg,#FF48B6 .77%,#FF8A35 93.03%);
+    --grad-orange:linear-gradient(155deg,#FFC93D 6.6%,#FF832A 84.12%);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--page);color:var(--t1);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Roboto","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  @keyframes shimmer{0%{opacity:.45}50%{opacity:.9}100%{opacity:.45}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* --- каркас экрана --- */
+  .phone{background:var(--bg);border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgb(0 0 0 / .2),0 12px 32px rgb(0 0 0 / .3)}
+  /* Шапку с «Назад» рисует сам MAX — здесь только заголовок экрана. */
+  .bar{height:44px;display:flex;align-items:center;justify-content:center;background:var(--bar);font-size:17px;font-weight:600;letter-spacing:-.43px;color:var(--t1)}
+  .bar.split{justify-content:space-between;padding:0 16px}
+  .bar.tall{height:52px;padding:0 20px;justify-content:space-between}
+  .body{padding:20px 16px;display:flex;flex-direction:column;gap:16px;min-height:600px}
+  .thin{height:3px;background:var(--fill)}
+  .thin>i{display:block;height:3px;background:var(--accent)}
+
+  /* --- атомы --- */
+  .card{background:var(--card);border-radius:16px}
+  .card.pad{padding:16px;display:flex;flex-direction:column;gap:12px}
+  .list{background:var(--card);border-radius:16px;display:flex;flex-direction:column}
+  .row{padding:14px 16px;display:flex;align-items:center;gap:12px;min-height:44px}
+  .row .grow{flex:1;display:flex;flex-direction:column;gap:2px}
+  .sep{height:1px;background:var(--line);margin-left:16px}
+  .sep.inset{margin-left:56px}
+  .btn{min-height:48px;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+  .btn.sec{background:var(--sec);color:var(--t1)}
+  .btn.sm{min-height:36px;padding:0 14px;border-radius:10px;font-size:14px}
+  .btn.md{min-height:44px;padding:0 20px;font-size:15px}
+  .bottom{margin-top:auto}
+  .prog{height:6px;border-radius:3px;background:var(--fill)}
+  .prog>i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+  .prog.xs{height:4px;border-radius:2px}
+  .tag{font-size:13px;line-height:16px;color:var(--t2);background:var(--fill);border-radius:8px;padding:6px 10px}
+  .label{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4)}
+  .section-label{padding:12px 16px 8px;font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--t4)}
+  .hint{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:12px 14px}
+  .hint i{width:6px;height:6px;border-radius:3px;background:var(--accent);margin-top:6px;flex:0 0 auto}
+  .hint p{margin:0;font-size:13px;line-height:18px;color:var(--t3)}
+  .t3{font-size:13px;color:var(--t3)}
+  .t4s{font-size:13px;color:var(--t4)}
+  .h1{font-size:28px;line-height:32px;font-weight:600;letter-spacing:.02px;color:var(--t1)}
+  .h2{font-size:22px;line-height:26px;font-weight:600;letter-spacing:-.26px;color:var(--t1)}
+  .h3{font-size:20px;line-height:24px;font-weight:600;letter-spacing:-.28px;color:var(--t1)}
+  .h4{font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.43px;color:var(--t1)}
+  .h5{font-size:16px;line-height:20px;font-weight:600;color:var(--t1)}
+  .body-text{font-size:15px;line-height:21px;color:var(--t2)}
+  .q{font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.26px;color:var(--t1)}
+
+  /* --- 2c: шкала согласия, 5 растущих сегментов --- */
+  .scale{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .seg{flex:1;min-height:64px;border-radius:14px;background:var(--fill);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .seg:hover{background:rgb(231 231 231 / .15)}
+  .seg i{border-radius:50%;background:var(--t4)}
+  .seg:nth-child(1) i{width:14px;height:14px}
+  .seg:nth-child(2) i{width:20px;height:20px}
+  .seg:nth-child(3) i{width:26px;height:26px}
+  .seg:nth-child(4) i{width:32px;height:32px}
+  .seg:nth-child(5) i{width:38px;height:38px}
+  .seg.on,.seg.on:hover{background:var(--accent);box-shadow:0 0 0 2px rgb(0 122 255 / .3)}
+  .seg.on i{background:#fff}
+  .scale-value{align-self:center;font-size:15px;font-weight:600;color:var(--accent)}
+  .dots{display:flex;gap:4px;align-items:center;justify-content:center}
+  .dots i{width:20px;height:4px;border-radius:2px;background:rgb(255 255 255 / .12)}
+  .dots i.on{background:var(--accent)}
+
+  /* --- 2e: варианты ответа --- */
+  .ans{min-height:56px;border-radius:14px;background:var(--card);border:2px solid transparent;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
+  .ans:hover{background:rgb(50 52 61)}
+  .ans .key{width:26px;height:26px;border-radius:8px;background:var(--fill);color:var(--t3);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .ans .txt{font-size:16px;line-height:21px;color:var(--t1);flex:1}
+  .ans .tick{display:none;flex:0 0 auto}
+  .ans.on,.ans.on:hover{background:rgb(0 122 255 / .16);border-color:var(--accent)}
+  .ans.on .key{background:var(--accent);color:#fff}
+  .ans.on .tick{display:block}
+
+  /* --- 2f: шит паузы --- */
+  .modal{position:relative;height:646px;overflow:hidden}
+  .modal .dim{position:absolute;inset:0;background:var(--overlay)}
+  .modal .blurred{filter:blur(1.5px);opacity:.55}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sheet);border-radius:20px 20px 0 0;padding:8px 16px 20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 -8px 32px rgb(0 0 0 / .3)}
+  .sheet .grabber{width:36px;height:4px;border-radius:2px;background:rgb(255 255 255 / .12);align-self:center}
+  .modal.closed .dim,.modal.closed .sheet{display:none}
+  .modal.closed .blurred{filter:none;opacity:1}
+  .switch{width:44px;height:26px;border-radius:13px;background:var(--accent);padding:2px;display:flex;justify-content:flex-end}
+  .switch i{width:22px;height:22px;border-radius:11px;background:#fff}
+
+  /* --- 2g: скелетоны стриминга --- */
+  .sk{height:12px;border-radius:6px;background:var(--fill)}
+  .sk.live{animation:shimmer 1.4s ease-in-out infinite}
+  .spinner{width:22px;height:22px;border-radius:11px;border:2px solid rgb(0 122 255 / .25);border-top-color:var(--accent);animation:spin 1s linear infinite}
+  .caret{display:inline-block;width:2px;height:16px;background:var(--accent);margin-left:2px;vertical-align:-3px;animation:shimmer .9s steps(2) infinite}
+
+  /* --- 2h: карточка лучшего совпадения --- */
+  .hero{border-radius:20px;overflow:hidden;background:var(--card)}
+  .hero-top{background:var(--grad-blue);padding:20px 18px;display:flex;flex-direction:column;gap:8px}
+  .hero-top .label{color:var(--t1);letter-spacing:1px}
+  .hero-top .h1{color:#fff}
+  .bar-strip{width:8px;height:32px;border-radius:4px;flex:0 0 auto}
+
+  /* --- 2k: экран педагога --- */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .stat{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .stat .num{font-size:28px;line-height:30px;font-weight:600;color:var(--t1)}
+  .stat .num small{font-size:17px;color:var(--t4)}
+  .barline{display:flex;align-items:center;gap:12px}
+  .barline .name{flex:0 0 116px;font-size:14px;color:var(--t2);overflow-wrap:anywhere}
+  .barline .track{flex:1;height:22px;border-radius:6px;background:var(--fill2)}
+  .barline .track>i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+  .barline .val{width:26px;text-align:right;font-size:14px;font-weight:600;color:var(--t1)}
+  .filter{min-height:36px;padding:0 14px;border-radius:10px;background:var(--card);color:var(--t2);font-size:14px;display:flex;align-items:center;gap:8px}
+  .filter.on{background:var(--accent);color:#fff;font-weight:600}
+
+  /* --- приложение: один экран на весь вьюпорт --- */
+  .phone{max-width:480px;margin:0 auto;min-height:100vh;border-radius:0;box-shadow:none;display:flex;flex-direction:column}
+  @media (min-width:520px){
+    body{padding:24px 0}
+    .phone{min-height:calc(100vh - 48px);border-radius:20px;box-shadow:0 12px 32px rgb(0 0 0 / .3)}
+  }
+  /* нижние кнопки не должны уезжать под системную полоску телефона */
+  .body{flex:1;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .btn[disabled]{opacity:.4;pointer-events:none}
+  .hidden{display:none !important}
+  .link{font-size:15px;color:var(--accent);cursor:pointer;user-select:none}
+  .center{align-items:center;justify-content:center;text-align:center}
+
+  /* экран педагога шире и без телефонной рамки */
+  .desk{max-width:960px;margin:0 auto;padding:20px}
+  .desk .stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .cols{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+  .cols>*{flex:1 1 280px}
+  .panel{background:var(--card);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+  input.field{min-height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--t1);font-size:16px;padding:0 14px;outline:none;width:100%}
+  input.field:focus{border-color:var(--accent)}
+
+
+/* ---- витрина вокруг приложения ---- */
+:root{
+  --shell-pad:32px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+body{
+  background:var(--page);
+  color:var(--t1);
+  padding:0;
+  min-height:100vh;
+}
+.shell{
+  max-width:1180px;
+  margin:0 auto;
+  padding:var(--shell-pad) 24px 64px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.masthead{display:flex;flex-direction:column;gap:14px}
+.masthead .top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.mark{
+  width:52px;height:52px;border-radius:16px;background:var(--grad-blue);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+.masthead h1{
+  margin:0;font-size:30px;line-height:34px;font-weight:600;letter-spacing:-.5px;
+  color:var(--t1);text-wrap:balance;
+}
+.masthead .sub{margin:0;font-size:15px;line-height:22px;color:var(--t3);max-width:62ch}
+.masthead .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{
+  font-size:13px;line-height:16px;color:var(--t2);background:var(--fill);
+  border-radius:8px;padding:6px 10px;
+}
+.chip.mono{font-family:var(--mono);font-size:12px;color:var(--t3)}
+a.chip{text-decoration:none;color:var(--accent);background:rgb(0 122 255 / .14)}
+a.chip:hover{background:rgb(0 122 255 / .22)}
+
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:3px;align-self:flex-start}
+.tab{
+  min-height:38px;padding:0 18px;border-radius:10px;display:flex;align-items:center;
+  font-size:15px;font-weight:500;color:var(--t3);cursor:pointer;user-select:none;
+  background:none;border:0;font-family:inherit;
+}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff;font-weight:600}
+.tab:focus-visible,.btn:focus-visible,.seg:focus-visible,.ans:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+
+.stage{display:grid;grid-template-columns:390px minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:900px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  :root{--shell-pad:20px}
+}
+
+/* «телефон» с живым приложением */
+.device{
+  background:var(--bg);border-radius:24px;overflow:hidden;
+  box-shadow:0 1px 2px rgb(0 0 0 / .2),0 18px 48px rgb(0 0 0 / .42);
+  display:flex;flex-direction:column;height:760px;
+  border:1px solid rgb(255 255 255 / .05);
+}
+.device .body{overflow-y:auto;padding-bottom:20px}
+.device .phone{max-width:none;min-height:0;height:100%;border-radius:0;box-shadow:none;margin:0}
+
+.aside{display:flex;flex-direction:column;gap:20px}
+.block{display:flex;flex-direction:column;gap:12px}
+.block h2{
+  margin:0;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--t4);
+}
+.steps{display:flex;flex-direction:column;gap:2px;background:var(--card);border-radius:14px;overflow:hidden}
+.step{display:flex;gap:12px;padding:14px 16px;align-items:flex-start}
+.step + .step{border-top:1px solid var(--line)}
+.step .n{
+  width:22px;height:22px;border-radius:11px;background:rgb(0 122 255 / .16);color:var(--accent);
+  font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  font-variant-numeric:tabular-nums;
+}
+.step p{margin:0;font-size:14px;line-height:20px;color:var(--t2)}
+.step p b{color:var(--t1);font-weight:600}
+
+.notes{display:flex;flex-direction:column;gap:10px;background:var(--card);border-radius:14px;padding:16px}
+.note-row{display:flex;gap:10px;align-items:flex-start}
+.note-row i{width:6px;height:6px;border-radius:3px;margin-top:7px;flex:0 0 auto;background:var(--orange)}
+.note-row p{margin:0;font-size:13px;line-height:19px;color:var(--t3)}
+.note-row p b{color:var(--t2);font-weight:600}
+.note-row code{font-family:var(--mono);font-size:12px;color:var(--t2)}
+
+.stackgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.stackgrid div{
+  background:var(--card);border-radius:12px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:3px;
+}
+.stackgrid .k{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4)}
+.stackgrid .v{font-size:14px;color:var(--t2)}
+
+/* кабинет педагога */
+.teacher-stage{display:none;flex-direction:column;gap:16px}
+.teacher-stage.on{display:flex}
+.stage.off{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <div class="top">
+      <div class="mark">
+        <svg width="26" height="26" viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:260px">
+        <h1>Компас — ИИ-навигатор по профессиям</h1>
+        <p class="sub">Прототип для платформы MAX/Сферум: школьник 12–16 лет проходит тест из 74 вопросов, нейросеть подбирает пять профессий с обоснованием по конкретным баллам. Педагог видит обезличенную сводку по классу.</p>
+      </div>
+    </div>
+    <div class="meta">
+      <a class="chip" href="https://github.com/Gemr007/Kompassferum" target="_blank" rel="noopener">Исходный код на GitHub →</a>
+      <span class="chip">FastAPI · PostgreSQL · OpenRouter</span>
+      <span class="chip mono">74 вопроса · 13 предметов</span>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="student">Приложение ученика</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="teacher">Кабинет педагога</button>
+  </div>
+
+  <!-- ученик -->
+  <div class="stage" id="stage-student">
+    <div class="device">
+      <div class="phone">
+        <div class="bar split">
+          <div class="h4" id="bar-title">Компас</div>
+          <div class="link hidden" id="bar-action"></div>
+        </div>
+        <div class="thin"><i id="bar-progress" style="width:0%"></i></div>
+        <div class="body" id="view"></div>
+      </div>
+    </div>
+
+    <aside class="aside">
+      <section class="block">
+        <h2>Что попробовать</h2>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><p>Нажмите <b>«Начать тест»</b> и ответьте на 12 вопросов блока A — шкала из пяти растущих кружков, примерно минута.</p></div>
+          <div class="step"><div class="n">2</div><p>На экране предметов нажмите <b>«Показать предварительный результат»</b>: придут пять профессий, радар по шести типам Голланда и профиль soft skills.</p></div>
+          <div class="step"><div class="n">3</div><p>Откройте любой предмет и ответьте на задачу. Правильный ответ не подсвечивается — в боевой версии проверка идёт на бэкенде.</p></div>
+          <div class="step"><div class="n">4</div><p>Переключитесь на <b>кабинет педагога</b> — там агрегаты по классу 7Б и ни одного имени ученика.</p></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Чем демо отличается от боевого стенда</h2>
+        <div class="notes">
+          <div class="note-row"><i></i><p><b>Считает браузер, а не сервер.</b> Здесь нет PostgreSQL и запросов к OpenRouter, поэтому правильные ответы лежат в исходнике страницы. В настоящем приложении <code>correct_index</code> не покидает бэкенд, и вопрос приходит без него.</p></div>
+          <div class="note-row"><i></i><p><b>Рекомендации — запасной алгоритм.</b> Без ключа OpenRouter подборка собирается по ведущему типу Голланда: ровно то, что происходит в проде при недоступной модели, включая честную оранжевую плашку.</p></div>
+          <div class="note-row"><i></i><p><b>Сводка по классу — снимок реального ответа API</b> <code>/api/teacher/{id}/class-summary</code> на восьми сгенерированных учениках.</p></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Что под капотом на самом деле</h2>
+        <div class="stackgrid">
+          <div><span class="k">Бэкенд</span><span class="v">FastAPI, async SQLAlchemy</span></div>
+          <div><span class="k">База</span><span class="v">PostgreSQL 16, Alembic</span></div>
+          <div><span class="k">Модель</span><span class="v">moonshotai/kimi-k2</span></div>
+          <div><span class="k">Инфраструктура</span><span class="v">Docker, nginx</span></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- педагог -->
+  <div class="teacher-stage" id="stage-teacher">
+    <div class="panel" style="background:var(--card);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div class="t3">Сводка по классу <b style="color:var(--t1)">7Б</b>, педагог <span style="font-family:var(--mono);font-size:13px">teacher_demo</span>. Данные обезличены: только агрегаты, без результатов отдельных учеников. Сводка не формируется, пока тест не прошли хотя бы три человека.</div>
+    </div>
+    <div id="teacher-out"></div>
+  </div>
+</div>
+
+<script>
+/* ===== Данные, вшитые при сборке из исходников проекта ===== */
+const DEMO_DATA = {"questions": {"subject_titles": {"mathematics": "Математика", "physics": "Физика", "chemistry": "Химия", "biology": "Биология", "history": "История", "social_studies": "Обществознание", "literature": "Литература", "russian": "Русский язык", "foreign_language": "Английский язык", "informatics": "Информатика", "geography": "География", "arts_music": "ИЗО и музыка", "pe_safety": "Физкультура и ОБЖ"}, "subject_groups": {"exact": ["mathematics", "physics", "chemistry", "informatics"], "natural": ["biology", "geography", "pe_safety"], "humanities": ["history", "social_studies", "literature", "russian", "foreign_language"], "creative": ["arts_music"]}, "block_a_interests": [{"id": "a1", "type": "realistic", "text": "Мне нравится работать руками, что-то мастерить или чинить"}, {"id": "a2", "type": "realistic", "text": "Я бы с удовольствием разобрал(а) сломанное устройство, чтобы понять, как оно работает"}, {"id": "a3", "type": "investigative", "text": "Мне интересно искать ответ на вопрос, даже если это займёт много времени"}, {"id": "a4", "type": "investigative", "text": "Мне нравится проводить эксперименты и проверять гипотезы"}, {"id": "a5", "type": "artistic", "text": "Мне важно, чтобы то, что я делаю, выглядело красиво и оригинально"}, {"id": "a6", "type": "artistic", "text": "Мне нравится сочинять, рисовать, писать музыку или снимать видео"}, {"id": "a7", "type": "social", "text": "Мне нравится помогать другим людям разобраться в чём-то"}, {"id": "a8", "type": "social", "text": "Я легко чувствую настроение других и стараюсь поддержать"}, {"id": "a9", "type": "enterprising", "text": "Мне нравится придумывать, как что-то организовать или продать"}, {"id": "a10", "type": "enterprising", "text": "Мне комфортно убеждать других в своей точке зрения"}, {"id": "a11", "type": "conventional", "text": "Мне нравится, когда всё разложено по порядку и есть чёткий план"}, {"id": "a12", "type": "conventional", "text": "Мне легко работать с таблицами, списками, точными данными"}], "block_b_subjects": [{"id": "b1_k1", "subject": "mathematics", "type": "knowledge", "difficulty": "easy", "topic": "проценты", "text": "Чему равно 15% от 200?", "options": ["20", "30", "15", "45"], "correct_index": 1}, {"id": "b1_k2", "subject": "mathematics", "type": "knowledge", "difficulty": "medium", "topic": "геометрия", "text": "Периметр квадрата равен 24 см. Чему равна его площадь?", "options": ["36 см²", "24 см²", "48 см²", "144 см²"], "correct_index": 0}, {"id": "b1_k3", "subject": "mathematics", "type": "knowledge", "difficulty": "hard", "topic": "алгебра", "text": "Если x + 5 = 2x - 3, чему равно x?", "options": ["8", "2", "-8", "3"], "correct_index": 0}, {"id": "b1_interest", "subject": "mathematics", "type": "interest", "text": "Насколько тебе интересна математика?"}, {"id": "b2_k1", "subject": "physics", "type": "knowledge", "difficulty": "easy", "topic": "механика", "text": "В каких единицах измеряется сила в СИ?", "options": ["Джоуль", "Ньютон", "Ватт", "Паскаль"], "correct_index": 1}, {"id": "b2_k2", "subject": "physics", "type": "knowledge", "difficulty": "medium", "topic": "электричество", "text": "Какая физическая величина измеряется в омах?", "options": ["Напряжение", "Сила тока", "Сопротивление", "Мощность"], "correct_index": 2}, {"id": "b2_k3", "subject": "physics", "type": "knowledge", "difficulty": "hard", "topic": "кинематика", "text": "Тело движется равноускоренно из состояния покоя. Как изменится пройденный путь, если время движения увеличить в 2 раза?", "options": ["Увеличится в 2 раза", "Увеличится в 4 раза", "Увеличится в 8 раз", "Не изменится"], "correct_index": 1}, {"id": "b2_interest", "subject": "physics", "type": "interest", "text": "Насколько тебе интересна физика?"}, {"id": "b3_k1", "subject": "chemistry", "type": "knowledge", "difficulty": "easy", "topic": "вещества", "text": "Какой газ выделяется при горении древесины?", "options": ["Кислород", "Углекислый газ", "Азот", "Водород"], "correct_index": 1}, {"id": "b3_k2", "subject": "chemistry", "type": "knowledge", "difficulty": "medium", "topic": "строение вещества", "text": "Сколько атомов кислорода в молекуле воды H₂O?", "options": ["1", "2", "3", "0"], "correct_index": 0}, {"id": "b3_k3", "subject": "chemistry", "type": "knowledge", "difficulty": "hard", "topic": "реакции", "text": "Какая реакция называется реакцией нейтрализации?", "options": ["Кислота + основание", "Металл + кислород", "Соль + соль", "Вода + металл"], "correct_index": 0}, {"id": "b3_interest", "subject": "chemistry", "type": "interest", "text": "Насколько тебе интересна химия?"}, {"id": "b4_k1", "subject": "biology", "type": "knowledge", "difficulty": "easy", "topic": "человек", "text": "Какой орган отвечает за перекачивание крови?", "options": ["Лёгкие", "Сердце", "Печень", "Почки"], "correct_index": 1}, {"id": "b4_k2", "subject": "biology", "type": "knowledge", "difficulty": "medium", "topic": "растения", "text": "Как называется процесс образования органических веществ из углекислого газа и воды на свету?", "options": ["Дыхание", "Фотосинтез", "Брожение", "Транспирация"], "correct_index": 1}, {"id": "b4_k3", "subject": "biology", "type": "knowledge", "difficulty": "hard", "topic": "клетка", "text": "Какая структура клетки отвечает за хранение генетической информации?", "options": ["Митохондрия", "Рибосома", "Ядро", "Аппарат Гольджи"], "correct_index": 2}, {"id": "b4_interest", "subject": "biology", "type": "interest", "text": "Насколько тебе интересна биология?"}, {"id": "b5_k1", "subject": "history", "type": "knowledge", "difficulty": "easy", "topic": "XX век", "text": "В каком веке произошла Октябрьская революция в России?", "options": ["XVIII", "XIX", "XX", "XXI"], "correct_index": 2}, {"id": "b5_k2", "subject": "history", "type": "knowledge", "difficulty": "medium", "topic": "Россия XVIII века", "text": "Как называется период правления Петра I?", "options": ["Смутное время", "Петровская эпоха", "Золотой век", "Серебряный век"], "correct_index": 1}, {"id": "b5_k3", "subject": "history", "type": "knowledge", "difficulty": "hard", "topic": "всеобщая история", "text": "В каком году началась Вторая мировая война?", "options": ["1937", "1939", "1941", "1945"], "correct_index": 1}, {"id": "b5_interest", "subject": "history", "type": "interest", "text": "Насколько тебе интересна история?"}, {"id": "b6_k1", "subject": "social_studies", "type": "knowledge", "difficulty": "easy", "topic": "право", "text": "Как называется основной закон государства?", "options": ["Кодекс", "Конституция", "Указ", "Декрет"], "correct_index": 1}, {"id": "b6_k2", "subject": "social_studies", "type": "knowledge", "difficulty": "medium", "topic": "права человека", "text": "Что из перечисленного относится к политическим правам гражданина?", "options": ["Право на труд", "Право избирать и быть избранным", "Право на образование", "Право на отдых"], "correct_index": 1}, {"id": "b6_k3", "subject": "social_studies", "type": "knowledge", "difficulty": "hard", "topic": "политика", "text": "Как называется форма правления, при которой власть передаётся по наследству?", "options": ["Республика", "Монархия", "Демократия", "Федерация"], "correct_index": 1}, {"id": "b6_interest", "subject": "social_studies", "type": "interest", "text": "Насколько тебе интересно обществознание?"}, {"id": "b7_k1", "subject": "literature", "type": "knowledge", "difficulty": "easy", "topic": "русская классика", "text": "Кто автор произведения «Евгений Онегин»?", "options": ["Лермонтов", "Пушкин", "Гоголь", "Толстой"], "correct_index": 1}, {"id": "b7_k2", "subject": "literature", "type": "knowledge", "difficulty": "medium", "topic": "теория литературы", "text": "Как называется литературный приём, основанный на скрытом сравнении?", "options": ["Эпитет", "Метафора", "Гипербола", "Антитеза"], "correct_index": 1}, {"id": "b7_k3", "subject": "literature", "type": "knowledge", "difficulty": "hard", "topic": "литературные направления", "text": "К какому литературному направлению относится творчество Достоевского?", "options": ["Классицизм", "Романтизм", "Реализм", "Футуризм"], "correct_index": 2}, {"id": "b7_interest", "subject": "literature", "type": "interest", "text": "Насколько тебе интересна литература?"}, {"id": "b8_k1", "subject": "russian", "type": "knowledge", "difficulty": "easy", "topic": "орфография", "text": "В каком слове допущена орфографическая ошибка?", "options": ["Рассчитать", "Расчитать", "Рассчитывать", "Расчёт"], "correct_index": 1}, {"id": "b8_k2", "subject": "russian", "type": "knowledge", "difficulty": "medium", "topic": "морфология", "text": "Какой частью речи является слово «быстро» в предложении «Он бежал быстро»?", "options": ["Прилагательное", "Наречие", "Причастие", "Деепричастие"], "correct_index": 1}, {"id": "b8_k3", "subject": "russian", "type": "knowledge", "difficulty": "hard", "topic": "пунктуация", "text": "В каком случае ставится тире между подлежащим и сказуемым?", "options": ["Оба выражены существительными в именительном падеже", "Сказуемое — прилагательное", "Подлежащее — местоимение", "Всегда"], "correct_index": 0}, {"id": "b8_interest", "subject": "russian", "type": "interest", "text": "Насколько тебе интересен русский язык?"}, {"id": "b9_k1", "subject": "foreign_language", "type": "knowledge", "difficulty": "easy", "topic": "лексика", "text": "Choose the correct translation of «книга»:", "options": ["Table", "Book", "Chair", "Window"], "correct_index": 1}, {"id": "b9_k2", "subject": "foreign_language", "type": "knowledge", "difficulty": "medium", "topic": "грамматика", "text": "Выберите правильную форму глагола: «She ___ to school every day»", "options": ["go", "goes", "going", "gone"], "correct_index": 1}, {"id": "b9_k3", "subject": "foreign_language", "type": "knowledge", "difficulty": "hard", "topic": "времена", "text": "Какое время используется в предложении «I have already finished my homework»?", "options": ["Present Simple", "Past Simple", "Present Perfect", "Future Simple"], "correct_index": 2}, {"id": "b9_interest", "subject": "foreign_language", "type": "interest", "text": "Насколько тебе интересен иностранный язык?"}, {"id": "b10_k1", "subject": "informatics", "type": "knowledge", "difficulty": "easy", "topic": "информация", "text": "Сколько бит в одном байте?", "options": ["4", "8", "16", "32"], "correct_index": 1}, {"id": "b10_k2", "subject": "informatics", "type": "knowledge", "difficulty": "medium", "topic": "программирование", "text": "Какой символ используется для комментария в языке Python?", "options": ["//", "#", "--", "/*"], "correct_index": 1}, {"id": "b10_k3", "subject": "informatics", "type": "knowledge", "difficulty": "hard", "topic": "системы счисления", "text": "Чему равно число 10 в двоичной системе счисления?", "options": ["1010", "1001", "1100", "1000"], "correct_index": 0}, {"id": "b10_interest", "subject": "informatics", "type": "interest", "text": "Насколько тебе интересна информатика?"}, {"id": "b11_k1", "subject": "geography", "type": "knowledge", "difficulty": "easy", "topic": "реки", "text": "Какая река считается самой длинной в мире?", "options": ["Амазонка", "Нил", "Волга", "Янцзы"], "correct_index": 1}, {"id": "b11_k2", "subject": "geography", "type": "knowledge", "difficulty": "medium", "topic": "океаны", "text": "Какой океан самый большой по площади?", "options": ["Атлантический", "Индийский", "Тихий", "Северный Ледовитый"], "correct_index": 2}, {"id": "b11_k3", "subject": "geography", "type": "knowledge", "difficulty": "hard", "topic": "картография", "text": "Как называется линия, разделяющая Землю на Северное и Южное полушария?", "options": ["Меридиан", "Экватор", "Тропик", "Параллель"], "correct_index": 1}, {"id": "b11_interest", "subject": "geography", "type": "interest", "text": "Насколько тебе интересна география?"}, {"id": "b12_k1", "subject": "arts_music", "type": "knowledge", "difficulty": "easy", "topic": "музыкальная грамота", "text": "Сколько нот в музыкальной гамме?", "options": ["5", "6", "7", "8"], "correct_index": 2}, {"id": "b12_k2", "subject": "arts_music", "type": "knowledge", "difficulty": "medium", "topic": "цветоведение", "text": "Какие цвета относятся к тёплым?", "options": ["Синий, зелёный, фиолетовый", "Красный, жёлтый, оранжевый", "Белый, чёрный, серый", "Голубой, бирюзовый, изумрудный"], "correct_index": 1}, {"id": "b12_k3", "subject": "arts_music", "type": "knowledge", "difficulty": "hard", "topic": "история искусства", "text": "Как называется техника живописи, где цвет наносится отдельными мазками, которые смешиваются на расстоянии в глазу зрителя?", "options": ["Импрессионизм", "Кубизм", "Реализм", "Абстракционизм"], "correct_index": 0}, {"id": "b12_interest", "subject": "arts_music", "type": "interest", "text": "Насколько тебе интересны ИЗО/музыка?"}, {"id": "b13_k1", "subject": "pe_safety", "type": "knowledge", "difficulty": "easy", "topic": "ОБЖ", "text": "Какой единый номер телефона экстренных служб действует в России?", "options": ["101", "102", "112", "911"], "correct_index": 2}, {"id": "b13_k2", "subject": "pe_safety", "type": "knowledge", "difficulty": "medium", "topic": "первая помощь", "text": "Сколько компрессий грудной клетки в минуту рекомендуется при базовой сердечно-лёгочной реанимации?", "options": ["около 60", "около 100–120", "около 30", "около 200"], "correct_index": 1}, {"id": "b13_k3", "subject": "pe_safety", "type": "knowledge", "difficulty": "hard", "topic": "анатомия движения", "text": "Какая группа мышц является основной при выполнении приседаний?", "options": ["Бицепс", "Квадрицепс", "Трицепс", "Дельтовидная"], "correct_index": 1}, {"id": "b13_interest", "subject": "pe_safety", "type": "interest", "text": "Насколько тебе интересны физкультура/ОБЖ?"}], "block_c_softskills": [{"id": "c1", "skill": "teamwork", "text": "Мне легко находить общий язык с одноклассниками в групповой работе"}, {"id": "c2", "skill": "teamwork", "text": "Я предпочитаю распределять задачи в команде, а не делать всё самому"}, {"id": "c3", "skill": "leadership", "text": "Мне комфортно брать на себя ответственность за результат группы"}, {"id": "c4", "skill": "leadership", "text": "Одноклассники часто предлагают мне возглавить проект или мероприятие"}, {"id": "c5", "skill": "creativity", "text": "Мне нравится придумывать нестандартные решения задач"}, {"id": "c6", "skill": "creativity", "text": "Я часто предлагаю необычные идеи, даже если не уверен(а), что они сработают"}, {"id": "c7", "skill": "analytical", "text": "Мне нравится разбираться, почему что-то работает именно так"}, {"id": "c8", "skill": "analytical", "text": "Я легко замечаю закономерности и логические ошибки"}, {"id": "c9", "skill": "resilience", "text": "Я не бросаю задачу, даже если с первого раза не получилось"}, {"id": "c10", "skill": "resilience", "text": "Мне несложно сосредоточенно работать над одним делом долгое время"}]}, "classSummary": {"school_class": "7Б", "students_tested": 8, "tests_completed": 8, "category_distribution": {"технологии": 10, "творчество": 10, "менеджмент": 8, "наука": 6, "медицина": 3, "услуги": 3}, "top_professions": [{"name": "Аналитик данных", "count": 3}, {"name": "Учёный-исследователь", "count": 3}, {"name": "Биотехнолог", "count": 3}, {"name": "Врач-диагност", "count": 3}, {"name": "Программист", "count": 3}], "average_interests": {"realistic": 2.69, "investigative": 3.38, "artistic": 2.69, "social": 3.31, "enterprising": 2.88, "conventional": 2.44}, "average_softskills": {"teamwork": 4.0, "leadership": 3.25, "creativity": 3.5, "analytical": 3.88, "resilience": 3.56}, "weakest_subjects": [{"subject": "arts_music", "title": "ИЗО и музыка", "average_knowledge": 1.99}, {"subject": "informatics", "title": "Информатика", "average_knowledge": 2.0}, {"subject": "literature", "title": "Литература", "average_knowledge": 2.16}, {"subject": "geography", "title": "География", "average_knowledge": 2.33}, {"subject": "pe_safety", "title": "Физкультура и ОБЖ", "average_knowledge": 2.33}]}, "fallbackProfessions": {"realistic": [{"name": "Инженер-механик", "category": "технологии", "subjects_to_improve": ["математика", "физика"]}, {"name": "Специалист по робототехнике", "category": "технологии", "subjects_to_improve": ["физика", "информатика"]}, {"name": "Автомеханик-диагност", "category": "услуги", "subjects_to_improve": ["физика", "информатика"]}, {"name": "Технолог производства", "category": "технологии", "subjects_to_improve": ["химия", "математика"]}, {"name": "Пилот / оператор БПЛА", "category": "технологии", "subjects_to_improve": ["физика", "география"]}], "investigative": [{"name": "Аналитик данных", "category": "технологии", "subjects_to_improve": ["математика", "информатика"]}, {"name": "Учёный-исследователь", "category": "наука", "subjects_to_improve": ["физика", "математика"]}, {"name": "Биотехнолог", "category": "наука", "subjects_to_improve": ["биология", "химия"]}, {"name": "Врач-диагност", "category": "медицина", "subjects_to_improve": ["биология", "химия"]}, {"name": "Программист", "category": "технологии", "subjects_to_improve": ["информатика", "математика"]}], "artistic": [{"name": "Дизайнер интерфейсов", "category": "творчество", "subjects_to_improve": ["ИЗО и музыка", "информатика"]}, {"name": "Режиссёр монтажа", "category": "творчество", "subjects_to_improve": ["литература", "ИЗО и музыка"]}, {"name": "Иллюстратор", "category": "творчество", "subjects_to_improve": ["ИЗО и музыка", "история"]}, {"name": "Копирайтер", "category": "творчество", "subjects_to_improve": ["русский язык", "литература"]}, {"name": "Архитектор", "category": "творчество", "subjects_to_improve": ["математика", "ИЗО и музыка"]}], "social": [{"name": "Учитель", "category": "образование", "subjects_to_improve": ["обществознание", "русский язык"]}, {"name": "Психолог", "category": "услуги", "subjects_to_improve": ["биология", "обществознание"]}, {"name": "Врач общей практики", "category": "медицина", "subjects_to_improve": ["биология", "химия"]}, {"name": "Социальный работник", "category": "услуги", "subjects_to_improve": ["обществознание", "литература"]}, {"name": "HR-специалист", "category": "менеджмент", "subjects_to_improve": ["обществознание", "английский язык"]}], "enterprising": [{"name": "Предприниматель", "category": "менеджмент", "subjects_to_improve": ["обществознание", "математика"]}, {"name": "Маркетолог", "category": "менеджмент", "subjects_to_improve": ["обществознание", "информатика"]}, {"name": "Продакт-менеджер", "category": "менеджмент", "subjects_to_improve": ["информатика", "английский язык"]}, {"name": "Юрист", "category": "услуги", "subjects_to_improve": ["обществознание", "русский язык"]}, {"name": "Event-менеджер", "category": "менеджмент", "subjects_to_improve": ["обществознание", "английский язык"]}], "conventional": [{"name": "Бухгалтер", "category": "услуги", "subjects_to_improve": ["математика", "обществознание"]}, {"name": "Финансовый аналитик", "category": "менеджмент", "subjects_to_improve": ["математика", "обществознание"]}, {"name": "Специалист по логистике", "category": "услуги", "subjects_to_improve": ["география", "математика"]}, {"name": "Администратор баз данных", "category": "технологии", "subjects_to_improve": ["информатика", "математика"]}, {"name": "Специалист по документообороту", "category": "услуги", "subjects_to_improve": ["русский язык", "информатика"]}]}, "typeLabels": {"realistic": "практический (тебе нравится делать руками и разбираться в технике)", "investigative": "исследовательский (тебе нравится докапываться до сути)", "artistic": "творческий (тебе важно создавать своё и делать это красиво)", "social": "социальный (тебе нравится помогать людям и объяснять)", "enterprising": "предпринимательский (тебе нравится организовывать и убеждать)", "conventional": "организованный (тебе нравится порядок, данные и чёткий план)"}};
+</script>
+<script>
+/* Демо-двойник бэкенда: считает в браузере то, что в проде делают
+   app/services/test_scoring.py и app/services/ai_recommender.py.
+
+   Живёт только внутри автономной демо-страницы. Источник правды — Python:
+   формулы ниже повторяют его один в один, банк вопросов и список
+   fallback-профессий вшиваются при сборке прямо из исходников. */
+
+const KNOWLEDGE_WEIGHT = 0.65;
+const INTEREST_WEIGHT = 0.35;
+const STRONG_SUBJECT_THRESHOLD = 4.0;
+
+const round = (value, digits) => {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
+};
+
+/* ---------- порт calculate_scores ---------- */
+
+function questionIndex() {
+  const index = {};
+  for (const key of ['block_a_interests', 'block_b_subjects', 'block_c_softskills']) {
+    for (const question of DEMO_DATA.questions[key]) index[question.id] = question;
+  }
+  return index;
+}
+
+function calculateScores(answers) {
+  const index = questionIndex();
+  const interests = {};
+  const softskills = {};
+  const subjects = {};
+
+  for (const [id, answer] of Object.entries(answers)) {
+    const question = index[id];
+    if (!question) continue;
+    const likert = () => (typeof answer === 'object' ? answer.value ?? answer.selected_index : answer);
+
+    if (question.skill) {
+      (softskills[question.skill] ??= []).push(Number(likert()));
+    } else if (!question.subject) {
+      (interests[question.type] ??= []).push(Number(likert()));
+    } else {
+      const bucket = (subjects[question.subject] ??= { correct: 0, total: 0, interest: null });
+      if (question.type === 'knowledge') {
+        bucket.total += 1;
+        const selected = typeof answer === 'object' ? answer.selected_index : answer;
+        if (selected === question.correct_index) bucket.correct += 1;
+      } else {
+        bucket.interest = Number(likert());
+      }
+    }
+  }
+
+  const mean = (values) => round(values.reduce((a, b) => a + b, 0) / values.length, 2);
+  const average = (source) => Object.fromEntries(
+    Object.entries(source).map(([key, values]) => [key, mean(values)]),
+  );
+
+  const subjectsOut = {};
+  for (const [subject, bucket] of Object.entries(subjects)) {
+    // 0/3 → 1.0, 1/3 → 2.3, 2/3 → 3.7, 3/3 → 5.0
+    const knowledge = bucket.total ? round(1 + 4 * bucket.correct / bucket.total, 1) : null;
+    const interest = bucket.interest;
+    const subjectScore = (knowledge !== null && interest !== null)
+      ? round(knowledge * KNOWLEDGE_WEIGHT + interest * INTEREST_WEIGHT, 3)
+      : (knowledge ?? interest);
+
+    subjectsOut[subject] = {
+      correct_count: bucket.correct,
+      total_questions: bucket.total,
+      knowledge_score: knowledge,
+      interest,
+      subject_score: subjectScore,
+    };
+  }
+
+  return { interests: average(interests), subjects: subjectsOut, softskills: average(softskills) };
+}
+
+/* ---------- порт build_fallback ---------- */
+
+function buildFallback(scores) {
+  const interests = scores.interests || {};
+  const keys = Object.keys(interests);
+  const topType = keys.length
+    ? keys.reduce((best, key) => (interests[key] > interests[best] ? key : best), keys[0])
+    : 'investigative';
+  const topScore = interests[topType];
+
+  const titles = DEMO_DATA.questions.subject_titles;
+  const strong = new Set();
+  for (const [code, data] of Object.entries(scores.subjects || {})) {
+    if (data.subject_score !== null && data.subject_score >= STRONG_SUBJECT_THRESHOLD) {
+      strong.add((titles[code] || code).toLowerCase());
+    }
+  }
+
+  const label = DEMO_DATA.typeLabels[topType] || topType;
+  const hint = topScore === undefined ? '' : ` (балл ${topScore})`;
+  const professions = (DEMO_DATA.fallbackProfessions[topType] || DEMO_DATA.fallbackProfessions.investigative)
+    .map((item) => ({
+      ...item,
+      subjects_to_improve: item.subjects_to_improve.filter((s) => !strong.has(s.toLowerCase())),
+      reasoning: `У тебя ярче всего выражен ${label}${hint}. `
+        + `Профессия «${item.name}» опирается именно на этот склад. `
+        + 'Это подборка упрощённым алгоритмом — пройди тест ещё раз чуть позже, чтобы получить разбор от ИИ.',
+    }));
+
+  return { professions, fallback: true, top_interest: topType };
+}
+
+/* ---------- мок HTTP-слоя ---------- */
+
+const RESULTS_KEY = 'kompas_demo_results';
+const loadResults = () => { try { return JSON.parse(localStorage.getItem(RESULTS_KEY)) || []; } catch { return []; } };
+const saveResults = (list) => localStorage.setItem(RESULTS_KEY, JSON.stringify(list));
+
+const DEMO = {
+  async handle(path, options = {}) {
+    // небольшая пауза, чтобы был виден экран ожидания ответа модели
+    await new Promise((resolve) => setTimeout(resolve, options.method === 'POST' ? 900 : 120));
+
+    if (path.startsWith('/api/tests/questions')) {
+      const { block_a_interests, block_b_subjects, block_c_softskills, ...rest } = DEMO_DATA.questions;
+      const strip = (list) => list.map(({ correct_index, ...question }) => question);
+      return {
+        ...rest,
+        block_a_interests: strip(block_a_interests),
+        block_b_subjects: strip(block_b_subjects),
+        block_c_softskills: strip(block_c_softskills),
+      };
+    }
+
+    if (path === '/api/tests/submit') {
+      const payload = JSON.parse(options.body);
+      const scores = calculateScores(payload.answers);
+      const ai = buildFallback(scores);
+      const total = Object.keys(questionIndex()).length;
+      const answered = Object.keys(payload.answers).filter((id) => questionIndex()[id]).length;
+
+      const result = {
+        test_result_id: crypto.randomUUID(),
+        completed_at: new Date().toISOString(),
+        progress: {
+          answered,
+          total,
+          percent: round(100 * answered / total, 1),
+          is_complete: answered === total,
+        },
+        computed_scores: scores,
+        recommendations: ai.professions,
+        fallback: true,
+        model_used: 'fallback:rule-based',
+      };
+      saveResults([result, ...loadResults()].slice(0, 10));
+      return result;
+    }
+
+    if (path.includes('/history')) {
+      const results = loadResults();
+      return {
+        user: { id: crypto.randomUUID(), max_user_id: 'demo', role: 'student', created_at: new Date().toISOString() },
+        attempts: results.length,
+        history: results.map((item) => ({
+          test_result_id: item.test_result_id,
+          completed_at: item.completed_at,
+          top_interests: Object.entries(item.computed_scores.interests || {})
+            .sort((a, b) => b[1] - a[1]).slice(0, 3).map(([key]) => key),
+          professions: item.recommendations,
+          fallback: true,
+        })),
+      };
+    }
+
+    if (path.startsWith('/api/recommendations/')) {
+      const id = path.split('/').pop();
+      const found = loadResults().find((item) => item.test_result_id === id);
+      if (!found) throw new Error('404: результат не найден');
+      return { ...found, professions: found.recommendations };
+    }
+
+    throw new Error(`404: в демо нет обработчика для ${path}`);
+  },
+};
+
+/* ---------- кабинет педагога: снимок реального ответа API ---------- */
+
+const TEACHER_SOFTSKILLS = {
+  teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
+  analytical: 'Аналитика', resilience: 'Усидчивость',
+};
+const HOLLAND_LONG = {
+  realistic: 'Реалист', investigative: 'Исследователь', artistic: 'Артист',
+  social: 'Социальный', enterprising: 'Предприним.', conventional: 'Конвенц.',
+};
+
+function renderTeacher() {
+  const data = DEMO_DATA.classSummary;
+  const escape = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const bars = (entries, max, format) => entries.map(([name, value]) => `
+    <div class="barline">
+      <div class="name">${escape(name)}</div>
+      <div class="track"><i style="width:${Math.round((value / max) * 100)}%"></i></div>
+      <div class="val">${format(value)}</div>
+    </div>`).join('');
+
+  const categories = Object.entries(data.category_distribution);
+  const maxCategory = Math.max(1, ...categories.map(([, n]) => n));
+  const interests = Object.entries(data.average_interests).sort((a, b) => b[1] - a[1]);
+  const softskills = Object.entries(data.average_softskills).sort((a, b) => b[1] - a[1]);
+
+  document.getElementById('teacher-out').innerHTML = `
+    <div class="stats" style="margin-bottom:16px">
+      <div class="stat"><div class="t3">Прошли тест</div><div class="num">${data.students_tested}</div><div class="t4s">учеников класса ${escape(data.school_class)}</div></div>
+      <div class="stat"><div class="t3">Всего прохождений</div><div class="num">${data.tests_completed}</div><div class="t4s">включая повторные</div></div>
+      <div class="stat"><div class="t3">Ведущее направление</div><div class="num" style="font-size:20px;line-height:26px">${escape(categories[0]?.[0] || '—')}</div><div class="t4s">${categories[0]?.[1] || 0} упоминаний</div></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel" style="flex:1.4 1 340px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <div class="h5" style="font-size:16px">Категории профессий в рекомендациях</div>
+          <div class="t4s">${data.students_tested} учеников</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">${bars(categories, maxCategory, (n) => n)}</div>
+      </div>
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Слабые предметы класса</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${data.weakest_subjects.map((item, i) => `
+            ${i ? '<div style="height:1px;background:var(--line)"></div>' : ''}
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="flex:1;font-size:14px;color:var(--t2)">${escape(item.title || item.subject)}</div>
+              <div style="font-size:14px;color:var(--t3);font-variant-numeric:tabular-nums">средний ${Math.round((item.average_knowledge / 5) * 100)}%</div>
+            </div>`).join('')}
+        </div>
+        <div class="t4s" style="margin-top:auto">Балл знаний по шкале 1–5 переведён в проценты.</div>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:16px">
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Средний профиль интересов</div>
+        <div style="display:flex;flex-direction:column;gap:12px">${bars(interests.map(([k, v]) => [HOLLAND_LONG[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
+      </div>
+      <div class="panel">
+        <div class="h5" style="font-size:16px">Soft skills класса</div>
+        <div style="display:flex;flex-direction:column;gap:12px">${bars(softskills.map(([k, v]) => [TEACHER_SOFTSKILLS[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
+      </div>
+    </div>`;
+}
+
+/* ---------- переключение вкладок ---------- */
+
+document.querySelectorAll('.tab').forEach((tab) => {
+  tab.onclick = () => {
+    const teacher = tab.dataset.tab === 'teacher';
+    document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    document.getElementById('stage-student').classList.toggle('off', teacher);
+    document.getElementById('stage-teacher').classList.toggle('on', teacher);
+    if (teacher) renderTeacher();
+  };
+});
+
+</script>
+<script>
+/* Мини-приложение «Компас»: онбординг → тест → рекомендации.
+   Ванильный JS без сборки — MVP крутится в вебвью MAX, лишний рантайм ни к чему.
+   Прогресс живёт в localStorage: тест из 74 вопросов проходится за несколько заходов. */
+
+const LS_KEY = 'kompas_state_v1';
+const SCALE_LABELS = [
+  'Совсем не про меня', 'Скорее не про меня', 'Как когда',
+  'Скорее про меня', 'Точно про меня',
+];
+const INTEREST_LABELS = ['Совсем не интересно', 'Скорее не интересно', 'Так себе', 'Интересно', 'Очень интересно'];
+const HOLLAND_TITLES = {
+  investigative: 'Исследователь', artistic: 'Артист', social: 'Социальный',
+  enterprising: 'Предприниматель', conventional: 'Конвенц.', realistic: 'Реалист',
+};
+// порядок осей радара по часовой стрелке, начиная сверху
+const RADAR_ORDER = ['investigative', 'artistic', 'social', 'enterprising', 'conventional', 'realistic'];
+const SOFTSKILL_TITLES = {
+  teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
+  analytical: 'Аналитика', resilience: 'Усидчивость',
+};
+const CATEGORY_GRADIENTS = {
+  'технологии': 'var(--grad-blue)', 'наука': 'var(--grad-green)', 'творчество': 'var(--grad-pink)',
+  'услуги': 'var(--grad-orange)', 'менеджмент': 'var(--grad-violet)',
+  'медицина': 'var(--grad-green)', 'образование': 'var(--grad-violet)',
+};
+// Пропуск знаниевого вопроса. Не «нет ответа», а заведомо неверный индекс:
+// иначе пропустивший сложные вопросы получил бы завышенный knowledge_score.
+const SKIPPED = -1;
+
+const view = document.getElementById('view');
+const barTitle = document.getElementById('bar-title');
+const barAction = document.getElementById('bar-action');
+const barProgress = document.getElementById('bar-progress');
+
+let Q = null;          // банк вопросов с бэкенда
+let S = loadState();   // состояние прохождения
+let questionShownAt = Date.now();
+
+/* ---------- состояние ---------- */
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    if (saved && saved.userId) return saved;
+  } catch { /* битый localStorage — начинаем заново */ }
+  return {
+    userId: 'web_' + Math.random().toString(36).slice(2, 10),
+    answers: {},
+    lastResultId: null,
+    schoolClass: '',
+  };
+}
+
+function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify(S));
+}
+
+/* ---------- утилиты ---------- */
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
+));
+
+async function api(path, options = {}) {
+  // в автономном демо запросы обслуживает DEMO.handle, а не сеть
+  return DEMO.handle(path, options);
+}
+
+function render(html, { title = 'Компас', progress = 0, action = null } = {}) {
+  barTitle.textContent = title;
+  // без правого действия заголовок центрируется — так в макете
+  barTitle.parentElement.classList.toggle('split', !!action);
+  barProgress.style.width = `${Math.round(progress * 100)}%`;
+  barAction.classList.toggle('hidden', !action);
+  if (action) {
+    barAction.textContent = action.label;
+    barAction.onclick = action.onClick;
+  }
+  view.innerHTML = html;
+  view.scrollTop = 0;
+  questionShownAt = Date.now();
+}
+
+const blockA = () => Q.block_a_interests;
+const blockC = () => Q.block_c_softskills;
+const subjectCodes = () => [...new Set(Q.block_b_subjects.map((q) => q.subject))];
+const subjectQuestions = (code) => Q.block_b_subjects.filter((q) => q.subject === code);
+const answeredCount = () => Object.keys(S.answers).length;
+const totalCount = () => blockA().length + Q.block_b_subjects.length + blockC().length;
+const isAnswered = (id) => S.answers[id] !== undefined;
+// Бэкенд считает профиль и по части ответов, поэтому предварительный результат
+// можно показать сразу после блока A — не заставляя пройти все 74 вопроса.
+const canPreview = () => blockA().every((q) => isAnswered(q.id));
+
+/* ---------- экран: онбординг ---------- */
+
+function screenOnboarding() {
+  const done = answeredCount();
+  const total = totalCount();
+
+  if (done > 0 && done < total) {
+    render(`
+      <div class="h2">Продолжим?</div>
+      <div class="card pad" style="gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <div class="label">Прогресс теста</div>
+          <div style="font-size:15px;font-weight:600;color:var(--accent)">${done} / ${total}</div>
+        </div>
+        <div class="prog"><i style="width:${(done / total) * 100}%"></i></div>
+        <div class="t3">Ответы сохранены на этом устройстве — можно продолжить с того же места.</div>
+      </div>
+      <div class="btn" data-go="next">Продолжить</div>
+      ${canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
+      <div class="list">
+        <div class="row" data-go="restart"><div style="font-size:16px;flex:1">Начать заново</div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="history"><div style="font-size:16px;flex:1">История прохождений</div></div>
+      </div>
+    `, { progress: done / total });
+    return;
+  }
+
+  render(`
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
+      <div style="width:64px;height:64px;border-radius:20px;background:var(--grad-blue);display:flex;align-items:center;justify-content:center">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
+      </div>
+      <div class="h1">Разберёмся, что тебе<br>реально интересно</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">74 вопроса про интересы, школьные предметы и то, как ты работаешь с людьми. В конце — пять профессий с объяснением, почему именно они.</div>
+    </div>
+    <div class="list" style="gap:2px;overflow:hidden">
+      ${[['A', `Интересы · ${blockA().length} вопросов`, '3 мин'],
+         ['B', `Предметы · ${Q.block_b_subjects.length} вопроса`, 'по частям'],
+         ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
+        ${i ? '<div class="sep inset"></div>' : ''}
+        <div class="row">
+          <div style="width:28px;height:28px;border-radius:9px;background:rgb(0 122 255 / .16);color:var(--accent);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">${letter}</div>
+          <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
+          <div class="t4s">${time}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:13px;line-height:18px;color:var(--t4)">Прогресс сохраняется — можно закрыть и вернуться позже.</div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" data-go="next">Начать тест</div>
+      <div class="link" style="text-align:center" data-go="teacher">Я педагог</div>
+    </div>
+  `, { progress: 0 });
+}
+
+/* ---------- экран: шкала 1–5 (блоки A и C) ---------- */
+
+function screenScale(block) {
+  const questions = block === 'a' ? blockA() : blockC();
+  const index = questions.findIndex((q) => !isAnswered(q.id));
+  if (index === -1) return next();
+
+  const question = questions[index];
+  const title = block === 'a' ? 'Интересы' : 'Как ты работаешь';
+
+  render(`
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="t3">Блок ${block.toUpperCase()} · вопрос ${index + 1} из ${questions.length}</div>
+      <div class="t4s">весь тест ${Math.round((answeredCount() / totalCount()) * 100)}%</div>
+    </div>
+    <div class="card" style="padding:20px 18px;display:flex;flex-direction:column;gap:24px">
+      <div class="q">${esc(question.text)}</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="scale" data-scale>
+          ${[1, 2, 3, 4, 5].map((v) => `<div class="seg" data-value="${v}"><i></i></div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="t4s">совсем не про меня</div><div class="t4s">точно про меня</div>
+        </div>
+        <div class="scale-value" data-scale-value>&nbsp;</div>
+      </div>
+    </div>
+    <div class="dots">
+      ${questions.map((q, i) => `<i class="${i <= index ? 'on' : ''}"></i>`).join('')}
+    </div>
+    <div class="bottom" style="display:flex;gap:8px">
+      <div class="btn sec" style="padding:0 20px" data-back>Назад</div>
+      <div class="btn" style="flex:1" data-next disabled>Далее</div>
+    </div>
+  `, { title, progress: answeredCount() / totalCount() });
+
+  let picked = null;
+  view.querySelectorAll('.seg').forEach((seg) => {
+    seg.onclick = () => {
+      picked = Number(seg.dataset.value);
+      view.querySelectorAll('.seg').forEach((s) => s.classList.toggle('on', s === seg));
+      view.querySelector('[data-scale-value]').textContent = SCALE_LABELS[picked - 1];
+      view.querySelector('[data-next]').removeAttribute('disabled');
+    };
+  });
+  view.querySelector('[data-next]').onclick = () => {
+    if (!picked) return;
+    S.answers[question.id] = picked;
+    save();
+    next();
+  };
+  view.querySelector('[data-back]').onclick = () => {
+    if (index > 0) delete S.answers[questions[index - 1].id];
+    save();
+    index > 0 ? screenScale(block) : screenOnboarding();
+  };
+}
+
+/* ---------- экран: список предметов ---------- */
+
+function screenSubjects() {
+  const codes = subjectCodes();
+  const status = codes.map((code) => {
+    const questions = subjectQuestions(code);
+    const done = questions.filter((q) => isAnswered(q.id)).length;
+    return { code, title: Q.subject_titles[code], done, total: questions.length };
+  });
+  const remaining = status.filter((s) => s.done < s.total);
+  const answeredB = status.reduce((sum, s) => sum + s.done, 0);
+  const totalB = status.reduce((sum, s) => sum + s.total, 0);
+
+  render(`
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <div class="h3">${remaining.length ? `Осталось ${remaining.length} предмет${plural(remaining.length, '', 'а', 'ов')}` : 'Все предметы пройдены'}</div>
+        <div style="font-size:15px;font-weight:600;color:var(--accent)">${answeredB} / ${totalB}</div>
+      </div>
+      <div class="prog"><i style="width:${(answeredB / totalB) * 100}%"></i></div>
+      <div style="font-size:13px;line-height:18px;color:var(--t3)">Можно проходить по одному предмету и возвращаться — ответы сохраняются.</div>
+    </div>
+    <div class="list">
+      ${status.map((s, i) => `
+        ${i ? '<div class="sep inset"></div>' : ''}
+        <div class="row" data-subject="${s.code}">
+          ${s.done === s.total
+            ? `<div style="width:28px;height:28px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5L5 9.5L13 1.5" stroke="rgb(23 24 28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>`
+            : s.done
+              ? `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px;font-weight:600;color:var(--accent)">${s.done}</div>`
+              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid rgb(255 255 255 / .12);flex:0 0 auto"></div>`}
+          <div class="grow">
+            <div class="h5">${esc(s.title)}</div>
+            ${s.done === s.total
+              ? '<div style="font-size:13px;color:var(--green)">Пройдено</div>'
+              : s.done
+                ? `<div class="prog xs" style="margin-top:6px"><i style="width:${(s.done / s.total) * 100}%"></i></div>`
+                : `<div class="t3">${s.total} вопроса · 2 мин</div>`}
+          </div>
+          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgb(255 255 255 / .28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
+        </div>`).join('')}
+    </div>
+    <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:10px">
+      <div class="btn" data-go="next">${remaining.length ? `Продолжить с предмета «${esc(remaining[0].title)}»` : 'Дальше'}</div>
+      ${canPreview() && remaining.length ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
+    </div>
+  `, { title: 'Предметы', progress: answeredCount() / totalCount() });
+
+  view.querySelectorAll('[data-subject]').forEach((row) => {
+    row.onclick = () => screenSubject(row.dataset.subject);
+  });
+}
+
+const plural = (n, one, few, many) => {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+};
+
+/* ---------- экран: вопрос по предмету ---------- */
+
+function screenSubject(code) {
+  const questions = subjectQuestions(code);
+  const index = questions.findIndex((q) => !isAnswered(q.id));
+  if (index === -1) return screenSubjects();
+
+  const question = questions[index];
+  const title = Q.subject_titles[code];
+  const backTo = () => {
+    if (index > 0) delete S.answers[questions[index - 1].id];
+    save();
+    index > 0 ? screenSubject(code) : screenSubjects();
+  };
+
+  if (question.type === 'interest') {
+    render(`
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="t3">Вопрос ${index + 1} из ${questions.length}</div>
+        <div class="t4s">${esc(title)}</div>
+      </div>
+      <div class="card" style="padding:20px 18px;display:flex;flex-direction:column;gap:24px">
+        <div class="q">${esc(question.text)}</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="scale">${[1, 2, 3, 4, 5].map((v) => `<div class="seg" data-value="${v}"><i></i></div>`).join('')}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="t4s">совсем нет</div><div class="t4s">очень</div>
+          </div>
+          <div class="scale-value" data-scale-value>&nbsp;</div>
+        </div>
+      </div>
+      <div class="hint"><i></i><p>Это единственный вопрос про предмет, где важно твоё мнение, а не правильный ответ.</p></div>
+      <div class="bottom" style="display:flex;gap:8px">
+        <div class="btn sec" style="padding:0 20px" data-back>Назад</div>
+        <div class="btn" style="flex:1" data-next disabled>Далее</div>
+      </div>
+    `, { title, progress: answeredCount() / totalCount() });
+
+    let picked = null;
+    view.querySelectorAll('.seg').forEach((seg) => {
+      seg.onclick = () => {
+        picked = Number(seg.dataset.value);
+        view.querySelectorAll('.seg').forEach((s) => s.classList.toggle('on', s === seg));
+        view.querySelector('[data-scale-value]').textContent = INTEREST_LABELS[picked - 1];
+        view.querySelector('[data-next]').removeAttribute('disabled');
+      };
+    });
+    view.querySelector('[data-next]').onclick = () => {
+      S.answers[question.id] = picked;
+      save();
+      screenSubject(code);
+    };
+    view.querySelector('[data-back]').onclick = backTo;
+    return;
+  }
+
+  render(`
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="t3">Вопрос ${index + 1} из ${questions.length}</div>
+      <div class="t4s">${esc(question.topic || '')}</div>
+    </div>
+    <div class="q">${esc(question.text)}</div>
+    <div style="display:flex;flex-direction:column;gap:10px" data-answers>
+      ${question.options.map((option, i) => `
+        <div class="ans" data-index="${i}">
+          <div class="key">${'АБВГ'[i] || i + 1}</div>
+          <div class="txt">${esc(option)}</div>
+          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="rgb(0 122 255)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>`).join('')}
+    </div>
+    <div class="link" style="align-self:flex-start" data-skip>Не знаю — пропустить</div>
+    <div class="bottom" style="display:flex;gap:8px">
+      <div class="btn sec" style="padding:0 20px" data-back>Назад</div>
+      <div class="btn" style="flex:1" data-next disabled>Далее</div>
+    </div>
+  `, { title, progress: answeredCount() / totalCount() });
+
+  let picked = null;
+  view.querySelectorAll('.ans').forEach((answer) => {
+    answer.onclick = () => {
+      picked = Number(answer.dataset.index);
+      view.querySelectorAll('.ans').forEach((a) => a.classList.toggle('on', a === answer));
+      view.querySelector('[data-next]').removeAttribute('disabled');
+    };
+  });
+  const commit = (value) => {
+    // время ответа копим для будущего антифрод-анализа, в скоринге оно не участвует
+    S.answers[question.id] = {
+      selected_index: value,
+      time_spent_seconds: Math.round((Date.now() - questionShownAt) / 100) / 10,
+    };
+    save();
+    screenSubject(code);
+  };
+  view.querySelector('[data-next]').onclick = () => picked !== null && commit(picked);
+  view.querySelector('[data-skip]').onclick = () => commit(SKIPPED);
+  view.querySelector('[data-back]').onclick = backTo;
+}
+
+/* ---------- экран: отправка и ожидание ИИ ---------- */
+
+async function screenSubmit() {
+  render(`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="spinner"></div>
+      <div style="font-size:15px;color:var(--t2);flex:1">Подбираем профессии…</div>
+    </div>
+    ${[1, .6, .35].map((opacity, i) => `
+      <div class="card pad" style="gap:10px;opacity:${opacity}">
+        <div class="sk live" style="height:22px;width:${96 - i * 8}px;animation-delay:${i * .15}s"></div>
+        <div class="sk live" style="height:20px;width:${74 - i * 8}%;animation-delay:${i * .15 + .1}s"></div>
+        <div class="sk live" style="animation-delay:${i * .15 + .2}s"></div>
+      </div>`).join('')}
+    <div style="font-size:13px;line-height:18px;color:var(--t4);text-align:center;padding-top:4px">Обычно занимает 5–10 секунд. Можно закрыть — результат сохранится.</div>
+  `, { title: 'Результаты', progress: 1 });
+
+  try {
+    const data = await api('/api/tests/submit', {
+      method: 'POST',
+      body: JSON.stringify({
+        max_user_id: S.userId,
+        answers: S.answers,
+        school_class: S.schoolClass || null,
+      }),
+    });
+    S.lastResultId = data.test_result_id;
+    save();
+    screenResults(data.recommendations, data.computed_scores, data.fallback, data.progress);
+  } catch (error) {
+    screenError(error, screenSubmit);
+  }
+}
+
+/* ---------- экран: результаты ---------- */
+
+function radarSVG(interests) {
+  const cx = 140, cy = 132, R = 96;
+  const point = (i, ratio) => {
+    const angle = (Math.PI / 3) * i - Math.PI / 2;
+    return [cx + Math.cos(angle) * R * ratio, cy + Math.sin(angle) * R * ratio];
+  };
+  const ring = (ratio) => RADAR_ORDER.map((_, i) => point(i, ratio).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const values = RADAR_ORDER.map((key) => Math.max(0, Math.min(5, interests[key] ?? 0)) / 5);
+  const shape = values.map((v, i) => point(i, v).map((n) => n.toFixed(1)).join(',')).join(' ');
+
+  const labels = RADAR_ORDER.map((key, i) => {
+    const [x, y] = point(i, 1.22);
+    const percent = Math.round(((interests[key] ?? 0) / 5) * 100);
+    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(255 255 255 / .8)">${HOLLAND_TITLES[key]}</text>
+            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="rgb(255 255 255 / .44)">${percent}</text>`;
+  }).join('');
+
+  return `<svg width="280" height="280" viewBox="0 0 280 280" role="img" aria-label="Профиль интересов">
+    <polygon points="${ring(1)}" fill="rgb(255 255 255 / .04)" stroke="rgb(255 255 255 / .12)"></polygon>
+    <polygon points="${ring(0.66)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
+    <polygon points="${ring(0.33)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
+    ${RADAR_ORDER.map((_, i) => {
+      const [x, y] = point(i, 1);
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgb(255 255 255 / .06)"></line>`;
+    }).join('')}
+    <polygon points="${shape}" fill="rgb(0 122 255 / .28)" stroke="rgb(0 122 255)" stroke-width="2" stroke-linejoin="round"></polygon>
+    ${values.map((v, i) => {
+      const [x, y] = point(i, v);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="rgb(0 122 255)"></circle>`;
+    }).join('')}
+    ${labels}
+  </svg>`;
+}
+
+function screenResults(professions, scores, fallback, progress = null) {
+  const [top, ...rest] = professions;
+  const softskills = Object.entries(scores.softskills || {});
+
+  render(`
+    <div class="hero">
+      <div class="hero-top" style="background:${CATEGORY_GRADIENTS[top.category] || 'var(--grad-blue)'}">
+        <div class="label">Лучшее совпадение · ${esc(top.category)}</div>
+        <div class="h1">${esc(top.name)}</div>
+      </div>
+      <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div class="body-text">${esc(top.reasoning)}</div>
+        ${top.subjects_to_improve?.length ? `
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="label" style="letter-spacing:.5px">Стоит подтянуть</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${top.subjects_to_improve.map((s) => `<div class="tag">${esc(s)}</div>`).join('')}</div>
+          </div>` : ''}
+      </div>
+    </div>
+
+    ${Object.keys(scores.interests || {}).length ? `
+      <div class="card pad">
+        <div class="h4">Профиль интересов</div>
+        <div style="display:flex;justify-content:center">${radarSVG(scores.interests)}</div>
+      </div>` : ''}
+
+    ${rest.length ? `
+      <div class="list">
+        <div class="section-label">Ещё подходят</div>
+        ${rest.map((p, i) => `
+          ${i ? '<div class="sep" style="margin-left:36px"></div>' : ''}
+          <div class="row" style="padding:12px 16px;align-items:flex-start" data-profession="${i}">
+            <div class="bar-strip" style="background:${CATEGORY_GRADIENTS[p.category] || 'var(--grad-violet)'}"></div>
+            <div class="grow">
+              <div class="h5">${esc(p.name)}</div>
+              <div class="t3">${esc(p.category)}</div>
+              <div class="body-text hidden" style="padding-top:6px" data-reasoning>${esc(p.reasoning)}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    ${softskills.length ? `
+      <div class="card pad">
+        <div class="h4">Как ты работаешь</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${softskills.map(([key, value]) => `
+            <div class="barline">
+              <div class="name">${SOFTSKILL_TITLES[key] || key}</div>
+              <div class="track"><i style="width:${(value / 5) * 100}%"></i></div>
+              <div class="val">${value.toFixed(1)}</div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+
+    ${progress && !progress.is_complete ? `
+      <div class="hint"><i style="background:var(--orange)"></i><p>Это предварительный результат — пройдено ${progress.answered} из ${progress.total} вопросов. Чем больше ответов, тем точнее подборка.</p></div>
+    ` : ''}
+
+    ${fallback ? `
+      <div class="hint"><i style="background:var(--orange)"></i><p>Рекомендации подобраны упрощённым алгоритмом — ИИ был недоступен. Результаты теста сохранены, можно обновить подборку позже.</p></div>
+    ` : ''}
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${progress && !progress.is_complete ? '<div class="btn" data-go="next">Продолжить тест</div>' : ''}
+      <div class="btn sec" data-go="history">История прохождений</div>
+      <div class="btn sec" data-go="restart">Пройти тест заново</div>
+    </div>
+  `, { title: 'Результаты', progress: 1 });
+
+  view.querySelectorAll('[data-profession]').forEach((row) => {
+    row.onclick = () => row.querySelector('[data-reasoning]').classList.toggle('hidden');
+  });
+}
+
+/* ---------- экран: история ---------- */
+
+async function screenHistory() {
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем историю…</div></div>',
+    { title: 'История', progress: 1 });
+  let data;
+  try {
+    data = await api(`/api/users/${encodeURIComponent(S.userId)}/history`);
+  } catch (error) {
+    if (!String(error).includes('404')) return screenError(error, screenHistory);
+    data = { attempts: 0, history: [] };
+  }
+
+  render(`
+    ${data.attempts === 0 ? '<div class="hint"><i></i><p>Пока нет ни одного завершённого прохождения.</p></div>' : `
+      <div class="t3">Всего прохождений: ${data.attempts}. Видно, как меняются интересы со временем.</div>
+      <div class="list">
+        ${data.history.map((item, i) => `
+          ${i ? '<div class="sep"></div>' : ''}
+          <div class="row" style="align-items:flex-start">
+            <div class="grow">
+              <div class="h5">${new Date(item.completed_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="t3">${item.professions.slice(0, 3).map((p) => esc(p.name)).join(' · ') || '—'}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:8px">
+                ${item.top_interests.map((key) => `<div class="tag">${HOLLAND_TITLES[key] || key}</div>`).join('')}
+              </div>
+              ${item.fallback ? '<div style="font-size:13px;color:var(--orange);padding-top:6px">упрощённый алгоритм</div>' : ''}
+            </div>
+          </div>`).join('')}
+      </div>`}
+    <div class="btn bottom" data-go="home">На главный экран</div>
+  `, { title: 'История', progress: 1 });
+}
+
+/* ---------- экран: ошибка ---------- */
+
+function screenError(error, retry) {
+  console.error(error);
+  render(`
+    <div class="body center" style="gap:20px;padding-top:60px">
+      <div style="width:64px;height:64px;border-radius:20px;background:var(--fill);display:flex;align-items:center;justify-content:center">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 4v14" stroke="rgb(255 159 10)" stroke-width="2.4" stroke-linecap="round"></path><circle cx="14" cy="23" r="1.6" fill="rgb(255 159 10)"></circle></svg>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:300px">
+        <div class="h2">Не получилось загрузить</div>
+        <div style="font-size:15px;line-height:21px;color:var(--t3)">Похоже, пропала связь. Ответы на тест сохранены — рекомендации подберём, как только интернет вернётся.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+        <div class="btn" data-retry>Попробовать снова</div>
+        <div class="btn sec" data-go="home">На главный экран</div>
+      </div>
+    </div>
+  `, { title: 'Ошибка' });
+  view.querySelector('[data-retry]').onclick = retry;
+}
+
+/* ---------- переходы ---------- */
+
+function next() {
+  if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
+  if (Q.block_b_subjects.some((q) => !isAnswered(q.id))) return screenSubjects();
+  if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
+  return screenSubmit();
+}
+
+view.addEventListener('click', (event) => {
+  const target = event.target.closest('[data-go]');
+  if (!target) return;
+  const actions = {
+    next,
+    preview: screenSubmit,
+    home: screenOnboarding,
+    history: screenHistory,
+    teacher: () => document.querySelector('[data-tab="teacher"]').click(),
+    restart: () => {
+      if (!confirm('Все ответы будут удалены. Начать заново?')) return;
+      S.answers = {};
+      save();
+      screenOnboarding();
+    },
+  };
+  actions[target.dataset.go]?.();
+});
+
+/* ---------- старт ---------- */
+
+(async function start() {
+  try {
+    Q = await api('/api/tests/questions');
+  } catch (error) {
+    return screenError(error, start);
+  }
+  screenOnboarding();
+})();
+
+</script>
