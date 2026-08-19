@@ -1,0 +1,201 @@
+<title>Компас</title>
+<style>
+/* ---- дизайн-система приложения (app/static/styles.css) ---- */
+{{STYLES}}
+
+/* ---- витрина вокруг приложения ---- */
+:root{
+  --shell-pad:32px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+body{
+  background:var(--page);
+  color:var(--t1);
+  padding:0;
+  min-height:100vh;
+}
+.shell{
+  max-width:1180px;
+  margin:0 auto;
+  padding:var(--shell-pad) 24px 64px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.masthead{display:flex;flex-direction:column;gap:14px}
+.masthead .top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.mark{
+  width:52px;height:52px;border-radius:16px;background:var(--grad-blue);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+.masthead h1{
+  margin:0;font-size:30px;line-height:34px;font-weight:600;letter-spacing:-.5px;
+  color:var(--t1);text-wrap:balance;
+}
+.masthead .sub{margin:0;font-size:15px;line-height:22px;color:var(--t3);max-width:62ch}
+.masthead .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{
+  font-size:13px;line-height:16px;color:var(--t2);background:var(--fill);
+  border-radius:8px;padding:6px 10px;
+}
+.chip.mono{font-family:var(--mono);font-size:12px;color:var(--t3)}
+a.chip{text-decoration:none;color:var(--accent);background:rgb(0 122 255 / .14)}
+a.chip:hover{background:rgb(0 122 255 / .22)}
+
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:3px;align-self:flex-start}
+.tab{
+  min-height:38px;padding:0 18px;border-radius:10px;display:flex;align-items:center;
+  font-size:15px;font-weight:500;color:var(--t3);cursor:pointer;user-select:none;
+  background:none;border:0;font-family:inherit;
+}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff;font-weight:600}
+.tab:focus-visible,.btn:focus-visible,.seg:focus-visible,.ans:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+
+.stage{display:grid;grid-template-columns:390px minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:900px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  :root{--shell-pad:20px}
+}
+
+/* «телефон» с живым приложением */
+.device{
+  background:var(--bg);border-radius:24px;overflow:hidden;
+  box-shadow:0 1px 2px rgb(0 0 0 / .2),0 18px 48px rgb(0 0 0 / .42);
+  display:flex;flex-direction:column;height:760px;
+  border:1px solid rgb(255 255 255 / .05);
+}
+.device .body{overflow-y:auto;padding-bottom:20px}
+.device .phone{max-width:none;min-height:0;height:100%;border-radius:0;box-shadow:none;margin:0}
+
+.aside{display:flex;flex-direction:column;gap:20px}
+.block{display:flex;flex-direction:column;gap:12px}
+.block h2{
+  margin:0;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--t4);
+}
+.steps{display:flex;flex-direction:column;gap:2px;background:var(--card);border-radius:14px;overflow:hidden}
+.step{display:flex;gap:12px;padding:14px 16px;align-items:flex-start}
+.step + .step{border-top:1px solid var(--line)}
+.step .n{
+  width:22px;height:22px;border-radius:11px;background:rgb(0 122 255 / .16);color:var(--accent);
+  font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  font-variant-numeric:tabular-nums;
+}
+.step p{margin:0;font-size:14px;line-height:20px;color:var(--t2)}
+.step p b{color:var(--t1);font-weight:600}
+
+.notes{display:flex;flex-direction:column;gap:10px;background:var(--card);border-radius:14px;padding:16px}
+.note-row{display:flex;gap:10px;align-items:flex-start}
+.note-row i{width:6px;height:6px;border-radius:3px;margin-top:7px;flex:0 0 auto;background:var(--orange)}
+.note-row p{margin:0;font-size:13px;line-height:19px;color:var(--t3)}
+.note-row p b{color:var(--t2);font-weight:600}
+.note-row code{font-family:var(--mono);font-size:12px;color:var(--t2)}
+
+.stackgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.stackgrid div{
+  background:var(--card);border-radius:12px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:3px;
+}
+.stackgrid .k{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4)}
+.stackgrid .v{font-size:14px;color:var(--t2)}
+
+/* кабинет педагога */
+.teacher-stage{display:none;flex-direction:column;gap:16px}
+.teacher-stage.on{display:flex}
+.stage.off{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <div class="top">
+      <div class="mark">
+        <svg width="26" height="26" viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:260px">
+        <h1>Компас — ИИ-навигатор по профессиям</h1>
+        <p class="sub">Прототип для платформы MAX/Сферум: школьник 12–16 лет проходит тест из 74 вопросов, нейросеть подбирает пять профессий с обоснованием по конкретным баллам. Педагог видит обезличенную сводку по классу.</p>
+      </div>
+    </div>
+    <div class="meta">
+      <a class="chip" href="https://github.com/Gemr007/Kompassferum" target="_blank" rel="noopener">Исходный код на GitHub →</a>
+      <span class="chip">FastAPI · PostgreSQL · OpenRouter</span>
+      <span class="chip mono">74 вопроса · 13 предметов</span>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="student">Приложение ученика</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="teacher">Кабинет педагога</button>
+  </div>
+
+  <!-- ученик -->
+  <div class="stage" id="stage-student">
+    <div class="device">
+      <div class="phone">
+        <div class="bar split">
+          <div class="h4" id="bar-title">Компас</div>
+          <div class="link hidden" id="bar-action"></div>
+        </div>
+        <div class="thin"><i id="bar-progress" style="width:0%"></i></div>
+        <div class="body" id="view"></div>
+      </div>
+    </div>
+
+    <aside class="aside">
+      <section class="block">
+        <h2>Что попробовать</h2>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><p>Нажмите <b>«Начать тест»</b> и ответьте на 12 вопросов блока A — шкала из пяти растущих кружков, примерно минута.</p></div>
+          <div class="step"><div class="n">2</div><p>На экране предметов нажмите <b>«Показать предварительный результат»</b>: придут пять профессий, радар по шести типам Голланда и профиль soft skills.</p></div>
+          <div class="step"><div class="n">3</div><p>Откройте любой предмет и ответьте на задачу. Правильный ответ не подсвечивается — в боевой версии проверка идёт на бэкенде.</p></div>
+          <div class="step"><div class="n">4</div><p>Переключитесь на <b>кабинет педагога</b> — там агрегаты по классу 7Б и ни одного имени ученика.</p></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Чем демо отличается от боевого стенда</h2>
+        <div class="notes">
+          <div class="note-row"><i></i><p><b>Считает браузер, а не сервер.</b> Здесь нет PostgreSQL и запросов к OpenRouter, поэтому правильные ответы лежат в исходнике страницы. В настоящем приложении <code>correct_index</code> не покидает бэкенд, и вопрос приходит без него.</p></div>
+          <div class="note-row"><i></i><p><b>Рекомендации — запасной алгоритм.</b> Без ключа OpenRouter подборка собирается по ведущему типу Голланда: ровно то, что происходит в проде при недоступной модели, включая честную оранжевую плашку.</p></div>
+          <div class="note-row"><i></i><p><b>Сводка по классу — снимок реального ответа API</b> <code>/api/teacher/{id}/class-summary</code> на восьми сгенерированных учениках.</p></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Что под капотом на самом деле</h2>
+        <div class="stackgrid">
+          <div><span class="k">Бэкенд</span><span class="v">FastAPI, async SQLAlchemy</span></div>
+          <div><span class="k">База</span><span class="v">PostgreSQL 16, Alembic</span></div>
+          <div><span class="k">Модель</span><span class="v">moonshotai/kimi-k2</span></div>
+          <div><span class="k">Инфраструктура</span><span class="v">Docker, nginx</span></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- педагог -->
+  <div class="teacher-stage" id="stage-teacher">
+    <div class="panel" style="background:var(--card);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div class="t3">Сводка по классу <b style="color:var(--t1)">7Б</b>, педагог <span style="font-family:var(--mono);font-size:13px">teacher_demo</span>. Данные обезличены: только агрегаты, без результатов отдельных учеников. Сводка не формируется, пока тест не прошли хотя бы три человека.</div>
+    </div>
+    <div id="teacher-out"></div>
+  </div>
+</div>
+
+<script>
+/* ===== Данные, вшитые при сборке из исходников проекта ===== */
+const DEMO_DATA = {{DATA}};
+</script>
+<script>
+{{DEMO_JS}}
+</script>
+<script>
+{{APP_JS}}
+</script>
