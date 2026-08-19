@@ -1,0 +1,26 @@
+# Оверлей для стенда с доменом и сертификатом Let's Encrypt.
+#
+#   certbot certonly --webroot -w ./certbot-webroot -d <домен>
+#   DOMAIN=<домен> docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+#
+# Без него docker compose up поднимает обычный HTTP — так проще запускать
+# локально, где домена и сертификата нет.
+
+services:
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?укажите DOMAIN в .env}
+      # чтобы envsubst не тронул $host, $remote_addr и прочие переменные nginx
+      NGINX_ENVSUBST_FILTER: "DOMAIN"
+    volumes:
+      # HTTP-конфиг из базового compose перекрываем пустышкой: volumes в
+      # оверлее складываются с базовыми, а не заменяют их
+      - ./nginx/disabled.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/nginx-ssl.conf.template:/etc/nginx/templates/kompas.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./certbot-webroot:/var/www/certbot:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate -qO- https://localhost/health || exit 1"]

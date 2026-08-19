@@ -86,6 +86,26 @@ curl http://localhost/health
 
 Остановить: `docker compose down`. Вместе с данными: `docker compose down -v`.
 
+### HTTPS на своём домене
+
+Базовый `docker compose up` поднимает обычный HTTP — так проще запускать
+локально. Для стенда с доменом есть оверлей `docker-compose.ssl.yml`:
+
+```bash
+echo "DOMAIN=example.ru" >> .env
+
+mkdir -p certbot-webroot
+docker compose stop nginx
+certbot certonly --standalone -d example.ru --agree-tos -m you@example.ru -n
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+```
+
+HTTP редиректит на HTTPS, `/.well-known/acme-challenge/` остаётся доступным,
+поэтому продление сертификата проходит без остановки nginx. Чтобы nginx
+подхватил обновлённый сертификат, добавьте в
+`/etc/letsencrypt/renewal-hooks/deploy/` скрипт с
+`docker compose -f ... exec nginx nginx -s reload`.
+
 ## Что показать за три минуты
 
 1. **http://localhost/** → «Начать тест» → ответить на 12 вопросов блока A

@@ -1,0 +1,63 @@
+# HTTPS-вариант конфига. Домен подставляется из переменной DOMAIN штатным
+# механизмом образа nginx (файлы в /etc/nginx/templates прогоняются через
+# envsubst при старте). NGINX_ENVSUBST_FILTER=DOMAIN не даёт envsubst съесть
+# переменные самого nginx вроде $host и $remote_addr.
+
+upstream kompas_backend {
+    server backend:8000;
+}
+
+log_format webhook_fmt '$remote_addr - [$time_local] "$request" '
+                       '$status $body_bytes_sent rt=$request_time';
+
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    # проверка Let's Encrypt при продлении сертификата — без остановки nginx
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_cache shared:SSL:10m;
+
+    client_max_body_size 1m;
+
+    # Запас по времени: backend может ждать ответ OpenRouter до 30 секунд
+    proxy_connect_timeout 5s;
+    proxy_send_timeout 35s;
+    proxy_read_timeout 35s;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    location / {
+        proxy_pass http://kompas_backend;
+    }
+
+    location /api/webhook/max {
+        access_log /var/log/nginx/webhook_access.log webhook_fmt;
+        client_max_body_size 5m;
+        proxy_pass http://kompas_backend;
+    }
+
+    location /health {
+        access_log off;
+        proxy_pass http://kompas_backend;
+    }
+}
