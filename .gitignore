@@ -10,6 +10,10 @@ venv/
 # Secrets
 .env
 
+# Локальная отладка
+*.db
+.playwright-mcp/
+
 # IDE / OS
 .idea/
 .vscode/
