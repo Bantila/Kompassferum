@@ -17,8 +17,9 @@ import random
 from sqlalchemy import select
 
 from app.database import SessionLocal
-from app.models import Recommendation, TestResult, User, UserRole
+from app.models import Recommendation, SchoolClass, TestResult, User, UserRole
 from app.services.ai_recommender import recommend_professions
+from app.services.security import hash_password
 from app.services.test_scoring import calculate_scores, load_questions
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -26,6 +27,10 @@ logger = logging.getLogger("seed")
 
 SCHOOL_CLASS = "7Б"
 TEACHER_ID = "teacher_demo"
+DEMO_JOIN_CODE = "DEMO7B"
+# демо-логин педагога — чтобы кабинет можно было открыть сразу после запуска
+TEACHER_EMAIL = "teacher@demo.ru"
+TEACHER_PASSWORD = "demo1234"
 
 # Архетипы: выраженные типы Голланда, сильные предметы и черты.
 # Из них собирается правдоподобный класс, а не белый шум.
@@ -98,19 +103,37 @@ async def seed() -> None:
     async with SessionLocal() as session:
         teacher = await session.scalar(select(User).where(User.max_user_id == TEACHER_ID))
         if teacher is None:
-            session.add(
-                User(
-                    max_user_id=TEACHER_ID,
-                    role=UserRole.teacher,
-                    full_name="Ирина Петровна",
-                )
+            teacher = User(
+                max_user_id=TEACHER_ID,
+                role=UserRole.teacher,
+                full_name="Ирина Петровна",
             )
-            logger.info("Педагог %s создан", TEACHER_ID)
+            session.add(teacher)
+        # логин проставляем и старому демо-педагогу, созданному до появления auth
+        teacher.email = TEACHER_EMAIL
+        teacher.hashed_password = hash_password(TEACHER_PASSWORD)
+        await session.flush()
+        logger.info("Педагог %s: %s / %s", TEACHER_ID, TEACHER_EMAIL, TEACHER_PASSWORD)
+
+        school_class = await session.scalar(
+            select(SchoolClass).where(SchoolClass.join_code == DEMO_JOIN_CODE)
+        )
+        if school_class is None:
+            school_class = SchoolClass(
+                name=SCHOOL_CLASS, teacher_id=teacher.id, join_code=DEMO_JOIN_CODE
+            )
+            session.add(school_class)
+            await session.flush()
+            logger.info("Класс %s создан, код присоединения: %s", SCHOOL_CLASS, DEMO_JOIN_CODE)
 
         created = 0
         for index, (full_name, archetype_index) in enumerate(STUDENTS):
             max_user_id = f"student_demo_{index}"
-            if await session.scalar(select(User).where(User.max_user_id == max_user_id)):
+            existing = await session.scalar(select(User).where(User.max_user_id == max_user_id))
+            if existing is not None:
+                # догоняем старые демо-данные, созданные до появления SchoolClass
+                if existing.class_id is None:
+                    existing.class_id = school_class.id
                 continue
 
             archetype = ARCHETYPES[archetype_index]
@@ -119,6 +142,7 @@ async def seed() -> None:
                 role=UserRole.student,
                 full_name=full_name,
                 school_class=SCHOOL_CLASS,
+                class_id=school_class.id,
             )
             session.add(user)
             await session.flush()
@@ -152,7 +176,11 @@ async def seed() -> None:
 
     if created:
         logger.info("Готово: добавлено учеников — %s, класс %s", created, SCHOOL_CLASS)
-        logger.info("Сводка педагога: /static/teacher.html, ID — %s", TEACHER_ID)
+        logger.info(
+            "Сводка педагога: /static/teacher.html, ID — %s, код класса — %s",
+            TEACHER_ID,
+            DEMO_JOIN_CODE,
+        )
     else:
         logger.info("Демо-данные уже на месте, ничего не добавлено")
 

@@ -231,6 +231,63 @@ def _validate_professions(payload: Any) -> list[dict[str, Any]]:
     return result
 
 
+MISTAKE_PROMPT = """Ты — доброжелательный репетитор для школьника 12–16 лет.
+
+Ученик ошибся в задаче. Объясни коротко (2–3 предложения, на «ты»), в чём именно
+ошибка и как решать правильно. Без морализаторства и без «ты невнимателен».
+Опирайся на данные ниже. Ответь простым текстом, без markdown и без списков."""
+
+
+async def explain_mistake(
+    question: str,
+    correct_answer: str,
+    user_answer: str,
+    error_label: str,
+    explanation: str = "",
+) -> str | None:
+    """Разбор ошибки словами от ИИ.
+
+    Возвращает None при любой недоступности LLM — у вызывающего всегда остаётся
+    правило-базированная рекомендация, поэтому ученик не остаётся без разбора.
+    """
+    settings = get_settings()
+    if not settings.openrouter_api_key:
+        return None
+
+    user_content = (
+        f"Задача: {question}\n"
+        f"Правильный ответ: {correct_answer}\n"
+        f"Ответ ученика: {user_answer}\n"
+        f"Тип ошибки: {error_label}\n"
+        f"Краткое решение: {explanation}"
+    )
+    body = {
+        "model": settings.openrouter_model,
+        "temperature": 0.4,
+        "max_tokens": 400,
+        "messages": [
+            {"role": "system", "content": MISTAKE_PROMPT},
+            {"role": "user", "content": user_content},
+        ],
+    }
+    headers = {
+        "Authorization": f"Bearer {settings.openrouter_api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/Gemr007/Kompassferum",
+        "X-Title": "Kompas",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
+            response = await client.post(settings.openrouter_url, json=body, headers=headers)
+            response.raise_for_status()
+            text = response.json()["choices"][0]["message"]["content"].strip()
+            return text or None
+    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+        logger.warning("Разбор ошибки от ИИ недоступен: %s", exc)
+        return None
+
+
 async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
     """Подобрать 5 профессий по агрегированному профилю ученика.
 
