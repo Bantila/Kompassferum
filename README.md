@@ -95,11 +95,40 @@ curl http://localhost/health
 
 | Адрес | Что это |
 |---|---|
-| http://localhost/ | мини-приложение ученика: тест и рекомендации |
-| http://localhost/static/teacher.html | кабинет педагога: сводка по классу (ID `teacher_demo`, класс `7Б`) |
+| http://localhost/ | мини-приложение ученика: тест, тренажёр, профессии |
+| http://localhost/static/teacher.html | кабинет педагога: классы, рейтинг, задания, сводка |
 | http://localhost/docs | Swagger-документация API |
 
+Демо-доступ педагога: `teacher@demo.ru` / `demo1234`. Код класса для учеников —
+`DEMO7B`.
+
 Остановить: `docker compose down`. Вместе с данными: `docker compose down -v`.
+
+### Запуск под Windows без Docker
+
+Для разработки удобнее поднимать сервер напрямую. Нужны Python 3.11+ и
+установленный PostgreSQL со схемой `kompas`.
+
+Один раз — создать окружение:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Дальше запуск в одну команду — скрипт проверит службу PostgreSQL, накатит
+миграции и поднимет сервер:
+
+```powershell
+.\start.bat
+```
+
+Полезные ключи: `-Restart` освобождает занятый порт, `-Port 8001` меняет порт,
+`-LocalOnly` убирает доступ по локальной сети.
+
+Вариант `.\start.ps1` делает то же самое, но требует разрешить выполнение
+скриптов — `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
+Обёртка `start.bat` нужна ровно для того, чтобы этой настройки не требовалось.
 
 ### HTTPS на своём домене
 
