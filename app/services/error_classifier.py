@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import re
+
 CORRECT = "correct"
 
 ERROR_LABELS = {
@@ -41,6 +43,52 @@ UNIT_RATIOS = (10.0, 100.0, 1000.0, 0.1, 0.01, 0.001)
 ATTENTION_SIMILARITY = 0.75
 
 
+_PUNCT_RE = re.compile(r"[^\w\s]", re.UNICODE)
+_SPACES_RE = re.compile(r"\s+")
+# «формульные» куски ответа: CH₄, H2O, 2H — их школьник часто не дописывает,
+# и требовать их наравне со словами нечестно
+_FORMULA_RE = re.compile(r"[a-z\d]", re.IGNORECASE)
+
+
+def _normalize(text: str) -> str:
+    """Регистр, ё/е, пунктуация и лишние пробелы не должны решать судьбу ответа."""
+    lowered = text.casefold().replace("ё", "е")
+    return _SPACES_RE.sub(" ", _PUNCT_RE.sub(" ", lowered)).strip()
+
+
+def _words(text: str) -> list[str]:
+    return [w for w in _normalize(text).split() if w]
+
+
+def _text_matches(given: str, expected: str) -> bool:
+    """Свободный ответ засчитывается, если совпал по существу.
+
+    Банк задач хранит эталон одной строкой («метан CH₄», «круглые черви»), но
+    ученик пишет своими словами. Строгое сравнение отправляло бы в ошибку тех,
+    кто ответил правильно, — а это быстрее всего отбивает желание заниматься.
+
+    Правила:
+      • совпало после нормализации — верно;
+      • ученик написал всё, что в эталоне, плюс лишнее («это метан») — верно;
+      • ученик написал короче, но сохранил все смысловые слова эталона,
+        опустив только формулу («метан» вместо «метан CH₄») — верно.
+    Опущенное смысловое слово («черви» вместо «круглые черви») ошибкой остаётся:
+    оно меняет ответ по сути.
+    """
+    given_words, expected_words = _words(given), _words(expected)
+    if not given_words or not expected_words:
+        return False
+    if given_words == expected_words:
+        return True
+
+    given_set, expected_set = set(given_words), set(expected_words)
+    if expected_set <= given_set:
+        return True
+
+    meaningful = {w for w in expected_set if not _FORMULA_RE.search(w)}
+    return bool(meaningful) and meaningful <= given_set and given_set <= expected_set
+
+
 def _to_number(value: str) -> float | None:
     try:
         return float(value.replace(",", ".").replace(" ", ""))
@@ -73,6 +121,10 @@ def classify(user_answer: str, correct_answer: str, subject: str = "") -> dict:
         return _result(CORRECT, 1.0)
     if not given:
         return _result("incomplete", 0.95)
+    # числа сверяем отдельно ниже: там важны знак, порядок и точность,
+    # а здесь речь про свободный текстовый ответ
+    if _to_number(given) is None and _text_matches(given, expected):
+        return _result(CORRECT, 0.95)
 
     given_num, expected_num = _to_number(given), _to_number(expected)
     # короткий нечисловой огрызок против развёрнутого ответа — это «не дописал».
@@ -81,6 +133,10 @@ def classify(user_answer: str, correct_answer: str, subject: str = "") -> dict:
     if given_num is None and len(given) < 2 and len(expected) > 3:
         return _result("incomplete", 0.9)
     if given_num is not None and expected_num is not None:
+        # то же число, записанное иначе: «7,5» против «7.5», «1 000» против «1000».
+        # Строкой они не совпадут, а по сути это верный ответ
+        if given_num == expected_num:
+            return _result(CORRECT, 1.0)
         if abs(given_num) == abs(expected_num) and given_num * expected_num < 0:
             return _result("sign", 0.97)
         if expected_num != 0:
