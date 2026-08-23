@@ -1,29 +1,40 @@
 
-  /* Палитра — darkPalette из max-ui src/styles/variables/appearance.scss */
+  /* Палитра «Cosmic Purple + Neon Teal» — перенесена из AI-Atlas (res/values/colors.xml).
+     Ключевое отличие от плоской тёмной темы: у карточек есть обводка, а главные
+     кнопки — градиентные. Это и создаёт узнаваемый вид. */
   :root{
-    --page:rgb(16 17 20);
-    --bg:rgb(23 24 28);
-    --card:rgb(37 38 45);
-    --bar:rgb(30 31 36);
-    --sheet:rgb(23 23 24);
-    --overlay:rgb(13 13 13 / .64);
-    --t1:rgb(255 255 255 / .8);
-    --t2:rgb(255 255 255 / .74);
-    --t3:rgb(255 255 255 / .44);
-    --t4:rgb(255 255 255 / .28);
-    --accent:rgb(0 122 255);
-    --sec:rgb(67 68 85);
-    --green:rgb(43 198 68);
-    --red:rgb(206 66 87);
-    --orange:rgb(255 159 10);
-    --fill:rgb(255 255 255 / .09);
-    --fill2:rgb(255 255 255 / .06);
-    --line:rgb(255 255 255 / .06);
-    --grad-blue:linear-gradient(157deg,#08D7F3 6.38%,#5398FF 85%);
-    --grad-violet:linear-gradient(155deg,#BF97FF 6.6%,#526EFF 84.12%);
-    --grad-green:linear-gradient(158deg,#14E1D5 6.15%,#03C722 85.68%);
-    --grad-pink:linear-gradient(153deg,#FF48B6 .77%,#FF8A35 93.03%);
-    --grad-orange:linear-gradient(155deg,#FFC93D 6.6%,#FF832A 84.12%);
+    --page:#0D0D1A;
+    --bg:#13131F;
+    --card:#1A1A2E;
+    --card2:#22223A;
+    --bar:#13131F;
+    --sheet:#13131F;
+    --overlay:rgb(8 8 16 / .72);
+    --stroke:#2A2A45;
+    --t1:#F1F0FF;
+    --t2:#C9C8E0;
+    --t3:#9090B0;
+    --t4:#55556A;
+    --accent:#7C3AED;
+    --accent-light:#A78BFA;
+    --accent-glow:#5B21B6;
+    --secondary:#06B6D4;
+    --sec:#22223A;
+    --green:#22C55E;
+    --green-bg:#0F2A1A;
+    --red:#F87171;
+    --red-bg:#2A0F0F;
+    --orange:#FBBF24;
+    --fill:rgb(124 58 237 / .16);
+    --fill2:rgb(255 255 255 / .05);
+    --line:#1E1E35;
+    /* фирменный градиент кнопок: 135°, фиолетовый → бирюзовый */
+    --grad-main:linear-gradient(135deg,#7C3AED 0%,#06B6D4 100%);
+    --grad-blue:linear-gradient(135deg,#7C3AED 0%,#06B6D4 100%);
+    --grad-violet:linear-gradient(135deg,#A78BFA 0%,#7C3AED 100%);
+    --grad-green:linear-gradient(135deg,#06B6D4 0%,#22C55E 100%);
+    --grad-pink:linear-gradient(135deg,#F87171 0%,#A78BFA 100%);
+    --grad-orange:linear-gradient(135deg,#FBBF24 0%,#F87171 100%);
   }
   *{box-sizing:border-box}
   body{
@@ -45,22 +56,26 @@
   .thin>i{display:block;height:3px;background:var(--accent)}
 
   /* --- атомы --- */
-  .card{background:var(--card);border-radius:16px}
+  /* карточка AI-Atlas: заливка + обводка 1px + радиус 16 */
+  .card{background:var(--card);border:1px solid var(--stroke);border-radius:16px}
   .card.pad{padding:16px;display:flex;flex-direction:column;gap:12px}
-  .list{background:var(--card);border-radius:16px;display:flex;flex-direction:column}
+  .list{background:var(--card);border:1px solid var(--stroke);border-radius:16px;display:flex;flex-direction:column}
   .row{padding:14px 16px;display:flex;align-items:center;gap:12px;min-height:44px}
   .row .grow{flex:1;display:flex;flex-direction:column;gap:2px}
   .sep{height:1px;background:var(--line);margin-left:16px}
   .sep.inset{margin-left:56px}
-  .btn{min-height:48px;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
-  .btn.sec{background:var(--sec);color:var(--t1)}
+  /* главная кнопка — фирменный градиент, вторичная — поверхность с обводкой */
+  .btn{min-height:48px;border-radius:14px;background:var(--grad-main);color:#fff;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:none;padding:0 16px;text-align:center}
+  .btn:active{opacity:.85}
+  .btn.sec{background:var(--card2);border:1px solid var(--stroke);color:var(--t1)}
   .btn.sm{min-height:36px;padding:0 14px;border-radius:10px;font-size:14px}
   .btn.md{min-height:44px;padding:0 20px;font-size:15px}
   .bottom{margin-top:auto}
-  .prog{height:6px;border-radius:3px;background:var(--fill)}
-  .prog>i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+  .prog{height:6px;border-radius:3px;background:#1E1E2E}
+  .prog>i{display:block;height:100%;border-radius:3px;background:var(--grad-main)}
   .prog.xs{height:4px;border-radius:2px}
-  .tag{font-size:13px;line-height:16px;color:var(--t2);background:var(--fill);border-radius:8px;padding:6px 10px}
+  /* чип AI-Atlas: тёмно-фиолетовая заливка с акцентной обводкой */
+  .tag{font-size:13px;line-height:16px;color:var(--accent-light);background:#1A0D33;border:1px solid var(--accent);border-radius:12px;padding:5px 10px}
   .label{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4)}
   .section-label{padding:12px 16px 8px;font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--t4)}
   .hint{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:12px 14px}
@@ -79,14 +94,14 @@
   /* --- 2c: шкала согласия, 5 растущих сегментов --- */
   .scale{display:flex;align-items:center;justify-content:space-between;gap:6px}
   .seg{flex:1;min-height:64px;border-radius:14px;background:var(--fill);display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .seg:hover{background:rgb(231 231 231 / .15)}
+  .seg:hover{background:var(--card2)}
   .seg i{border-radius:50%;background:var(--t4)}
   .seg:nth-child(1) i{width:14px;height:14px}
   .seg:nth-child(2) i{width:20px;height:20px}
   .seg:nth-child(3) i{width:26px;height:26px}
   .seg:nth-child(4) i{width:32px;height:32px}
   .seg:nth-child(5) i{width:38px;height:38px}
-  .seg.on,.seg.on:hover{background:var(--accent);box-shadow:0 0 0 2px rgb(0 122 255 / .3)}
+  .seg.on,.seg.on:hover{background:var(--accent);box-shadow:0 0 0 3px rgb(124 58 237 / .25)}
   .seg.on i{background:#fff}
   .scale-value{align-self:center;font-size:15px;font-weight:600;color:var(--accent)}
   .dots{display:flex;gap:4px;align-items:center;justify-content:center}
@@ -94,12 +109,12 @@
   .dots i.on{background:var(--accent)}
 
   /* --- 2e: варианты ответа --- */
-  .ans{min-height:56px;border-radius:14px;background:var(--card);border:2px solid transparent;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
-  .ans:hover{background:rgb(50 52 61)}
+  .ans{min-height:56px;border-radius:14px;background:var(--card);border:1px solid var(--stroke);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
+  .ans:hover{background:var(--card2)}
   .ans .key{width:26px;height:26px;border-radius:8px;background:var(--fill);color:var(--t3);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
   .ans .txt{font-size:16px;line-height:21px;color:var(--t1);flex:1}
   .ans .tick{display:none;flex:0 0 auto}
-  .ans.on,.ans.on:hover{background:rgb(0 122 255 / .16);border-color:var(--accent)}
+  .ans.on,.ans.on:hover{background:rgb(124 58 237 / .18);border-color:var(--accent)}
   .ans.on .key{background:var(--accent);color:#fff}
   .ans.on .tick{display:block}
 
@@ -117,7 +132,7 @@
   /* --- 2g: скелетоны стриминга --- */
   .sk{height:12px;border-radius:6px;background:var(--fill)}
   .sk.live{animation:shimmer 1.4s ease-in-out infinite}
-  .spinner{width:22px;height:22px;border-radius:11px;border:2px solid rgb(0 122 255 / .25);border-top-color:var(--accent);animation:spin 1s linear infinite}
+  .spinner{width:22px;height:22px;border-radius:11px;border:2px solid rgb(124 58 237 / .3);border-top-color:var(--accent);animation:spin 1s linear infinite}
   .caret{display:inline-block;width:2px;height:16px;background:var(--accent);margin-left:2px;vertical-align:-3px;animation:shimmer .9s steps(2) infinite}
 
   /* --- 2h: карточка лучшего совпадения --- */
@@ -129,13 +144,13 @@
 
   /* --- 2k: экран педагога --- */
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .stat{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .stat{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
   .stat .num{font-size:28px;line-height:30px;font-weight:600;color:var(--t1)}
   .stat .num small{font-size:17px;color:var(--t4)}
   .barline{display:flex;align-items:center;gap:12px}
   .barline .name{flex:0 0 116px;font-size:14px;color:var(--t2);overflow-wrap:anywhere}
   .barline .track{flex:1;height:22px;border-radius:6px;background:var(--fill2)}
-  .barline .track>i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+  .barline .track>i{display:block;height:100%;border-radius:6px;background:var(--grad-main)}
   .barline .val{width:26px;text-align:right;font-size:14px;font-weight:600;color:var(--t1)}
   .filter{min-height:36px;padding:0 14px;border-radius:10px;background:var(--card);color:var(--t2);font-size:14px;display:flex;align-items:center;gap:8px}
   .filter.on{background:var(--accent);color:#fff;font-weight:600}
@@ -153,11 +168,101 @@
   .link{font-size:15px;color:var(--accent);cursor:pointer;user-select:none}
   .center{align-items:center;justify-content:center;text-align:center}
 
+  /* --- нижние вкладки: один способ перемещаться по приложению --- */
+  .tabs{display:flex;background:var(--bar);border-top:1px solid var(--line);
+        padding-bottom:env(safe-area-inset-bottom)}
+  .tabs.hidden{display:none !important}
+  .tab{flex:1;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;
+       cursor:pointer;user-select:none;color:var(--t4);font-size:11px;line-height:13px}
+  .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;
+           stroke-linecap:round;stroke-linejoin:round}
+  .tab.on{color:var(--accent)}
+
+  /* --- геймификация: XP, уровень, стрик, достижения (стиль badge_bg из AI-Atlas) --- */
+  .xp-card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:16px;
+           display:flex;flex-direction:column;gap:12px}
+  .xp-head{display:flex;align-items:center;gap:12px}
+  .level-ring{width:52px;height:52px;border-radius:26px;background:var(--grad-main);flex:0 0 auto;
+              display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff}
+  .streak{display:flex;align-items:center;gap:6px;background:#1E1240;border:1px solid var(--accent-glow);
+          border-radius:8px;padding:6px 10px;font-size:14px;font-weight:600;color:var(--accent-light)}
+  .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+  .badge{background:#1E1240;border:1px solid var(--accent-glow);border-radius:12px;padding:12px 8px;
+         display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+  .badge.locked{background:var(--card2);border-color:var(--stroke);opacity:.55}
+  .badge .ico{font-size:26px;line-height:30px}
+  .badge .nm{font-size:11px;line-height:14px;color:var(--t2)}
+
+  /* --- тренажёр задач --- */
+  .task-q{font-size:19px;line-height:26px;font-weight:600;color:var(--t1)}
+  .verdict{border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .verdict.ok{background:var(--green-bg);border:1px solid var(--green)}
+  .verdict.err{background:var(--red-bg);border:1px solid var(--red)}
+  .verdict .head{font-size:16px;font-weight:600}
+  .verdict.ok .head{color:var(--green)}
+  .verdict.err .head{color:var(--orange)}
+
+  /* --- кабинет педагога: рабочий инструмент, а не витрина ---
+     Плотнее, чем ученическое приложение: меньшие радиусы, таблица вместо
+     карточек, акцент только на активном элементе. */
+  .desk-head{display:flex;align-items:center;justify-content:space-between;gap:16px;
+             padding:14px 18px;background:var(--card);border:1px solid var(--stroke);
+             border-radius:10px;margin-bottom:14px}
+  .desk-head .brand{display:flex;align-items:baseline;gap:10px}
+  .desk-head .brand b{font-size:16px;font-weight:600;letter-spacing:-.2px}
+  .desk-head .brand span{font-size:13px;color:var(--t4)}
+
+  .split-view{display:flex;gap:14px;align-items:flex-start}
+  .side{flex:0 0 232px;background:var(--card);border:1px solid var(--stroke);border-radius:10px;
+        overflow:hidden}
+  .side h6{margin:0;padding:11px 14px;font-size:11px;font-weight:600;letter-spacing:.7px;
+           text-transform:uppercase;color:var(--t4);border-bottom:1px solid var(--line)}
+  .side-item{padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+             display:flex;align-items:center;gap:10px}
+  .side-item:last-child{border-bottom:none}
+  .side-item:hover{background:var(--card2)}
+  .side-item.on{background:rgb(124 58 237 / .14);box-shadow:inset 3px 0 0 var(--accent)}
+  .side-item .nm{flex:1;font-size:15px;color:var(--t1)}
+  .side-item .cnt{font-size:12px;color:var(--t4);font-variant-numeric:tabular-nums}
+  .main-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+           padding:10px 12px;background:var(--card);border:1px solid var(--stroke);border-radius:10px}
+  .toolbar .grow{flex:1;min-width:120px}
+  .seg-tabs{display:flex;background:var(--bg);border:1px solid var(--stroke);border-radius:9px;padding:3px;gap:2px}
+  .seg-tab{padding:7px 14px;border-radius:6px;font-size:14px;color:var(--t3);cursor:pointer;user-select:none}
+  .seg-tab.on{background:var(--card2);color:var(--t1);font-weight:600}
+
+  /* таблица рейтинга: числа выровнены, шапка липкая, строки чередуются */
+  .grid{width:100%;border-collapse:collapse;font-size:14px}
+  .grid th{position:sticky;top:0;background:var(--card);text-align:left;font-size:11px;
+           font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4);
+           padding:10px 12px;border-bottom:1px solid var(--stroke);white-space:nowrap}
+  .grid td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--t2)}
+  .grid tbody tr:nth-child(even){background:rgb(255 255 255 / .015)}
+  .grid tbody tr:hover{background:var(--card2)}
+  .grid td.num,.grid th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .grid td.name{color:var(--t1)}
+  .grid .rank{width:34px;color:var(--t4);font-variant-numeric:tabular-nums}
+  .grid tr.top .rank{color:var(--accent-light);font-weight:700}
+  .table-wrap{background:var(--card);border:1px solid var(--stroke);border-radius:10px;
+              overflow:auto;max-height:70vh}
+  .meter{height:5px;border-radius:3px;background:#1E1E2E;min-width:64px;overflow:hidden}
+  .meter>i{display:block;height:100%;background:var(--accent)}
+  .muted-note{font-size:12px;color:var(--t4);padding:9px 12px;border-top:1px solid var(--line)}
+
+  .field.sm{min-height:38px;border-radius:8px;font-size:14px;padding:0 10px}
+  select.field{appearance:none;cursor:pointer}
+  .pill{font-size:12px;color:var(--t3);background:var(--bg);border:1px solid var(--stroke);
+        border-radius:6px;padding:4px 8px;cursor:pointer;user-select:none}
+  .pill.on{border-color:var(--accent);color:var(--accent-light);background:rgb(124 58 237 / .12)}
+
   /* экран педагога шире и без телефонной рамки */
   .desk{max-width:960px;margin:0 auto;padding:20px}
   .desk .stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
   .cols{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
   .cols>*{flex:1 1 280px}
-  .panel{background:var(--card);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
-  input.field{min-height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--t1);font-size:16px;padding:0 14px;outline:none;width:100%}
-  input.field:focus{border-color:var(--accent)}
+  .panel{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+  input.field{min-height:46px;border-radius:14px;background:var(--bg);border:1px solid var(--stroke);color:var(--t1);font-size:16px;padding:0 14px;outline:none;width:100%}
+  input.field::placeholder{color:var(--t4)}
+  input.field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgb(124 58 237 / .18)}
