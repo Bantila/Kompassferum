@@ -20,10 +20,8 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Промпты, ТЗ, макеты и служебные артефакты — в репозиторий не идут
-claude-code-prompt*.md
+# ТЗ, макеты и служебные артефакты — в репозиторий не идут
 *.docx
 graphify-out/
 kompas-screens-*.html
 kompas-architecture-*.html
-.claude/
