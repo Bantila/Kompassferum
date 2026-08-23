@@ -646,6 +646,8 @@ async function screenProfile() {
         </div>` : ''}
       <div class="list">
         ${S.classId ? '' : '<div class="row" data-go="join-class"><div class="grow"><div class="h5">Ввести код класса</div><div class="t3">Чтобы попасть в сводку учителя</div></div></div><div class="sep"></div>'}
+        <div class="row" data-go="link-bot"><div class="grow"><div class="h5">Привязать бота</div><div class="t3">Решать задачи прямо в чате</div></div></div>
+        <div class="sep"></div>
         <div class="row" data-go="history"><div class="grow"><div class="h5">История прохождений</div><div class="t3">Как менялись результаты</div></div></div>
         <div class="sep"></div>
         <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
@@ -664,6 +666,33 @@ async function screenProfile() {
     `}
     <div class="link" style="text-align:center" data-go="teacher">Я педагог — открыть кабинет</div>
   `, { title: 'Профиль', tab: 'profile' });
+}
+
+/* Привязка чат-бота: код присылает бот, ученик вводит его здесь. */
+function screenLinkBot() {
+  formScreen({
+    title: 'Привязать бота',
+    subtitle: 'Напиши боту в чате — он пришлёт код. Введи его сюда, и бот сможет давать задачи и показывать прогресс.',
+    submitLabel: 'Привязать',
+    footer: '<div class="link" style="text-align:center" data-go="profile">Назад</div>',
+    fields: [
+      { name: 'code', placeholder: 'Код из чата', maxlength: 8,
+        style: 'text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:4px;font-weight:600' },
+    ],
+    onSubmit: async (v) => {
+      await api('/api/bot/link', {
+        method: 'POST',
+        body: JSON.stringify({ code: v.code.toUpperCase() }),
+      });
+      render(`
+        <div class="card pad center" style="gap:10px;padding:24px 16px">
+          <div class="h4">Бот привязан</div>
+          <div class="t3">Возвращайся в чат — теперь можно решать задачи прямо там.</div>
+        </div>
+        <div class="bottom"><div class="btn" data-go="profile">Готово</div></div>
+      `, { title: 'Бот', tab: 'profile' });
+    },
+  });
 }
 
 /* Заглушка для вкладок, которым нужен аккаунт. */
@@ -1121,6 +1150,7 @@ view.addEventListener('click', (event) => {
     register: screenRegister,
     login: screenLogin,
     'join-class': screenJoinClass,
+    'link-bot': screenLinkBot,
     guest: () => {
       S.guestMode = true;
       save();

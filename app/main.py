@@ -15,7 +15,7 @@ from sqlalchemy import text
 
 from app.config import Settings, get_settings
 from app.database import engine
-from app.routers import auth, classes, practice, recommendations, teacher, tests, webhook
+from app.routers import auth, bot, classes, practice, recommendations, teacher, tests
 
 logging.basicConfig(
     level=get_settings().log_level,
@@ -84,7 +84,7 @@ app.include_router(practice.router)
 app.include_router(recommendations.router)
 app.include_router(teacher.router)
 app.include_router(classes.router)
-app.include_router(webhook.router)
+app.include_router(bot.router)
 
 
 @app.get("/health", tags=["service"])

@@ -281,9 +281,12 @@ async def explain_mistake(
         async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
             response = await client.post(settings.openrouter_url, json=body, headers=headers)
             response.raise_for_status()
-            text = response.json()["choices"][0]["message"]["content"].strip()
-            return text or None
-    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+            # content бывает null — например, когда модель отказалась отвечать
+            # или упёрлась в лимит токенов. Разбор ошибки не обязателен, поэтому
+            # это не сбой: у вызывающего остаётся правило-базированный совет.
+            content = response.json()["choices"][0]["message"].get("content")
+            return content.strip() or None if content else None
+    except (httpx.HTTPError, AttributeError, KeyError, IndexError, TypeError, ValueError) as exc:
         logger.warning("Разбор ошибки от ИИ недоступен: %s", exc)
         return None
 

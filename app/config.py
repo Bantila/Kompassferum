@@ -18,6 +18,15 @@ class Settings(BaseSettings):
 
     # Вебхук MAX
     max_webhook_secret: str = ""
+    max_bot_token: str = ""
+
+    # Telegram — площадка для отладки бота, пока нет доступа к платформе MAX
+    telegram_bot_token: str = ""
+    # секрет вебхука: Telegram шлёт его в заголовке X-Telegram-Bot-Api-Secret-Token
+    telegram_webhook_secret: str = ""
+
+    # адрес мини-приложения — бот присылает на него кнопку
+    app_public_url: str = ""
 
     # Аутентификация. Секрет обязан задаваться через окружение: на дефолте
     # приложение поднимется (чтобы не ломать локальный запуск), но залогирует
