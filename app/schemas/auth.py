@@ -1,4 +1,9 @@
-"""Схемы регистрации, входа и профиля."""
+"""Схемы регистрации, входа и профиля.
+
+Регистрация по почте осталась только для педагогов: ученик входит
+исключительно по подписи мессенджера, поэтому завести себе второй аккаунт
+через сайт он больше не может.
+"""
 
 from __future__ import annotations
 
@@ -8,16 +13,11 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class RegisterRequest(BaseModel):
+    """Регистрация педагога. Роль не принимается из запроса — она всегда teacher."""
+
     email: EmailStr
     password: str = Field(min_length=6, max_length=128)
     full_name: str = Field(min_length=1, max_length=255)
-    grade: int | None = Field(default=None, ge=1, le=11)
-    role: str = Field(default="student", pattern="^(student|teacher)$")
-    # код класса можно указать сразу при регистрации — тогда вступление
-    # произойдёт одним шагом, без отдельного экрана
-    join_code: str | None = Field(default=None, min_length=4, max_length=8)
-    # если человек уже проходил тест гостем — привяжем его прогресс к аккаунту
-    guest_max_user_id: str | None = None
 
 
 class LoginRequest(BaseModel):

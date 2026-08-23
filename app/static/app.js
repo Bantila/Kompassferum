@@ -57,7 +57,6 @@ function loadState() {
     classId: null,
     fullName: '',
     token: null,
-    guestMode: false,
   };
 }
 
@@ -69,6 +68,9 @@ function save() {
 
 const api = (path, options = {}) => apiFetch(path, options, S.token);
 
+// заполняется на старте из /api/public-config
+let BOT_USERNAME = '';
+
 /* Профиль с сервера в локальное состояние. */
 function applyProfile(profile) {
   S.userId = profile.max_user_id;
@@ -76,7 +78,6 @@ function applyProfile(profile) {
   S.classId = profile.class_id || null;
   S.schoolClass = profile.school_class || '';
   S.role = profile.role;
-  S.guestMode = false;
   save();
 }
 
@@ -126,13 +127,20 @@ function screenWelcome() {
   render(`
     <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
       ${LOGO_TILE}
-      <div class="h1">Компас</div>
-      <div style="font-size:16px;line-height:22px;color:var(--t3)">Тест на 74 вопроса покажет, какие профессии тебе подходят и какие предметы для них стоит подтянуть. Аккаунт нужен, чтобы прогресс сохранялся и учитель видел твой класс.</div>
+      <div class="h1">Открой «Компас»<br>в Telegram</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">Приложение работает внутри мессенджера: так вход происходит сам, без почты и пароля, а прогресс из чата с ботом и из приложения остаётся общим.</div>
+    </div>
+    <div class="card pad" style="gap:12px">
+      <div class="label">Что делать</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">${BOT_USERNAME
+        ? `Найди бота <b>@${esc(BOT_USERNAME)}</b> в Telegram и нажми «Запустить».`
+        : 'Открой бота «Компаса» в Telegram и нажми «Запустить».'} Приложение откроется прямо в чате.</div>
     </div>
     <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
-      <div class="btn" data-go="register">Создать аккаунт</div>
-      <div class="btn sec" data-go="login">У меня уже есть аккаунт</div>
-      <div class="link" style="text-align:center" data-go="guest">Пройти тест без аккаунта</div>
+      ${BOT_USERNAME
+        ? `<a class="btn" href="https://t.me/${encodeURIComponent(BOT_USERNAME)}" target="_blank" rel="noopener" style="text-decoration:none">Открыть бота в Telegram</a>`
+        : ''}
+      <div class="link" style="text-align:center" data-go="teacher">Я педагог</div>
     </div>
   `, { progress: 0 });
 }
@@ -191,60 +199,6 @@ function formScreen({ title, subtitle, fields, submitLabel, footer, onSubmit }) 
   });
 }
 
-function screenRegister() {
-  formScreen({
-    title: 'Создать аккаунт',
-    subtitle: 'Код класса можно ввести сразу или позже — он нужен, чтобы попасть в сводку учителя.',
-    submitLabel: 'Зарегистрироваться',
-    footer: '<div class="link" style="text-align:center" data-go="login">У меня уже есть аккаунт</div>',
-    fields: [
-      { name: 'full_name', placeholder: 'Имя и фамилия', autocomplete: 'name' },
-      { name: 'email', placeholder: 'Почта', type: 'email', autocomplete: 'email' },
-      { name: 'password', placeholder: 'Пароль (минимум 6 символов)', type: 'password', autocomplete: 'new-password' },
-      { name: 'join_code', placeholder: 'Код класса (необязательно)', optional: true, maxlength: 8,
-        style: 'text-transform:uppercase;letter-spacing:2px' },
-    ],
-    onSubmit: async (v) => {
-      const data = await api('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          full_name: v.full_name,
-          email: v.email,
-          password: v.password,
-          join_code: v.join_code ? v.join_code.toUpperCase() : null,
-          // если человек уже отвечал гостем — прогресс переедет в новый аккаунт
-          guest_max_user_id: S.guestMode ? S.userId : null,
-        }),
-      });
-      S.token = data.access_token;
-      applyProfile(data.user);
-      screenOnboarding();
-    },
-  });
-}
-
-function screenLogin() {
-  formScreen({
-    title: 'Вход',
-    submitLabel: 'Войти',
-    footer: '<div class="link" style="text-align:center" data-go="register">Создать аккаунт</div>',
-    fields: [
-      { name: 'email', placeholder: 'Почта', type: 'email', autocomplete: 'email' },
-      { name: 'password', placeholder: 'Пароль', type: 'password', autocomplete: 'current-password' },
-    ],
-    onSubmit: async (v) => {
-      const data = await api('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: v.email, password: v.password }),
-      });
-      S.token = data.access_token;
-      applyProfile(data.user);
-      screenOnboarding();
-    },
-  });
-}
-
-/* Вступление в класс по коду — для тех, кто зарегистрировался без него. */
 function screenJoinClass() {
   formScreen({
     title: 'Код класса',
@@ -1147,22 +1101,14 @@ view.addEventListener('click', (event) => {
     profile: screenProfile,
     history: screenHistory,
     teacher: () => { window.location.href = '/static/teacher.html'; },
-    register: screenRegister,
-    login: screenLogin,
     'join-class': screenJoinClass,
     'link-bot': screenLinkBot,
-    guest: () => {
-      S.guestMode = true;
-      save();
-      screenOnboarding();
-    },
     logout: () => {
       if (!confirm('Выйти из аккаунта? Ответы на этом устройстве останутся.')) return;
       S.token = null;
       S.fullName = '';
       S.classId = null;
       S.schoolClass = '';
-      S.guestMode = false;
       save();
       screenWelcome();
     },
@@ -1213,6 +1159,11 @@ async function loginFromMessenger(bridge) {
   }
 
   try {
+    const config = await api('/api/public-config').catch(() => ({}));
+    BOT_USERNAME = (config.telegram_bot_username || '').replace('@', '');
+  } catch { /* без имени бота экран входа просто останется без кнопки */ }
+
+  try {
     Q = await api('/api/tests/questions');
   } catch (error) {
     return screenError(error, start);
@@ -1239,6 +1190,7 @@ async function loginFromMessenger(bridge) {
     }
   }
 
-  if (!S.token && !S.guestMode) return screenWelcome();
+  // без подписи мессенджера входить нечем — показываем, как открыть бота
+  if (!S.token) return screenWelcome();
   screenOnboarding();
 })();

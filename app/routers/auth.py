@@ -1,8 +1,11 @@
 """Регистрация, вход и профиль.
 
-Главный маршрут: регистрация → (если есть код) вступление в класс → тест.
-Гостевое прохождение остаётся: тест можно пройти без аккаунта, а потом
-зарегистрироваться — прогресс подтянется по guest_max_user_id.
+У ученика ровно один путь входа — подпись мессенджера (/miniapp). Ни почты,
+ни гостевого режима у него нет: раньше один человек мог завести аккаунт на
+сайте и второй через Telegram, и это были разные записи с разным прогрессом.
+
+Регистрация и вход по почте остались только для педагогов: кабинет с
+классами открывается в обычном браузере, где подписи мессенджера нет.
 """
 
 from __future__ import annotations
@@ -15,7 +18,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import BotAccount, SchoolClass, User, UserRole
+from app.models import BotAccount, User, UserRole
 from app.schemas.auth import (
     LoginRequest,
     MiniAppLoginRequest,
@@ -71,43 +74,27 @@ async def get_current_user(
 async def register(
     payload: RegisterRequest, session: AsyncSession = Depends(get_session)
 ) -> TokenResponse:
+    """Регистрация педагога. Ученику этот путь закрыт — он входит через мессенджер."""
     email = payload.email.strip().lower()
     taken = await session.scalar(select(User).where(func.lower(User.email) == email))
     if taken is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Аккаунт с такой почтой уже есть — войдите")
 
-    school_class: SchoolClass | None = None
-    if payload.join_code:
-        code = payload.join_code.strip().upper()
-        school_class = await session.scalar(select(SchoolClass).where(SchoolClass.join_code == code))
-        if school_class is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "Код класса не найден — проверьте, что ввели верно")
-
-    # если человек проходил тест гостем — переиспользуем его запись,
-    # чтобы ответы и история не потерялись при регистрации
-    user: User | None = None
-    if payload.guest_max_user_id:
-        user = await session.scalar(
-            select(User).where(User.max_user_id == payload.guest_max_user_id, User.email.is_(None))
-        )
-
-    if user is None:
-        user = User(max_user_id=f"web_{secrets.token_hex(6)}")
-        session.add(user)
-
-    user.email = email
-    user.hashed_password = hash_password(payload.password)
-    user.full_name = payload.full_name.strip()
-    user.grade = payload.grade
-    user.role = UserRole(payload.role)
-    user.is_active = True
-    if school_class is not None:
-        user.class_id = school_class.id
-        user.school_class = school_class.name
+    user = User(
+        max_user_id=f"web_{secrets.token_hex(6)}",
+        email=email,
+        hashed_password=hash_password(payload.password),
+        full_name=payload.full_name.strip(),
+        # роль жёстко задана здесь, а не приходит из запроса: иначе через эту
+        # ручку снова можно было бы завести ученика в обход мессенджера
+        role=UserRole.teacher,
+        is_active=True,
+    )
+    session.add(user)
 
     await session.commit()
     await session.refresh(user)
-    logger.info("Регистрация: %s (роль %s)", email, user.role.value)
+    logger.info("Регистрация педагога: %s", email)
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 

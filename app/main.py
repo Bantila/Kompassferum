@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from pathlib import Path
@@ -13,7 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from app.config import Settings, get_settings
+from app.config import get_settings
 from app.database import engine
 from app.routers import auth, bot, classes, practice, recommendations, teacher, tests
 
@@ -28,10 +29,11 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     settings = get_settings()
     logger.info("«Компас» запускается, модель: %s", settings.openrouter_model)
-    if settings.jwt_secret == Settings.model_fields["jwt_secret"].default:
+    if not os.getenv("JWT_SECRET"):
         logger.warning(
-            "JWT_SECRET не задан — используется дефолтный. Для стенда обязательно "
-            "задайте свой в .env, иначе токены подделываются тривиально."
+            "JWT_SECRET не задан — подставлен случайный на время работы процесса. "
+            "Подделать токен нельзя, но при каждом рестарте все входы слетают. "
+            "Задайте постоянный JWT_SECRET в .env."
         )
     yield
     await engine.dispose()
@@ -85,6 +87,12 @@ app.include_router(recommendations.router)
 app.include_router(teacher.router)
 app.include_router(classes.router)
 app.include_router(bot.router)
+
+
+@app.get("/api/public-config", tags=["service"])
+async def public_config() -> dict[str, str]:
+    """Настройки, нужные приложению до входа. Секретов здесь нет."""
+    return {"telegram_bot_username": get_settings().telegram_bot_username}
 
 
 @app.get("/health", tags=["service"])
