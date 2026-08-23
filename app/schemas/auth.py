@@ -25,6 +25,13 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
+class MiniAppLoginRequest(BaseModel):
+    """Вход из мини-приложения мессенджера — по подписанным данным, без пароля."""
+
+    init_data: str = Field(min_length=1, max_length=4096)
+    platform: str = Field(default="telegram", pattern="^(telegram|max)$")
+
+
 class ProfileOut(BaseModel):
     id: uuid.UUID
     max_user_id: str

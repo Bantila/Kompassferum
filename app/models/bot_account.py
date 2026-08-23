@@ -35,4 +35,6 @@ class BotAccount(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    user: Mapped["User | None"] = relationship()  # noqa: F821
+    # selectin, а не ленивая загрузка: в асинхронном коде обращение к связи
+    # «по требованию» падает — данные должны прийти вместе с самой записью
+    user: Mapped["User | None"] = relationship(lazy="selectin")  # noqa: F821

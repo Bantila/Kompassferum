@@ -1186,7 +1186,32 @@ tabsBar.addEventListener('click', (event) => {
 
 /* ---------- старт ---------- */
 
+/* Мост мессенджера, если приложение открыто внутри него. */
+function messengerBridge() {
+  const tg = window.Telegram?.WebApp;
+  if (tg?.initData) return { platform: 'telegram', initData: tg.initData, api: tg };
+  const max = window.WebApp;
+  if (max?.initData) return { platform: 'max', initData: max.initData, api: max };
+  return null;
+}
+
+/* Вход без пароля: подпись мессенджера подтверждает, кто открыл приложение. */
+async function loginFromMessenger(bridge) {
+  const data = await api('/api/auth/miniapp', {
+    method: 'POST',
+    body: JSON.stringify({ init_data: bridge.initData, platform: bridge.platform }),
+  });
+  S.token = data.access_token;
+  applyProfile(data.user);
+}
+
 (async function start() {
+  const bridge = messengerBridge();
+  if (bridge) {
+    // разворачиваем окно на всю высоту — иначе мини-приложение открывается «шторкой»
+    try { bridge.api.ready?.(); bridge.api.expand?.(); } catch { /* необязательно */ }
+  }
+
   try {
     Q = await api('/api/tests/questions');
   } catch (error) {
@@ -1202,6 +1227,15 @@ tabsBar.addEventListener('click', (event) => {
         S.token = null;
         save();
       }
+    }
+  }
+
+  // внутри мессенджера регистрация не нужна: входим по его подписи
+  if (!S.token && bridge) {
+    try {
+      await loginFromMessenger(bridge);
+    } catch (error) {
+      console.warn('Вход через мессенджер не удался:', error.message);
     }
   }
 

@@ -101,12 +101,39 @@ async def _ensure_link_code(session: AsyncSession, account: BotAccount) -> str:
 def _need_link(code: str, app_url: str | None) -> BotReply:
     return BotReply(
         text=(
-            "Чтобы я показывал твой прогресс и подбирал задачи, свяжи меня со своим "
-            "аккаунтом.\n\n"
-            f"Твой код: <b>{code}</b>\n\n"
-            "Открой приложение → вкладка «Профиль» → «Привязать бота» и введи его."
+            "Привет! Это «Компас» — помогу понять, какие профессии тебе подходят, "
+            "и подтянуть предметы, которых для них не хватает.\n\n"
+            "Нажми кнопку ниже, чтобы открыть приложение — аккаунт создастся сам, "
+            "регистрироваться не нужно.\n\n"
+            f"Если открываешь на компьютере, введи в приложении код: <b>{code}</b>"
         ),
         app_url=app_url,
+    )
+
+
+def _looks_like_class_code(text: str) -> bool:
+    """Код класса — шесть символов из того же алфавита, без пробелов."""
+    candidate = text.strip().upper()
+    return len(candidate) == LINK_CODE_LENGTH and all(c in LINK_CODE_ALPHABET for c in candidate)
+
+
+async def _join_class_by_code(session: AsyncSession, account: BotAccount, code: str) -> BotReply:
+    from app.models import SchoolClass  # локально: иначе циклический импорт моделей
+
+    school_class = await session.scalar(
+        select(SchoolClass).where(SchoolClass.join_code == code.strip().upper())
+    )
+    if school_class is None:
+        return BotReply(
+            text="Такого кода класса нет — проверь у учителя.", buttons=MAIN_KEYBOARD
+        )
+
+    account.user.class_id = school_class.id
+    account.user.school_class = school_class.name
+    await session.flush()
+    return BotReply(
+        text=f"Готово, ты в классе {school_class.name}. Учитель увидит тебя в сводке.",
+        buttons=MAIN_KEYBOARD,
     )
 
 
@@ -273,9 +300,15 @@ async def handle(session: AsyncSession, event: BotEvent, app_url: str | None = N
     command = (event.payload or event.text or "").strip()
 
     if account.user_id is None:
-        # без привязки бот умеет ровно одно — выдать код
+        # Обычный путь: ученик открывает мини-приложение кнопкой, оно входит по
+        # подписи мессенджера и само привязывает этот чат. Код нужен только там,
+        # где мини-приложение недоступно — например, в браузере на компьютере.
         code = await _ensure_link_code(session, account)
         return _need_link(code, app_url)
+
+    # уже привязан, но класс не указан — спросим код класса прямо в чате
+    if account.user.class_id is None and _looks_like_class_code(command):
+        return await _join_class_by_code(session, account, command)
 
     lowered = command.casefold()
     if lowered in ("/start", "start", "начать"):

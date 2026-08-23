@@ -70,21 +70,42 @@ async def send_telegram(chat_id: str, reply: BotReply) -> bool:
         "parse_mode": "HTML",
     }
 
-    keyboard: list[list[dict[str, Any]]] = []
     if reply.app_url:
-        keyboard.append([{"text": "Открыть приложение", "url": reply.app_url}])
-    if reply.buttons:
-        # обычная клавиатура под полем ввода: подписи кнопок приходят как текст,
+        # web_app вместо обычной ссылки: приложение открывается внутри мессенджера
+        # и получает подписанные данные пользователя, поэтому вход не нужен.
+        # Telegram принимает такую кнопку только с адресом по HTTPS.
+        body["reply_markup"] = {
+            "inline_keyboard": [[
+                {"text": "Открыть Компас", "web_app": {"url": reply.app_url}}
+                if reply.app_url.startswith("https://")
+                else {"text": "Открыть Компас", "url": reply.app_url}
+            ]]
+        }
+    elif reply.buttons:
+        # клавиатура под полем ввода: подписи приходят обычным текстом,
         # ядро разбирает их так же, как набранное вручную
         body["reply_markup"] = {
             "keyboard": [[{"text": label} for label in row] for row in reply.buttons],
             "resize_keyboard": True,
         }
-    if keyboard:
-        body["reply_markup"] = {"inline_keyboard": keyboard}
 
     return await _post(
         TELEGRAM_API.format(token=settings.telegram_bot_token, method="sendMessage"), body
+    )
+
+
+async def set_telegram_menu_button(app_url: str) -> bool:
+    """Кнопка слева от поля ввода, открывающая мини-приложение.
+
+    Ставится один раз для всего бота: после этого приложение доступно из чата
+    всегда, а не только из сообщения с кнопкой.
+    """
+    settings = get_settings()
+    if not settings.telegram_bot_token or not app_url.startswith("https://"):
+        return False
+    return await _post(
+        TELEGRAM_API.format(token=settings.telegram_bot_token, method="setChatMenuButton"),
+        {"menu_button": {"type": "web_app", "text": "Компас", "web_app": {"url": app_url}}},
     )
 
 

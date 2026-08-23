@@ -15,9 +15,21 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import SchoolClass, User, UserRole
-from app.schemas.auth import LoginRequest, ProfileOut, RegisterRequest, TokenResponse
-from app.services.security import create_access_token, decode_access_token, hash_password, verify_password
+from app.models import BotAccount, SchoolClass, User, UserRole
+from app.schemas.auth import (
+    LoginRequest,
+    MiniAppLoginRequest,
+    ProfileOut,
+    RegisterRequest,
+    TokenResponse,
+)
+from app.services.miniapp_auth import full_name_from, verify_max, verify_telegram
+from app.services.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +123,60 @@ async def login(payload: LoginRequest, session: AsyncSession = Depends(get_sessi
     if not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Аккаунт отключён")
 
+    return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
+
+
+@router.post("/miniapp", response_model=TokenResponse)
+async def miniapp_login(
+    payload: MiniAppLoginRequest, session: AsyncSession = Depends(get_session)
+) -> TokenResponse:
+    """Вход из мини-приложения мессенджера.
+
+    Подпись initData доказывает, кто открыл приложение, поэтому регистрация
+    не нужна: аккаунт заводится сам при первом открытии. Если этот же человек
+    уже писал боту, используется его существующая учётная запись — прогресс из
+    чата и из приложения общий.
+    """
+    verify = verify_telegram if payload.platform == "telegram" else verify_max
+    profile = verify(payload.init_data)
+    if profile is None:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, "Не удалось подтвердить, что запрос пришёл из мессенджера"
+        )
+
+    account = await session.scalar(
+        select(BotAccount).where(
+            BotAccount.platform == profile["platform"],
+            BotAccount.external_id == profile["external_id"],
+        )
+    )
+
+    user = await session.get(User, account.user_id) if account and account.user_id else None
+    if user is None:
+        user = User(
+            max_user_id=f"{profile['platform']}_{profile['external_id']}",
+            role=UserRole.student,
+            full_name=full_name_from(profile),
+        )
+        session.add(user)
+        await session.flush()
+        logger.info("Мини-приложение: заведён аккаунт для %s", user.max_user_id)
+
+    # связываем чат и аккаунт, чтобы бот сразу знал, чей это прогресс
+    if account is None:
+        account = BotAccount(
+            platform=profile["platform"],
+            external_id=profile["external_id"],
+            chat_id=profile["external_id"],
+            user_id=user.id,
+        )
+        session.add(account)
+    else:
+        account.user_id = user.id
+        account.link_code = None
+
+    await session.commit()
+    await session.refresh(user)
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 

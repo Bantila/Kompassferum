@@ -107,17 +107,30 @@ curl http://localhost/health
 ### Запуск под Windows без Docker
 
 Для разработки удобнее поднимать сервер напрямую. Нужны Python 3.11+ и
-установленный PostgreSQL со схемой `kompas`.
+установленный PostgreSQL.
 
-Один раз — создать окружение:
+**1. База.** Один раз создать пользователя и базу — в psql под учёткой
+`postgres` (пароль задавался при установке PostgreSQL):
+
+```sql
+CREATE ROLE kompas LOGIN PASSWORD 'ваш_пароль';
+CREATE DATABASE kompas OWNER kompas;
+```
+
+**2. Настройки.** Скопировать `.env.example` в `.env` и заполнить: пароль базы
+в `DATABASE_URL` и `POSTGRES_PASSWORD`, любую длинную случайную строку в
+`JWT_SECRET`. Ключ OpenRouter не обязателен — без него рекомендации и разбор
+ошибок приходят от запасного алгоритма.
+
+**3. Окружение:**
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Дальше запуск в одну команду — скрипт проверит службу PostgreSQL, накатит
-миграции и поднимет сервер:
+**4. Запуск** — скрипт проверит службу PostgreSQL, накатит миграции и поднимет
+сервер:
 
 ```powershell
 .\start.bat
@@ -129,6 +142,39 @@ python -m venv .venv
 Вариант `.\start.ps1` делает то же самое, но требует разрешить выполнение
 скриптов — `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
 Обёртка `start.bat` нужна ровно для того, чтобы этой настройки не требовалось.
+
+**5. Демо-данные** (необязательно) — класс 7Б, педагог и восемь учеников:
+
+```powershell
+.venv\Scripts\python.exe -m app.seed
+```
+
+### Отладка бота на своей машине
+
+Мессенджер открывает мини-приложение только по HTTPS, а у локального сервера
+такого адреса нет. Для отладки годится временный туннель:
+
+```powershell
+.\cloudflared.exe tunnel --url http://localhost:8000
+```
+
+Он выдаёт адрес вида `https://…​.trycloudflare.com`. Дальше одной командой
+записываем его в `.env` и вешаем кнопку мини-приложения на бота:
+
+```powershell
+.venv\Scripts\python.exe -m app.setup_bot https://ваш-адрес.trycloudflare.com
+```
+
+После этого перезапустить сервер и поднять бота опросом:
+
+```powershell
+.venv\Scripts\python.exe -m app.poll_bot
+```
+
+Каждому разработчику нужен **свой** бот от `@BotFather`: Telegram отдаёт
+сообщения только одному получателю, и два человека с одним токеном будут
+перехватывать события друг у друга. Адрес туннеля меняется при каждом запуске,
+поэтому `setup_bot` придётся повторять.
 
 ### HTTPS на своём домене
 
