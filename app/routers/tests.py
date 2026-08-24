@@ -9,10 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import Recommendation, TestResult, User, UserRole
+from app.models import Recommendation, TestProgress, TestResult, User, UserRole
+from app.routers.auth import get_current_user
 from app.schemas.test import (
     CheckAnswerRequest,
     CheckAnswerResponse,
+    ProgressResponse,
+    ProgressSaveRequest,
     QuestionsResponse,
     TestSubmitRequest,
     TestSubmitResponse,
@@ -50,6 +53,78 @@ async def get_questions(
         return QuestionsResponse(**public_questions(block=block, subject_group=subject_group))
     except ScoringError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+
+@router.get("/progress", response_model=ProgressResponse)
+async def get_progress(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ProgressResponse:
+    """Незавершённый тест ученика.
+
+    Черновик привязан к аккаунту, а не к браузеру: очистил данные, открыл
+    приложение на другом телефоне или зашёл из бота — ответы на месте.
+    """
+    progress = await session.scalar(
+        select(TestProgress).where(TestProgress.user_id == user.id)
+    )
+    if progress is None:
+        return ProgressResponse()
+
+    return ProgressResponse(
+        answers=progress.answers or {},
+        plan=progress.plan or None,
+        updated_at=progress.updated_at,
+        answered=len(progress.answers or {}),
+    )
+
+
+@router.put("/progress", response_model=ProgressResponse)
+async def save_progress(
+    payload: ProgressSaveRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ProgressResponse:
+    """Сохранить черновик. Ответы приходят целиком и заменяют прежние.
+
+    Слияние здесь было бы вредным: удалить ответ (вернуться назад и
+    переотвечать) стало бы невозможно, а два устройства всё равно
+    разъезжаются — выигрывает то, где отвечали последним.
+    """
+    progress = await session.scalar(
+        select(TestProgress).where(TestProgress.user_id == user.id)
+    )
+    if progress is None:
+        progress = TestProgress(user_id=user.id)
+        session.add(progress)
+
+    progress.answers = payload.answers
+    if payload.plan is not None:
+        progress.plan = payload.plan
+
+    await session.commit()
+    await session.refresh(progress)
+
+    return ProgressResponse(
+        answers=progress.answers or {},
+        plan=progress.plan or None,
+        updated_at=progress.updated_at,
+        answered=len(progress.answers or {}),
+    )
+
+
+@router.delete("/progress", status_code=status.HTTP_204_NO_CONTENT)
+async def reset_progress(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> None:
+    """Начать тест заново."""
+    progress = await session.scalar(
+        select(TestProgress).where(TestProgress.user_id == user.id)
+    )
+    if progress is not None:
+        await session.delete(progress)
+        await session.commit()
 
 
 @router.post("/check-answer", response_model=CheckAnswerResponse)
@@ -115,6 +190,14 @@ async def submit_test(
             model_used=ai_result["model_used"],
         )
     )
+    # черновик больше не нужен: тест сдан, иначе приложение предложит
+    # «продолжить» уже завершённое прохождение
+    черновик = await session.scalar(
+        select(TestProgress).where(TestProgress.user_id == user.id)
+    )
+    if черновик is not None:
+        await session.delete(черновик)
+
     await session.commit()
     await session.refresh(test_result)
 
