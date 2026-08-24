@@ -122,3 +122,25 @@ async def test_login_through_max_creates_student(client, monkeypatch: pytest.Mon
     assert профиль["role"] == "student"
     assert профиль["email"] is None
     assert профиль["max_user_id"] == "max_424242"
+
+
+async def test_webhook_checks_secret_header(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    """MAX возвращает секрет подписки в X-Max-Bot-Api-Secret — сверяем именно его.
+
+    Имя заголовка легко перепутать, а ошибка тихая: вебхук начнёт отвечать 401
+    на все события платформы, и бот просто перестанет получать сообщения.
+    """
+    monkeypatch.setattr(get_settings(), "max_webhook_secret", "s3cret-value")
+    событие = {"update_type": "bot_started", "user_id": 1, "chat_id": 1}
+
+    без_заголовка = await client.post("/api/bot/max", json=событие)
+    чужой = await client.post(
+        "/api/bot/max", json=событие, headers={"X-Max-Bot-Api-Secret": "wrong-value"}
+    )
+    свой = await client.post(
+        "/api/bot/max", json=событие, headers={"X-Max-Bot-Api-Secret": "s3cret-value"}
+    )
+
+    assert без_заголовка.status_code == 401
+    assert чужой.status_code == 401
+    assert свой.status_code == 200

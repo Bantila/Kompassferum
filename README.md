@@ -223,7 +223,7 @@ HTTP редиректит на HTTPS, `/.well-known/acme-challenge/` остаё�
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Учётка контейнера БД, должна совпадать с `DATABASE_URL` |
 | `OPENROUTER_API_KEY` | Ключ OpenRouter. Пустой → всегда rule-based рекомендации |
 | `OPENROUTER_MODEL` | Slug модели, по умолчанию `moonshotai/kimi-k2` |
-| `MAX_WEBHOOK_SECRET` | Секрет для проверки заголовка `X-Max-Signature` на вебхуке |
+| `MAX_WEBHOOK_SECRET` | Секрет подписки MAX: приходит обратно в заголовке `X-Max-Bot-Api-Secret`. Только буквы, цифры и дефис, 5–256 символов — `openssl rand -hex 32` |
 
 Секреты читаются только из окружения, в коде их нет.
 
@@ -334,7 +334,7 @@ curl "http://localhost/api/teacher/<teacher_max_id>/class-summary?school_class=7
 
 # вебхук MAX
 curl -X POST http://localhost/api/webhook/max \
-  -H 'X-Max-Signature: <MAX_WEBHOOK_SECRET>' \
+  -H 'X-Max-Bot-Api-Secret: <MAX_WEBHOOK_SECRET>' \
   -H 'Content-Type: application/json' \
   -d '{"update_type": "message_created"}'
 ```
@@ -417,8 +417,8 @@ pytest -q
   (HMAC-SHA256 с ключом «WebAppData»), и покрыта тестами, но первый реальный
   запуск может вскрыть расхождения.
 - **Подпись вебхука MAX — прямое сравнение секрета** из заголовка
-  `X-Max-Signature`. Если платформа подписывает тело HMAC-ом, логику нужно
-  будет заменить.
+  `X-Max-Bot-Api-Secret`: платформа возвращает значение, заданное при подписке,
+  а не HMAC от тела. Так описано в документации, на живой платформе не проверено.
 - **Роль педагога никем не подтверждается.** Сводка по классу отдаётся любому
   пользователю с `role=teacher`; связь «педагог ↔ его класс» не проверяется.
 - **Согласия на обработку данных не хранятся.** Сводка ограничена k-анонимностью
