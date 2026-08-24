@@ -1,20 +1,27 @@
-"""Подбор профессий через GigaChat.
+"""Подбор профессий через GigaChat со строгой схемой ответа.
 
-Сеть не трогаем: SDK подменяется целиком. Проверяем, что провайдер
-выбирается настройкой, ответ разбирается тем же кодом, что и у OpenRouter,
-а любой отказ Сбера приводит к rule-based подбору, а не к исключению.
+Сеть не трогаем: клиент подменяется целиком. Главное отличие от OpenRouter —
+формат держится не на тексте промпта, а на JSON-схеме, которую проверяет сам
+API. Поэтому здесь проверяется не разбор текста, а что схема требует ровно
+пять профессий с категорией из перечня, и что любой отказ Сбера по-прежнему
+приводит к rule-based подбору, а не к исключению.
 """
 
 from __future__ import annotations
 
 import json
-from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
 from app.config import get_settings
 from app.services import ai_recommender
-from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
+from app.services.ai_recommender import (
+    FALLBACK_MODEL_NAME,
+    ProfessionAdvice,
+    ProfessionSuggestion,
+    recommend_professions,
+)
 
 SCORES = {
     "interests": {"investigative": 4.8, "artistic": 2.0, "social": 3.0},
@@ -30,17 +37,17 @@ SCORES = {
     "softskills": {"analytical": 4.6},
 }
 
-ANSWER = {
-    "professions": [
-        {
-            "name": f"Профессия {i}",
-            "reasoning": "Твой investigative 4.8 и знание математики 5.0 говорят сами за себя.",
-            "subjects_to_improve": ["информатика"],
-            "category": "технологии",
-        }
-        for i in range(5)
-    ]
-}
+
+def подсказка(номер: int) -> ProfessionSuggestion:
+    return ProfessionSuggestion(
+        name=f"Профессия {номер}",
+        reasoning="Твой investigative 4.8 и знание математики 5.0 говорят сами за себя.",
+        subjects_to_improve=["информатика"],
+        category="технологии",
+    )
+
+
+ADVICE = ProfessionAdvice(professions=[подсказка(i) for i in range(5)])
 
 
 @pytest.fixture
@@ -51,44 +58,87 @@ def gigachat_selected(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(settings, "gigachat_model", "GigaChat")
 
 
-def fake_sdk(monkeypatch: pytest.MonkeyPatch, *, content: str | None = None,
-             error: Exception | None = None) -> dict:
-    """Подменяет _ask_gigachat, сохраняя переданный промпт для проверок."""
-    captured: dict = {}
+class FakeStructured:
+    """Модель с наложенной схемой: возвращает готовый объект, а не текст."""
 
-    async def ask(scores):  # noqa: ANN001, ANN202
-        captured["scores"] = scores
-        if error is not None:
-            raise error
-        return content, {"choices": [{"message": {"content": content}}]}
+    def __init__(self, advice: ProfessionAdvice | None, error: Exception | None) -> None:
+        self.advice, self.error = advice, error
+        self.calls: list = []
 
-    monkeypatch.setattr(ai_recommender, "_ask_gigachat", ask)
-    return captured
+    async def ainvoke(self, messages):  # noqa: ANN001, ANN202
+        self.calls.append(messages)
+        if self.error is not None:
+            raise self.error
+        return self.advice
 
 
-async def test_gigachat_answer_is_used(monkeypatch: pytest.MonkeyPatch, gigachat_selected) -> None:
-    captured = fake_sdk(monkeypatch, content=json.dumps(ANSWER, ensure_ascii=False))
+def fake_gigachat(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    advice: ProfessionAdvice | None = ADVICE,
+    error: Exception | None = None,
+) -> dict:
+    """Подменяет langchain_gigachat.GigaChat, сохраняя параметры вызова."""
+    записано: dict = {}
+    structured = FakeStructured(advice, error)
+
+    class FakeModel:
+        def __init__(self, **kwargs):
+            записано["client"] = kwargs
+
+        def with_structured_output(self, schema, **kwargs):  # noqa: ANN001, ANN202
+            записано["schema"] = schema
+            записано["structured_kwargs"] = kwargs
+            return structured
+
+    import langchain_gigachat
+
+    monkeypatch.setattr(langchain_gigachat, "GigaChat", FakeModel)
+    записано["structured"] = structured
+    return записано
+
+
+async def test_answer_by_schema_is_used(
+    monkeypatch: pytest.MonkeyPatch, gigachat_selected
+) -> None:
+    записано = fake_gigachat(monkeypatch)
 
     result = await recommend_professions(SCORES)
 
     assert result["fallback"] is False
     assert result["model_used"] == "GigaChat"
-    assert len(result["professions"]) == 5
-    # профиль ученика уходит в модель целиком, иначе обосновать баллами нечем
-    assert captured["scores"] == SCORES
+    assert [p["name"] for p in result["professions"]] == [f"Профессия {i}" for i in range(5)]
 
 
-async def test_gigachat_markdown_wrapper_is_stripped(
+async def test_schema_is_sent_to_api(monkeypatch: pytest.MonkeyPatch, gigachat_selected) -> None:
+    """Строгость должна держаться на API, а не на просьбе в промпте."""
+    записано = fake_gigachat(monkeypatch)
+
+    await recommend_professions(SCORES)
+
+    assert записано["schema"] is ProfessionAdvice
+    assert записано["structured_kwargs"] == {"method": "json_schema", "strict": True}
+    assert записано["client"]["credentials"] == "test-authorization-key"
+    assert записано["client"]["scope"] == "GIGACHAT_API_PERS"
+    assert записано["client"]["base_url"] == "https://api.giga.chat/v1"
+
+
+async def test_prompt_has_no_json_instructions(
     monkeypatch: pytest.MonkeyPatch, gigachat_selected
 ) -> None:
-    """Модель часто отвечает пояснением и ```json — разбор это переживает."""
-    fenced = "Вот подборка:\n```json\n" + json.dumps(ANSWER, ensure_ascii=False) + "\n```"
-    fake_sdk(monkeypatch, content=fenced)
+    """Просить «верни валидный JSON» бессмысленно, когда формат гарантирован."""
+    записано = fake_gigachat(monkeypatch)
 
-    result = await recommend_professions(SCORES)
+    await recommend_professions(SCORES)
 
-    assert result["fallback"] is False
-    assert len(result["professions"]) == 5
+    системное, пользовательское = записано["structured"].calls[0]
+    # слово JSON в описании входных данных допустимо, а вот требований
+    # к формату ответа быть не должно — за них отвечает схема
+    assert ai_recommender.JSON_FORMAT_TAIL not in системное.content
+    assert "```" not in системное.content
+    assert "СТРОГО валидным" not in системное.content
+    # профиль уходит в модель целиком, иначе обосновать баллами нечем
+    assert json.loads(пользовательское.content) == SCORES
 
 
 @pytest.mark.parametrize(
@@ -96,29 +146,19 @@ async def test_gigachat_markdown_wrapper_is_stripped(
     [
         (RuntimeError("Unauthorized"), "ключ не принят"),
         (TimeoutError("too slow"), "сервис не ответил"),
-        (ValueError("500 Internal Server Error"), "ошибка на стороне сбера"),
+        (ValueError("500 Internal Server Error"), "ошибка на стороне Сбера"),
     ],
 )
-async def test_any_gigachat_failure_falls_back(
+async def test_any_failure_falls_back(
     monkeypatch: pytest.MonkeyPatch, gigachat_selected, error: Exception, случай: str
 ) -> None:
-    fake_sdk(monkeypatch, error=error)
+    fake_gigachat(monkeypatch, advice=None, error=error)
 
     result = await recommend_professions(SCORES)
 
     assert result["fallback"] is True, случай
     assert result["model_used"] == FALLBACK_MODEL_NAME
     assert len(result["professions"]) == 5
-
-
-async def test_gigachat_nonsense_answer_falls_back(
-    monkeypatch: pytest.MonkeyPatch, gigachat_selected
-) -> None:
-    fake_sdk(monkeypatch, content="Извините, не могу ответить на этот вопрос.")
-
-    result = await recommend_professions(SCORES)
-
-    assert result["fallback"] is True
 
 
 async def test_provider_without_credentials_falls_back(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -148,37 +188,21 @@ def test_provider_choice_is_explicit(monkeypatch: pytest.MonkeyPatch) -> None:
     assert ai_recommender._select_provider() is None
 
 
-async def test_gigachat_request_shape(monkeypatch: pytest.MonkeyPatch, gigachat_selected) -> None:
-    """Проверяем сам вызов SDK: модель, температура и роли сообщений."""
-    sent: dict = {}
+@pytest.mark.parametrize(
+    ("сколько", "случай"),
+    [(4, "меньше пяти"), (6, "больше пяти")],
+)
+def test_schema_requires_exactly_five(сколько: int, случай: str) -> None:
+    with pytest.raises(ValidationError):
+        ProfessionAdvice(professions=[подсказка(i) for i in range(сколько)])
 
-    class FakeClient:
-        def __init__(self, **kwargs):
-            sent["client"] = kwargs
 
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, *exc):
-            return False
-
-        async def achat(self, chat):  # noqa: ANN001, ANN202
-            sent["chat"] = chat
-            message = SimpleNamespace(content=json.dumps(ANSWER, ensure_ascii=False))
-            response = SimpleNamespace(choices=[SimpleNamespace(message=message)])
-            response.dict = lambda: {"ok": True}
-            return response
-
-    import gigachat
-
-    monkeypatch.setattr(gigachat, "GigaChat", FakeClient)
-
-    result = await recommend_professions(SCORES)
-
-    assert result["fallback"] is False
-    assert sent["client"]["credentials"] == "test-authorization-key"
-    assert sent["client"]["scope"] == "GIGACHAT_API_PERS"
-    assert sent["client"]["base_url"] == "https://api.giga.chat/v1"
-    assert sent["chat"].model == "GigaChat"
-    assert sent["chat"].temperature == 0.3
-    assert [m.role for m in sent["chat"].messages] == ["system", "user"]
+def test_schema_rejects_unknown_category() -> None:
+    """Категория нужна фронту для цвета карточки — выдуманная сломает вид."""
+    with pytest.raises(ValidationError):
+        ProfessionSuggestion(
+            name="Космонавт",
+            reasoning="потому что",
+            subjects_to_improve=["физика"],
+            category="приключения",
+        )

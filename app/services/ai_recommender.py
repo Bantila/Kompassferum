@@ -16,9 +16,10 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import Any
+from typing import Any, Literal
 
 import httpx
+from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from app.services.test_scoring import load_questions
@@ -43,6 +44,13 @@ SYSTEM_PROMPT = """Ты — профориентационный ассисте�
 - Предметы для подтягивания выбирай из тех, что реально нужны профессии и где у ученика балл ниже.
 - category — одно из: технологии, наука, творчество, услуги, менеджмент, медицина, образование.
 
+Ровно 5 элементов в списке профессий."""
+
+# GigaChat проверяет ответ по JSON-схеме на своей стороне, поэтому просить
+# его «верни валидный JSON» не нужно. OpenRouter такого не умеет — ему
+# формат приходится описывать словами.
+JSON_FORMAT_TAIL = """
+
 Ответ верни СТРОГО валидным JSON без markdown-обёртки, без ``` и без пояснений до или после:
 {
   "professions": [
@@ -53,8 +61,41 @@ SYSTEM_PROMPT = """Ты — профориентационный ассисте�
       "category": "технологии"
     }
   ]
-}
-Ровно 5 элементов в массиве professions."""
+}"""
+
+CATEGORIES = (
+    "технологии", "наука", "творчество", "услуги", "менеджмент", "медицина", "образование",
+)
+
+
+class ProfessionSuggestion(BaseModel):
+    """Одна профессия в ответе модели.
+
+    Описания полей уходят в JSON-схему и работают как часть промпта:
+    GigaChat видит их при генерации, поэтому формулировки здесь — тоже
+    требования к ответу, а не комментарии для разработчика.
+    """
+
+    name: str = Field(description="Название профессии на русском языке")
+    reasoning: str = Field(
+        description=(
+            "Два-три предложения, почему профессия подходит именно этому ученику. "
+            "Обязательно назови конкретные баллы из профиля. Обращайся на «ты»."
+        )
+    )
+    subjects_to_improve: list[str] = Field(
+        description="Школьные предметы, которые ученику стоит подтянуть ради этой профессии"
+    )
+    category: Literal[CATEGORIES] = Field(  # type: ignore[valid-type]
+        description="Направление, к которому относится профессия"
+    )
+
+
+class ProfessionAdvice(BaseModel):
+    """Ответ модели целиком: ровно пять профессий, меньше или больше не принимаем."""
+
+    professions: list[ProfessionSuggestion] = Field(min_length=5, max_length=5)
+
 
 # По одной профессии-заглушке на каждый тип Голланда — используется,
 # когда LLM недоступна.
@@ -295,14 +336,15 @@ async def explain_mistake(
         return None
 
 
-async def _ask_openrouter(scores: dict[str, Any]) -> tuple[str, dict[str, Any]]:
-    """Запрос к OpenRouter. Возвращает текст ответа и сырой JSON."""
+async def _ask_openrouter(scores: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Запрос к OpenRouter. Формат ответа держится только на тексте промпта,
+    поэтому JSON приходится вылавливать из ответа и проверять вручную."""
     settings = get_settings()
     body = {
         "model": settings.openrouter_model,
         "temperature": 0.3,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": SYSTEM_PROMPT + JSON_FORMAT_TAIL},
             {"role": "user", "content": json.dumps(scores, ensure_ascii=False)},
         ],
     }
@@ -319,42 +361,47 @@ async def _ask_openrouter(scores: dict[str, Any]) -> tuple[str, dict[str, Any]]:
         response.raise_for_status()
         raw = response.json()
 
-    return raw["choices"][0]["message"]["content"], raw
+    content = raw["choices"][0]["message"]["content"]
+    return _validate_professions(json.loads(_strip_markdown_fence(content))), raw
 
 
-async def _ask_gigachat(scores: dict[str, Any]) -> tuple[str, dict[str, Any]]:
-    """Запрос к GigaChat через официальный SDK.
+async def _ask_gigachat(scores: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Запрос к GigaChat со строгой схемой ответа.
+
+    Схема ProfessionAdvice уходит в API как json_schema, и модель физически
+    не может ответить произвольным текстом: ни markdown-обёртки, ни пяти с
+    половиной профессий, ни выдуманной категории. Разбор текста и проверки
+    на нашей стороне становятся не нужны.
 
     SDK сам меняет Authorization key на токен доступа и обновляет его, когда
-    тридцать минут жизни токена истекают, — поэтому своего кэша здесь нет.
-    Импорт внутри функции: без выбранного провайдера пакет не нужен.
+    тридцать минут жизни токена истекают. Импорт внутри функции: без
+    выбранного провайдера тянуть langchain в память незачем.
     """
-    from gigachat import GigaChat
-    from gigachat.models import Chat, Messages, MessagesRole
+    from langchain_core.messages import HumanMessage, SystemMessage
+    from langchain_gigachat import GigaChat
 
     settings = get_settings()
-    async with GigaChat(
+    model = GigaChat(
         credentials=settings.gigachat_credentials,
         scope=settings.gigachat_scope,
+        model=settings.gigachat_model,
         base_url=settings.gigachat_base_url,
         verify_ssl_certs=settings.gigachat_verify_ssl,
+        ca_bundle_file=settings.gigachat_ca_bundle or None,
         timeout=settings.openrouter_timeout_seconds,
-    ) as client:
-        response = await client.achat(
-            Chat(
-                model=settings.gigachat_model,
-                temperature=0.3,
-                messages=[
-                    Messages(role=MessagesRole.SYSTEM, content=SYSTEM_PROMPT),
-                    Messages(
-                        role=MessagesRole.USER,
-                        content=json.dumps(scores, ensure_ascii=False),
-                    ),
-                ],
-            )
-        )
+        temperature=0.3,
+    )
+    structured = model.with_structured_output(
+        ProfessionAdvice, method="json_schema", strict=True
+    )
 
-    return response.choices[0].message.content, response.dict()
+    advice: ProfessionAdvice = await structured.ainvoke(
+        [
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=json.dumps(scores, ensure_ascii=False)),
+        ]
+    )
+    return [p.model_dump() for p in advice.professions], advice.model_dump()
 
 
 def _select_provider() -> tuple[str, Any, str] | None:
@@ -386,8 +433,7 @@ async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
     provider, ask, model_name = selected
     raw_response: dict[str, Any] = {}
     try:
-        content, raw_response = await ask(scores)
-        professions = _validate_professions(json.loads(_strip_markdown_fence(content)))
+        professions, raw_response = await ask(scores)
 
     except httpx.TimeoutException:
         logger.error("%s не ответил за %ss", provider, get_settings().openrouter_timeout_seconds)
