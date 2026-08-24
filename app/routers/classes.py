@@ -37,6 +37,7 @@ from app.schemas.school_class import (
     LeaderboardRow,
 )
 from app.services.gamification import level_of
+from app.services.integrity import summary_line as integrity_note
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +169,23 @@ async def leaderboard(
         )
     ).all()
 
+    # Пометка о доверии берётся из последнего прохождения: если ученик
+    # прокликал тест, педагог должен видеть это рядом с его цифрами, иначе
+    # решения принимаются по числам, за которыми ничего нет.
+    заметки: dict[uuid.UUID, str] = {}
+    прохождения = (
+        await session.execute(
+            select(TestResult.user_id, TestResult.integrity)
+            .where(TestResult.user_id.in_([row[0] for row in rows]))
+            .order_by(TestResult.user_id, TestResult.completed_at.desc())
+        )
+    ).all()
+    for user_id, integrity in прохождения:
+        if user_id not in заметки:
+            note = integrity_note(integrity)
+            if note:
+                заметки[user_id] = note
+
     return LeaderboardResponse(
         class_id=school_class.id,
         class_name=school_class.name,
@@ -183,6 +201,7 @@ async def leaderboard(
                 correct=correct,
                 accuracy=round(correct / solved, 3) if solved else 0.0,
                 test_done=tests > 0,
+                integrity_note=заметки.get(student_id),
             )
             for index, (student_id, full_name, xp, streak, solved, correct, tests)
             in enumerate(rows, start=1)

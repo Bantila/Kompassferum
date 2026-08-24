@@ -18,6 +18,7 @@ from app.schemas.test import (
     TestSubmitResponse,
 )
 from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
+from app.services.integrity import check as check_answers
 from app.services.test_scoring import (
     ScoringError,
     calculate_scores,
@@ -95,8 +96,12 @@ async def submit_test(
         if payload.school_class:
             user.school_class = payload.school_class
 
+    integrity = check_answers(payload.answers)
     test_result = TestResult(
-        user_id=user.id, raw_answers=payload.answers, computed_scores=scores
+        user_id=user.id,
+        raw_answers=payload.answers,
+        computed_scores=scores,
+        integrity=integrity,
     )
     session.add(test_result)
     await session.flush()
