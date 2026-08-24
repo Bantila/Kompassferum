@@ -20,6 +20,10 @@ class TestResult(Base):
     raw_answers: Mapped[dict[str, Any]] = mapped_column(JSONColumn, default=dict)
     # результат calculate_scores()
     computed_scores: Mapped[dict[str, Any]] = mapped_column(JSONColumn, default=dict)
+    # насколько ответам можно доверять: уровень и сработавшие признаки.
+    # Ничего не блокирует — нужно, чтобы педагог не принимал решения по
+    # цифрам, за которыми стоит прокликанный за минуту тест
+    integrity: Mapped[dict[str, Any]] = mapped_column(JSONColumn, default=dict)
     completed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
