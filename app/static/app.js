@@ -14,6 +14,29 @@ const HOLLAND_TITLES = {
 };
 // порядок осей радара по часовой стрелке, начиная сверху
 const RADAR_ORDER = ['investigative', 'artistic', 'social', 'enterprising', 'conventional', 'realistic'];
+// Незакрытое достижение — не «замок», а ненанесённая отметка на карте:
+// эмодзи в каждой ОС выглядит по-своему и ломает набор.
+const ICON_PENDING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+  stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true">
+  <circle cx="12" cy="12" r="7.5" stroke-dasharray="3 3"></circle></svg>`;
+const ICON_STREAK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+  stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
+  <path d="M4 18 L9 11 L13 14 L20 6"></path><path d="M20 11 V6 H15"></path></svg>`;
+
+// Полученные отметки — впереди, из ненанесённых показываем только ближайшие:
+// восемнадцать одинаковых плиток занимают экран и ничего не сообщают.
+const BADGES_SHOWN = 6;
+
+function badgeTiles(achievements, showAll) {
+  const sorted = [...achievements].sort((a, b) => Number(b.earned) - Number(a.earned));
+  const visible = showAll ? sorted : sorted.filter((a, i) => a.earned || i < BADGES_SHOWN);
+  return visible.map((a) => `
+    <div class="badge ${a.earned ? '' : 'locked'}" title="${esc(a.hint)}">
+      <div class="ico">${a.earned ? a.icon : ICON_PENDING}</div>
+      <div class="nm">${esc(a.earned ? a.title : a.hint)}</div>
+    </div>`).join('');
+}
+
 const SOFTSKILL_TITLES = {
   teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
   analytical: 'Аналитика', resilience: 'Усидчивость',
@@ -235,7 +258,7 @@ function xpCard(p) {
           <div class="h5">Уровень ${p.level}</div>
           <div class="t3">${p.xp} XP · до следующего ${p.xp_to_next}</div>
         </div>
-        ${p.streak_days ? `<div class="streak">🔥 ${p.streak_days} ${plural(p.streak_days, 'день', 'дня', 'дней')}</div>` : ''}
+        ${p.streak_days ? `<div class="streak">${ICON_STREAK} ${p.streak_days} ${plural(p.streak_days, 'день', 'дня', 'дней')}</div>` : ''}
       </div>
       <div class="prog"><i style="width:${(p.xp_in_level / p.xp_per_level) * 100}%"></i></div>
       ${p.total_tasks ? `<div class="t3">Решено задач: ${p.total_tasks} · точность ${Math.round(p.accuracy * 100)}%</div>` : ''}
@@ -290,7 +313,7 @@ async function screenOnboarding() {
            ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
           ${i ? '<div class="sep inset"></div>' : ''}
           <div class="row">
-            <div style="width:28px;height:28px;border-radius:9px;background:rgb(0 122 255 / .16);color:var(--accent);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">${letter}</div>
+            <div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--fill);color:var(--t2);font-family:var(--mono);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">${letter}</div>
             <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
             <div class="t4s">${time}</div>
           </div>`).join('')}
@@ -590,13 +613,12 @@ async function screenProfile() {
             <div class="h4">Достижения</div>
             <div class="t3">${progress.earned_count} из ${progress.total_achievements}</div>
           </div>
-          <div class="badges">
-            ${progress.achievements.map((a) => `
-              <div class="badge ${a.earned ? '' : 'locked'}" title="${esc(a.hint)}">
-                <div class="ico">${a.earned ? a.icon : '🔒'}</div>
-                <div class="nm">${esc(a.earned ? a.title : a.hint)}</div>
-              </div>`).join('')}
+          <div class="badges" data-badges>
+            ${badgeTiles(progress.achievements, false)}
           </div>
+          ${progress.achievements.length > BADGES_SHOWN
+            ? `<div class="link" style="text-align:center" data-badges-toggle>Показать все ${progress.achievements.length}</div>`
+            : ''}
         </div>` : ''}
       <div class="list">
         ${S.classId ? '' : '<div class="row" data-go="join-class"><div class="grow"><div class="h5">Ввести код класса</div><div class="t3">Чтобы попасть в сводку учителя</div></div></div><div class="sep"></div>'}
@@ -620,6 +642,16 @@ async function screenProfile() {
     `}
     <div class="link" style="text-align:center" data-go="teacher">Я педагог — открыть кабинет</div>
   `, { title: 'Профиль', tab: 'profile' });
+
+  const toggle = view.querySelector('[data-badges-toggle]');
+  if (toggle && progress) {
+    let showAll = false;
+    toggle.onclick = () => {
+      showAll = !showAll;
+      view.querySelector('[data-badges]').innerHTML = badgeTiles(progress.achievements, showAll);
+      toggle.textContent = showAll ? 'Свернуть' : `Показать все ${progress.achievements.length}`;
+    };
+  }
 }
 
 /* Привязка чат-бота: код присылает бот, ученик вводит его здесь. */
@@ -749,7 +781,7 @@ function screenSubjects() {
             ? `<div style="width:28px;height:28px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5L5 9.5L13 1.5" stroke="rgb(23 24 28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>`
             : s.done
               ? `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px;font-weight:600;color:var(--accent)">${s.done}</div>`
-              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid rgb(255 255 255 / .12);flex:0 0 auto"></div>`}
+              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--stroke);flex:0 0 auto"></div>`}
           <div class="grow">
             <div class="h5">${esc(s.title)}</div>
             ${s.done === s.total
@@ -758,7 +790,7 @@ function screenSubjects() {
                 ? `<div class="prog xs" style="margin-top:6px"><i style="width:${(s.done / s.total) * 100}%"></i></div>`
                 : `<div class="t3">${s.total} вопроса · 2 мин</div>`}
           </div>
-          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgb(255 255 255 / .28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
+          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
         </div>`).join('')}
     </div>
     <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
@@ -847,7 +879,7 @@ function screenSubject(code) {
         <div class="ans" data-index="${i}">
           <div class="key">${'АБВГ'[i] || i + 1}</div>
           <div class="txt">${esc(option)}</div>
-          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="rgb(0 122 255)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="var(--north)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>`).join('')}
     </div>
     <div class="link" style="align-self:flex-start" data-skip>Не знаю — пропустить</div>
@@ -929,22 +961,22 @@ function radarSVG(interests) {
   const labels = RADAR_ORDER.map((key, i) => {
     const [x, y] = point(i, 1.22);
     const percent = Math.round(((interests[key] ?? 0) / 5) * 100);
-    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(255 255 255 / .8)">${HOLLAND_TITLES[key]}</text>
-            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="rgb(255 255 255 / .44)">${percent}</text>`;
+    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--t2)">${HOLLAND_TITLES[key]}</text>
+            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="var(--t4)" font-family="ui-monospace,monospace">${percent}</text>`;
   }).join('');
 
   return `<svg width="280" height="280" viewBox="0 0 280 280" role="img" aria-label="Профиль интересов">
-    <polygon points="${ring(1)}" fill="rgb(255 255 255 / .04)" stroke="rgb(255 255 255 / .12)"></polygon>
-    <polygon points="${ring(0.66)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
-    <polygon points="${ring(0.33)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
+    <polygon points="${ring(1)}" fill="var(--fill2)" stroke="var(--stroke)"></polygon>
+    <polygon points="${ring(0.66)}" fill="none" stroke="var(--line)"></polygon>
+    <polygon points="${ring(0.33)}" fill="none" stroke="var(--line)"></polygon>
     ${RADAR_ORDER.map((_, i) => {
       const [x, y] = point(i, 1);
-      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgb(255 255 255 / .06)"></line>`;
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"></line>`;
     }).join('')}
-    <polygon points="${shape}" fill="rgb(0 122 255 / .28)" stroke="rgb(0 122 255)" stroke-width="2" stroke-linejoin="round"></polygon>
+    <polygon points="${shape}" fill="var(--water)" fill-opacity="0.2" stroke="var(--water)" stroke-width="2" stroke-linejoin="round"></polygon>
     ${values.map((v, i) => {
       const [x, y] = point(i, v);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="rgb(0 122 255)"></circle>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="var(--north)"></circle>`;
     }).join('')}
     ${labels}
   </svg>`;

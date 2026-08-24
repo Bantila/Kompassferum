@@ -444,7 +444,8 @@ async function submitAuth() {
   authStatus.textContent = '';
   try {
     const body = registerMode
-      ? { email, password, full_name: fullName, role: 'teacher' }
+      // роль не передаём: регистрация по почте и так заводит только педагога
+      ? { email, password, full_name: fullName }
       : { email, password };
     const data = await apiFetch(`/api/auth/${registerMode ? 'register' : 'login'}`,
       { method: 'POST', body: JSON.stringify(body) });
