@@ -174,10 +174,27 @@ function render(html, { title = 'Компас', progress = 0, action = null, tab
 
 const blockA = () => Q.block_a_interests;
 const blockC = () => Q.block_c_softskills;
-const subjectCodes = () => [...new Set(Q.block_b_subjects.map((q) => q.subject))];
-const subjectQuestions = (code) => Q.block_b_subjects.filter((q) => q.subject === code);
+
+/* Блок B спрашивается не целиком. После блока A сервер подбирает пять
+   предметов под склад ученика, и в тесте остаётся 15 вопросов вместо 52.
+   Остальные предметы можно добрать вручную — они попадают в S.extraSubjects. */
+const plannedSubjects = () => (S.plan ? S.plan.subjects.map((s) => s.subject) : null);
+
+/* На предмет — лёгкая задача, сложная и вопрос про интерес. Средняя почти
+   дублирует лёгкую, а время ученика стоит дороже третьего вопроса. */
+const subjectQuestions = (code) => Q.block_b_subjects.filter(
+  (q) => q.subject === code && (q.type === 'interest' || q.difficulty === 'easy' || q.difficulty === 'hard'),
+);
+
+const subjectCodes = () => {
+  const planned = plannedSubjects();
+  if (!planned) return [...new Set(Q.block_b_subjects.map((q) => q.subject))];
+  return [...planned, ...(S.extraSubjects || []).filter((c) => !planned.includes(c))];
+};
+
+const blockBQuestions = () => subjectCodes().flatMap(subjectQuestions);
 const answeredCount = () => Object.keys(S.answers).length;
-const totalCount = () => blockA().length + Q.block_b_subjects.length + blockC().length;
+const totalCount = () => blockA().length + blockBQuestions().length + blockC().length;
 const isAnswered = (id) => S.answers[id] !== undefined;
 // названия предметов приходят с бэкенда вместе с банком вопросов
 const subjectTitle = (code) => Q?.subject_titles?.[code] || code;
@@ -840,15 +857,53 @@ function screenSubjects() {
           ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
         </div>`).join('')}
     </div>
-    <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
+    ${S.plan ? `<div class="hint"><i></i><p>${S.plan.planned_by_model
+        ? 'Эти предметы подобраны по твоим ответам о интересах — остальные спрашивать не будем.'
+        : 'Предметы подобраны по твоим интересам. Модель была недоступна, поэтому выбор сделан по таблице соответствий.'}</p></div>` : ''}
     <div class="bottom" style="display:flex;flex-direction:column;gap:10px">
       <div class="btn" data-go="next">${remaining.length ? `Продолжить с предмета «${esc(remaining[0].title)}»` : 'Дальше'}</div>
+      ${S.plan && S.plan.optional_subjects.length
+        ? '<div class="link" style="text-align:center" data-go="more-subjects">Проверить ещё предметы</div>'
+        : ''}
       ${canPreview() && remaining.length ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
     </div>
   `, { title: 'Предметы', progress: answeredCount() / totalCount() });
 
   view.querySelectorAll('[data-subject]').forEach((row) => {
     row.onclick = () => screenSubject(row.dataset.subject);
+  });
+}
+
+/* Предметы вне плана. Профиль по ним останется пустым, поэтому тем, кому важна
+   точность, даём добрать вручную — но по своей воле, а не по обязанности. */
+function screenExtraSubjects() {
+  const выбранные = subjectCodes();
+  const доступные = (S.plan?.optional_subjects || []).filter((s) => !выбранные.includes(s.subject));
+
+  render(`
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="h3">Проверить ещё предметы</div>
+      <div class="t3">По каждому — две задачи и вопрос про интерес. Чем больше предметов, тем точнее подбор профессий.</div>
+    </div>
+    ${доступные.length ? `<div class="list">
+      ${доступные.map((s, i) => `
+        ${i ? '<div class="sep inset"></div>' : ''}
+        <div class="row" data-add-subject="${s.subject}">
+          <div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--stroke);flex:0 0 auto"></div>
+          <div class="grow"><div class="h5">${esc(s.title)}</div><div class="t3">3 вопроса · 1 мин</div></div>
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>`).join('')}
+    </div>` : '<div class="hint"><i></i><p>Все предметы уже в тесте.</p></div>'}
+    <div class="btn sec bottom" data-go="next">Назад</div>
+  `, { title: 'Ещё предметы', progress: answeredCount() / totalCount() });
+
+  view.querySelectorAll('[data-add-subject]').forEach((row) => {
+    row.onclick = () => {
+      const код = row.dataset.addSubject;
+      S.extraSubjects = [...(S.extraSubjects || []), код];
+      save();
+      screenSubject(код);
+    };
   });
 }
 
@@ -1161,11 +1216,36 @@ function screenError(error, retry) {
 
 /* ---------- переходы ---------- */
 
-function next() {
+async function next() {
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
-  if (Q.block_b_subjects.some((q) => !isAnswered(q.id))) return screenSubjects();
+  if (!S.plan) return screenPlanning();
+  if (blockBQuestions().some((q) => !isAnswered(q.id))) return screenSubjects();
   if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
   return screenSubmit();
+}
+
+/* Подбор предметов: ответы блока A уходят на сервер, оттуда — пять предметов.
+   Экран нужен, потому что решение принимает модель и это занимает секунды. */
+async function screenPlanning() {
+  render(`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="spinner"></div>
+      <div style="font-size:15px;color:var(--t2);flex:1">Подбираем предметы под твои ответы…</div>
+    </div>
+    <div class="hint"><i></i><p>Спрашивать все 13 предметов долго. Дальше будут только те, что связаны с подходящими тебе профессиями — 15 вопросов.</p></div>
+  `, { title: 'Тест', progress: answeredCount() / 74 });
+
+  try {
+    const plan = await api('/api/tests/plan', {
+      method: 'POST',
+      body: JSON.stringify({ answers: S.answers }),
+    });
+    S.plan = plan;
+    save();
+    screenSubjects();
+  } catch (error) {
+    screenError(error, screenPlanning);
+  }
 }
 
 view.addEventListener('click', (event) => {
@@ -1174,6 +1254,7 @@ view.addEventListener('click', (event) => {
   const actions = {
     next,
     preview: screenSubmit,
+    'more-subjects': screenExtraSubjects,
     home: screenOnboarding,
     practice: screenPractice,
     careers: screenCareers,
@@ -1194,7 +1275,9 @@ view.addEventListener('click', (event) => {
     restart: async () => {
       if (!confirm('Все ответы будут удалены. Начать заново?')) return;
       S.answers = {};
+      // план подобран под прежние ответы — со сбросом теста он больше не годится
       S.plan = null;
+      S.extraSubjects = [];
       save();
       // черновик лежит и на сервере — без этого он вернётся при следующем входе
       if (S.token) await api('/api/tests/progress', { method: 'DELETE' }).catch(() => {});
