@@ -3,10 +3,13 @@
 
     Проверяет базу, окружение и порт, накатывает миграции и поднимает сервер.
     Использование:
-        .\start.ps1                 обычный запуск
-        .\start.ps1 -Restart        освободить порт, если сервер уже запущен
-        .\start.ps1 -Port 8001      другой порт
-        .\start.ps1 -LocalOnly      только этот компьютер, без доступа по сети
+        & ".\local deploy\start.bat"                обычный запуск
+        & ".\local deploy\start.bat" -Restart       освободить занятый порт
+        & ".\local deploy\start.bat" -Port 8001     другой порт
+        & ".\local deploy\start.bat" -LocalOnly     без доступа по локальной сети
+
+    Вызывается из корня проекта. Скрипт сам находит корень по requirements.txt,
+    поэтому работает и если положить его обратно в корень.
 #>
 [CmdletBinding()]
 param(
@@ -16,13 +19,19 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+
+# Скрипт лежит в «local deploy», а работать нужно из корня проекта: там .venv,
+# .env и alembic.ini. Корень ищем по requirements.txt, чтобы скрипт остался
+# рабочим и если его положат обратно в корень.
+$root = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path (Join-Path $root 'requirements.txt'))) { $root = $PSScriptRoot }
+Set-Location $root
 
 # без этого русский текст в консоли Windows превращается в кракозябры
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 $service = 'postgresql-x64-15'
-$python = Join-Path $PSScriptRoot '.venv\Scripts\python.exe'
+$python = Join-Path $root '.venv\Scripts\python.exe'
 $listenHost = '0.0.0.0'
 if ($LocalOnly) { $listenHost = '127.0.0.1' }
 
@@ -69,7 +78,7 @@ Write-Ok "Окружение .venv на месте."
 # 3. Настройки ---------------------------------------------------------------
 if (-not (Test-Path '.env')) {
     Copy-Item '.env.example' '.env'
-    Write-Warn "Файл .env создан из .env.example - заполните пароль базы и ключ OpenRouter."
+    Write-Warn "Файл .env создан из .env.example - заполните пароль базы и ключ GigaChat."
 }
 
 # 4. Порт --------------------------------------------------------------------
@@ -84,7 +93,7 @@ if ($busy) {
     } else {
         Write-Warn "Порт $Port уже занят - сервер, похоже, работает."
         Write-Step "Откройте http://localhost:$Port/"
-        Write-Step "Чтобы перезапустить: .\start.ps1 -Restart"
+        Write-Step "Чтобы перезапустить: добавьте ключ -Restart"
         exit 0
     }
 }
