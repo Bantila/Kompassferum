@@ -11,6 +11,24 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://kompas:kompas@postgres:5432/kompas"
 
+    # Какой провайдер отвечает за подбор профессий:
+    # gigachat | openrouter | none (всегда rule-based)
+    ai_provider: str = "none"
+
+    # GigaChat — российская модель, основной вариант для защиты проекта.
+    # credentials — Authorization key из личного кабинета, обменивается
+    # на токен доступа; SDK делает это сам и обновляет токен по истечении.
+    gigachat_credentials: str = ""
+    gigachat_scope: str = "GIGACHAT_API_PERS"
+    gigachat_model: str = "GigaChat"
+    gigachat_base_url: str = "https://api.giga.chat/v1"
+    # Сбер отдаёт TLS-цепочку, подписанную НУЦ Минцифры: в стандартном
+    # наборе сертификатов её нет. Пока корневой сертификат не установлен
+    # на машине или сервере, запрос падает на проверке TLS — тогда
+    # проверку приходится отключать этой настройкой. Для боевого стенда
+    # правильнее поставить сертификат, а не выключать проверку.
+    gigachat_verify_ssl: bool = True
+
     # OpenRouter
     openrouter_api_key: str = ""
     openrouter_model: str = "moonshotai/kimi-k2"

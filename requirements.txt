@@ -6,6 +6,8 @@ alembic==1.14.0
 pydantic==2.10.4
 pydantic-settings==2.7.0
 httpx==0.28.1
+# официальный SDK GigaChat: сам меняет ключ на токен и обновляет его
+gigachat==0.2.3
 python-dotenv==1.0.1
 
 # аутентификация: JWT + хэширование паролей

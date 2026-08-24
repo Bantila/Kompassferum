@@ -1,10 +1,14 @@
-"""Подбор профессий через OpenRouter + rule-based запасной вариант.
+"""Подбор профессий моделью + rule-based запасной вариант.
+
+Провайдер выбирается настройкой AI_PROVIDER: gigachat (российская модель,
+основной вариант), openrouter или none. Промпт, разбор ответа и запасной
+алгоритм общие — меняется только то, у кого спрашиваем.
 
 Наружу торчит одна функция — recommend_professions(). Она никогда не бросает
-исключение из-за проблем с LLM: любой сбой сети, таймаут, кривой JSON или
-не-200 от OpenRouter приводят к rule-based ответу с флагом fallback=True.
-Это требование критерия «Стабильность и отклик»: демо не должно падать
-из-за чужого API.
+исключение из-за проблем с моделью: сбой сети, таймаут, кривой JSON или
+отказ сервиса приводят к rule-based ответу с флагом fallback=True. Это
+требование критерия «Стабильность и отклик»: демо не должно падать из-за
+чужого API.
 """
 
 from __future__ import annotations
@@ -291,20 +295,10 @@ async def explain_mistake(
         return None
 
 
-async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
-    """Подобрать 5 профессий по агрегированному профилю ученика.
-
-    Возвращает {"professions": [...], "fallback": bool, "model_used": str,
-    "raw_response": {...}}. Исключения наружу не пробрасываются.
-    """
+async def _ask_openrouter(scores: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Запрос к OpenRouter. Возвращает текст ответа и сырой JSON."""
     settings = get_settings()
-
-    if not settings.openrouter_api_key:
-        logger.warning("OPENROUTER_API_KEY не задан — отдаю rule-based рекомендации")
-        result = build_fallback(scores)
-        return {**result, "model_used": FALLBACK_MODEL_NAME, "raw_response": {}}
-
-    request_body = {
+    body = {
         "model": settings.openrouter_model,
         "temperature": 0.3,
         "messages": [
@@ -316,40 +310,108 @@ async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
         # OpenRouter просит идентифицировать приложение
-        "HTTP-Referer": "https://github.com/Gemr007/Kompassferum",
+        "HTTP-Referer": "https://github.com/Bantila/Kompassferum",
         "X-Title": "Kompas",
     }
 
+    async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
+        response = await client.post(settings.openrouter_url, json=body, headers=headers)
+        response.raise_for_status()
+        raw = response.json()
+
+    return raw["choices"][0]["message"]["content"], raw
+
+
+async def _ask_gigachat(scores: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Запрос к GigaChat через официальный SDK.
+
+    SDK сам меняет Authorization key на токен доступа и обновляет его, когда
+    тридцать минут жизни токена истекают, — поэтому своего кэша здесь нет.
+    Импорт внутри функции: без выбранного провайдера пакет не нужен.
+    """
+    from gigachat import GigaChat
+    from gigachat.models import Chat, Messages, MessagesRole
+
+    settings = get_settings()
+    async with GigaChat(
+        credentials=settings.gigachat_credentials,
+        scope=settings.gigachat_scope,
+        base_url=settings.gigachat_base_url,
+        verify_ssl_certs=settings.gigachat_verify_ssl,
+        timeout=settings.openrouter_timeout_seconds,
+    ) as client:
+        response = await client.achat(
+            Chat(
+                model=settings.gigachat_model,
+                temperature=0.3,
+                messages=[
+                    Messages(role=MessagesRole.SYSTEM, content=SYSTEM_PROMPT),
+                    Messages(
+                        role=MessagesRole.USER,
+                        content=json.dumps(scores, ensure_ascii=False),
+                    ),
+                ],
+            )
+        )
+
+    return response.choices[0].message.content, response.dict()
+
+
+def _select_provider() -> tuple[str, Any, str] | None:
+    """Провайдер, функция запроса и имя модели — либо None, если не настроен."""
+    settings = get_settings()
+    provider = settings.ai_provider.strip().lower()
+
+    if provider == "gigachat" and settings.gigachat_credentials:
+        return provider, _ask_gigachat, settings.gigachat_model
+    if provider == "openrouter" and settings.openrouter_api_key:
+        return provider, _ask_openrouter, settings.openrouter_model
+    return None
+
+
+async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
+    """Подобрать 5 профессий по агрегированному профилю ученика.
+
+    Возвращает {"professions": [...], "fallback": bool, "model_used": str,
+    "raw_response": {...}}. Исключения наружу не пробрасываются.
+    """
+    selected = _select_provider()
+    if selected is None:
+        logger.warning(
+            "Провайдер модели не настроен (AI_PROVIDER=%s) — отдаю rule-based рекомендации",
+            get_settings().ai_provider,
+        )
+        return {**build_fallback(scores), "model_used": FALLBACK_MODEL_NAME, "raw_response": {}}
+
+    provider, ask, model_name = selected
     raw_response: dict[str, Any] = {}
     try:
-        async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
-            response = await client.post(
-                settings.openrouter_url, json=request_body, headers=headers
-            )
-            response.raise_for_status()
-            raw_response = response.json()
-
-        content = raw_response["choices"][0]["message"]["content"]
-        parsed = json.loads(_strip_markdown_fence(content))
-        professions = _validate_professions(parsed)
+        content, raw_response = await ask(scores)
+        professions = _validate_professions(json.loads(_strip_markdown_fence(content)))
 
     except httpx.TimeoutException:
-        logger.error("OpenRouter не ответил за %ss", settings.openrouter_timeout_seconds)
+        logger.error("%s не ответил за %ss", provider, get_settings().openrouter_timeout_seconds)
     except httpx.HTTPStatusError as exc:
-        logger.error(
-            "OpenRouter вернул %s: %s", exc.response.status_code, exc.response.text[:500]
-        )
+        logger.error("%s вернул %s: %s", provider, exc.response.status_code, exc.response.text[:500])
     except httpx.HTTPError as exc:
-        logger.error("Сетевая ошибка при обращении к OpenRouter: %s", exc)
-    except (json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError) as exc:
-        logger.error("Не удалось разобрать ответ OpenRouter: %s", exc)
+        logger.error("Сетевая ошибка при обращении к %s: %s", provider, exc)
+    except (json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError, AttributeError) as exc:
+        logger.error("Не удалось разобрать ответ %s: %s", provider, exc)
+    except Exception as exc:  # noqa: BLE001
+        # SDK GigaChat бросает свои классы ошибок (авторизация, лимиты, 5xx).
+        # Перечислять их здесь — значит ломать сборку при обновлении пакета,
+        # а контракт функции один: что бы ни случилось, вернуть рекомендации.
+        logger.error("%s: %s: %s", provider, exc.__class__.__name__, exc)
     else:
         return {
             "professions": professions,
             "fallback": False,
-            "model_used": settings.openrouter_model,
+            "model_used": model_name,
             "raw_response": raw_response,
         }
 
-    result = build_fallback(scores)
-    return {**result, "model_used": FALLBACK_MODEL_NAME, "raw_response": raw_response}
+    return {
+        **build_fallback(scores),
+        "model_used": FALLBACK_MODEL_NAME,
+        "raw_response": raw_response,
+    }
