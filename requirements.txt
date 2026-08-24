@@ -6,6 +6,11 @@ alembic==1.14.0
 pydantic==2.10.4
 pydantic-settings==2.7.0
 httpx==0.28.1
+# GigaChain — обёртка Сбера над langchain. Нужна ради строгой схемы ответа:
+# with_structured_output отдаёт JSON Schema прямо в API, и модель не может
+# ответить произвольным текстом. Тянет за собой langchain-core.
+langchain-gigachat==0.5.1
+gigachat==0.2.3
 python-dotenv==1.0.1
 
 # аутентификация: JWT + хэширование паролей
