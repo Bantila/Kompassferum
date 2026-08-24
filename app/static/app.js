@@ -1,6 +1,10 @@
 /* Мини-приложение «Компас»: онбординг → тест → рекомендации.
    Ванильный JS без сборки — MVP крутится в вебвью MAX, лишний рантайм ни к чему.
-   Прогресс живёт в localStorage: тест из 74 вопросов проходится за несколько заходов. */
+
+   Прогресс теста хранится на сервере и привязан к аккаунту: очистил данные
+   браузера, открыл приложение на другом телефоне или зашёл из бота — ответы
+   на месте. localStorage остался кешем: он даёт мгновенный старт и переживает
+   обрыв связи, но источник правды — сервер. */
 
 const LS_KEY = 'kompas_state_v1';
 const SCALE_LABELS = [
@@ -85,6 +89,49 @@ function loadState() {
 
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify(S));
+  scheduleSync();
+}
+
+/* Отправка черновика на сервер. С задержкой, потому что save() зовётся на
+   каждый ответ, а слать запрос на каждый клик незачем: ответы уже в кеше,
+   и потеря последней секунды ничего не стоит. */
+let syncTimer = null;
+function scheduleSync() {
+  if (!S.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncProgress, 800);
+}
+
+async function syncProgress() {
+  if (!S.token) return;
+  try {
+    await api('/api/tests/progress', {
+      method: 'PUT',
+      body: JSON.stringify({ answers: S.answers, plan: S.plan ?? null }),
+    });
+  } catch (error) {
+    // связь пропала — ответы остались в кеше, отправим со следующим ответом
+    console.warn('Черновик не сохранён на сервере:', error.message);
+  }
+}
+
+/* Черновик с сервера. Берём его, если он полнее локального: на новом
+   устройстве кеш пустой, а после переустановки приложения — устарел.
+   Обратный случай (локально больше) бывает после ответов без связи. */
+async function loadServerProgress() {
+  if (!S.token) return;
+  try {
+    const draft = await api('/api/tests/progress');
+    if (draft.answered > Object.keys(S.answers).length) {
+      S.answers = draft.answers;
+      if (draft.plan) S.plan = draft.plan;
+      localStorage.setItem(LS_KEY, JSON.stringify(S));
+    } else if (Object.keys(S.answers).length > draft.answered) {
+      await syncProgress();
+    }
+  } catch (error) {
+    console.warn('Черновик с сервера не получен:', error.message);
+  }
 }
 
 /* ---------- утилиты ---------- */
@@ -1144,10 +1191,13 @@ view.addEventListener('click', (event) => {
       save();
       screenWelcome();
     },
-    restart: () => {
+    restart: async () => {
       if (!confirm('Все ответы будут удалены. Начать заново?')) return;
       S.answers = {};
+      S.plan = null;
       save();
+      // черновик лежит и на сервере — без этого он вернётся при следующем входе
+      if (S.token) await api('/api/tests/progress', { method: 'DELETE' }).catch(() => {});
       screenOnboarding();
     },
   };
@@ -1223,6 +1273,8 @@ async function loginFromMessenger(bridge) {
   }
 
   // без подписи мессенджера входить нечем — показываем, как открыть бота
+  await loadServerProgress();
+
   if (!S.token) return screenWelcome();
   screenOnboarding();
 })();

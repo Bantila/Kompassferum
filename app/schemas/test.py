@@ -33,6 +33,21 @@ class QuestionsResponse(BaseModel):
     block_c_softskills: list[QuestionOut] = Field(default_factory=list)
 
 
+class ProgressSaveRequest(BaseModel):
+    """Черновик теста: ответы и уже подобранный план блока B."""
+
+    answers: dict[str, Any]
+    plan: dict[str, Any] | None = None
+
+
+class ProgressResponse(BaseModel):
+    answers: dict[str, Any] = Field(default_factory=dict)
+    plan: dict[str, Any] | None = None
+    updated_at: datetime | None = None
+    # сколько отвечено — чтобы приложение показало «продолжить» без пересчёта
+    answered: int = 0
+
+
 class CheckAnswerRequest(BaseModel):
     question_id: str
     selected_index: int = Field(ge=0, le=9)
