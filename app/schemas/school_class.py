@@ -40,6 +40,8 @@ class LeaderboardRow(BaseModel):
     correct: int
     accuracy: float
     test_done: bool
+    # пометка о доверии к последнему прохождению, если ответам верить не стоит
+    integrity_note: str | None = None
 
 
 class LeaderboardResponse(BaseModel):

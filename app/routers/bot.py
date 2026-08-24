@@ -78,14 +78,19 @@ async def telegram_webhook(
 @router.post("/max")
 async def max_webhook(
     request: Request,
-    x_max_signature: str | None = Header(default=None),
+    x_max_bot_api_secret: str | None = Header(default=None),
     session: AsyncSession = Depends(get_session),
 ) -> dict[str, Any]:
-    """Вебхук MAX. Логика та же, отличается только разбор и отправка."""
+    """Вебхук MAX. Логика та же, отличается только разбор и отправка.
+
+    Секрет задаётся при подписке (POST /subscriptions) и приходит обратно как
+    есть в заголовке X-Max-Bot-Api-Secret — платформа не подписывает тело, а
+    просто возвращает значение, поэтому сверяем строки.
+    """
     settings = get_settings()
     if settings.max_webhook_secret:
-        if not x_max_signature or not hmac.compare_digest(
-            x_max_signature, settings.max_webhook_secret
+        if not x_max_bot_api_secret or not hmac.compare_digest(
+            x_max_bot_api_secret, settings.max_webhook_secret
         ):
             logger.warning("Вебхук MAX: неверная подпись, запрос отклонён")
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Неверная подпись запроса")
