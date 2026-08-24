@@ -66,17 +66,19 @@ python demo/build_demo.py
 
 - Docker 24+
 - Docker Compose v2 (`docker compose`, не `docker-compose`)
-- Ключ OpenRouter — https://openrouter.ai/keys (без него сервис работает, но
-  отдаёт рекомендации упрощённым алгоритмом)
+- Authorization key GigaChat — https://developers.sber.ru/studio (без него
+  сервис работает, но отдаёт рекомендации упрощённым алгоритмом)
+
+Полная установка на чистый сервер — раздел [«Деплой на сервер»](#деплой-на-сервер).
 
 ## Запуск
 
 ```bash
-git clone https://github.com/Gemr007/Kompassferum.git
+git clone https://github.com/Bantila/Kompassferum.git
 cd Kompassferum
 
 cp .env.example .env
-# открыть .env и заполнить: OPENROUTER_API_KEY, POSTGRES_PASSWORD, MAX_WEBHOOK_SECRET
+# открыть .env и заполнить: POSTGRES_PASSWORD, JWT_SECRET, GIGACHAT_CREDENTIALS
 
 docker compose up -d --build
 
@@ -104,10 +106,12 @@ curl http://localhost/health
 
 Остановить: `docker compose down`. Вместе с данными: `docker compose down -v`.
 
-### Запуск под Windows без Docker
+### Локальный запуск под Windows без Docker
 
-Для разработки удобнее поднимать сервер напрямую. Нужны Python 3.11+ и
-установленный PostgreSQL.
+Для разработки так удобнее: правки в коде видны сразу, пересобирать образ не
+нужно. Требуются Python 3.11+ и установленный PostgreSQL 15.
+
+Скрипты запуска лежат в папке `local deploy`.
 
 **1. База.** Один раз создать пользователя и базу — в psql под учёткой
 `postgres` (пароль задавался при установке PostgreSQL):
@@ -117,31 +121,52 @@ CREATE ROLE kompas LOGIN PASSWORD 'ваш_пароль';
 CREATE DATABASE kompas OWNER kompas;
 ```
 
-**2. Настройки.** Скопировать `.env.example` в `.env` и заполнить: пароль базы
-в `DATABASE_URL` и `POSTGRES_PASSWORD`, любую длинную случайную строку в
-`JWT_SECRET`. Ключ OpenRouter не обязателен — без него рекомендации и разбор
-ошибок приходят от запасного алгоритма.
+**2. Настройки.** Скопировать `.env.example` в `.env` и заполнить пароль базы
+в `DATABASE_URL` и `POSTGRES_PASSWORD`, а в `JWT_SECRET` — любую длинную
+случайную строку. Ключ GigaChat не обязателен: без него рекомендации и разбор
+ошибок приходят от запасного алгоритма, всё остальное работает.
 
-**3. Окружение:**
+**3. Окружение** — один раз:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-**4. Запуск** — скрипт проверит службу PostgreSQL, накатит миграции и поднимет
-сервер:
+**4. Запуск:**
 
 ```powershell
-.\start.bat
+& ".\local deploy\start.bat"
 ```
 
-Полезные ключи: `-Restart` освобождает занятый порт, `-Port 8001` меняет порт,
-`-LocalOnly` убирает доступ по локальной сети.
+Скрипт делает шесть вещей по порядку:
 
-Вариант `.\start.ps1` делает то же самое, но требует разрешить выполнение
-скриптов — `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
-Обёртка `start.bat` нужна ровно для того, чтобы этой настройки не требовалось.
+| Шаг | Что происходит |
+|---|---|
+| База | проверяет службу `postgresql-x64-15` и запускает её, если она остановлена |
+| Окружение | убеждается, что `.venv` создано, иначе печатает команды создания и выходит |
+| Настройки | создаёт `.env` из `.env.example`, если файла ещё нет |
+| Порт | если порт занят — сообщает об этом и не поднимает второй сервер |
+| Миграции | накатывает `alembic upgrade head` и останавливается, если схема не сошлась |
+| Сервер | поднимает uvicorn и печатает адреса приложения, кабинета и Swagger |
+
+Ключи:
+
+| Ключ | Зачем |
+|---|---|
+| `-Restart` | снимает процесс, занявший порт, и поднимает сервер заново |
+| `-Port 8001` | другой порт, если 8000 занят чем-то нужным |
+| `-LocalOnly` | слушать только `127.0.0.1` — без доступа с других устройств в сети |
+
+По умолчанию сервер слушает `0.0.0.0`, и скрипт печатает адрес в локальной
+сети: с него стенд открывается с телефона, что удобно для проверки вёрстки.
+
+Обёртка `start.bat` вызывает `start.ps1` с `-ExecutionPolicy Bypass` — только
+ради того, чтобы не требовать `Set-ExecutionPolicy` на машине. Сам
+`start.ps1` можно звать напрямую, если политика выполнения уже разрешена.
+
+Скрипт сам находит корень проекта по `requirements.txt`, поэтому работает и
+из папки `local deploy`, и из корня, если положить его туда.
 
 **5. Демо-данные** (необязательно) — класс 7Б, педагог и восемь учеников:
 
@@ -176,25 +201,208 @@ python -m venv .venv
 перехватывать события друг у друга. Адрес туннеля меняется при каждом запуске,
 поэтому `setup_bot` придётся повторять.
 
-### HTTPS на своём домене
+## Деплой на сервер
 
-Базовый `docker compose up` поднимает обычный HTTP — так проще запускать
-локально. Для стенда с доменом есть оверлей `docker-compose.ssl.yml`:
+Установка на чистый VPS с Ubuntu: подготовка → защита → окружение → запуск.
+Проверялось на Ubuntu 22.04, все команды выполняются под `root`, если не
+сказано иное.
+
+### 1. Подготовка сервера
+
+Обновить пакеты:
 
 ```bash
-echo "DOMAIN=example.ru" >> .env
-
-mkdir -p certbot-webroot
-docker compose stop nginx
-certbot certonly --standalone -d example.ru --agree-tos -m you@example.ru -n
-docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+apt update && apt upgrade -y
 ```
 
-HTTP редиректит на HTTPS, `/.well-known/acme-challenge/` остаётся доступным,
+`apt update` обновляет список доступных пакетов, `apt upgrade -y` ставит новые
+версии уже установленных; `-y` подтверждает запросы автоматически.
+
+Поставить Docker:
+
+```bash
+curl -fsSL https://get.docker.com | sh
+```
+
+Скачивается официальный установочный скрипт и сразу передаётся на выполнение.
+Флаги curl: `-f` не выводить тело ответа при ошибке HTTP, `-s` тихий режим,
+`-S` всё же показать ошибку, `-L` следовать редиректам. Скрипт ставит и Docker
+Engine, и плагин Compose.
+
+Поставить Certbot для сертификатов Let's Encrypt:
+
+```bash
+apt install certbot python3-certbot-nginx -y
+certbot --version
+```
+
+Оба пакета идут через пробел в одной команде `apt install` — если поставить
+между ними `&&`, второй попытается выполниться как отдельная команда.
+
+### 2. Защита сервера
+
+Работать под `root` по SSH — плохая практика: у такой учётки нет ограничений,
+а имя пользователя известно заранее, так что подбирать нужно только пароль.
+
+Завести обычного пользователя:
+
+```bash
+adduser deployer
+usermod -aG sudo deployer
+```
+
+`adduser` создаёт учётку и запрашивает пароль, `usermod -aG sudo` даёт право
+повышать права через `sudo`.
+
+Настроить вход по ключу. На **локальной** машине, если ключа ещё нет:
+
+```bash
+ssh-keygen -t ed25519 -C "deploy-key"
+ssh-copy-id deployer@ваш_сервер
+```
+
+`ssh-keygen -t ed25519` создаёт пару ключей по современному алгоритму,
+`-C` добавляет метку-комментарий. `ssh-copy-id` кладёт публичный ключ в
+`~/.ssh/authorized_keys` на сервере — после этого вход идёт без пароля.
+
+Закрыть вход под root и по паролю. На сервере в `/etc/ssh/sshd_config`:
+
+```
+PermitRootLogin no
+PasswordAuthentication no
+```
+
+```bash
+systemctl restart ssh
+```
+
+`PasswordAuthentication no` убирает саму возможность подбора пароля: без
+приватного ключа подключиться нельзя.
+
+> Перед тем как закрыть текущую сессию, откройте вторую и убедитесь, что вход
+> под `deployer` работает. Иначе можно остаться без доступа к серверу.
+
+Firewall:
+
+```bash
+apt install ufw -y
+ufw allow OpenSSH
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw enable
+```
+
+`ufw allow OpenSSH` открывает порт SSH — без этой строки `ufw enable` отрежет
+вас от сервера. Остальные входящие порты после включения закрыты.
+
+Fail2ban и автоматические обновления безопасности:
+
+```bash
+apt install fail2ban -y
+systemctl enable --now fail2ban
+
+apt install unattended-upgrades -y
+dpkg-reconfigure --priority=low unattended-upgrades
+```
+
+Fail2ban читает журналы и временно банит адреса после серии неудачных входов.
+`systemctl enable --now` включает автозапуск и сразу поднимает службу.
+
+### 3. Исходники и переменные окружения
+
+```bash
+mkdir -p /opt && cd /opt
+git clone https://github.com/Bantila/Kompassferum.git
+cd Kompassferum
+cp .env.example .env
+```
+
+Сгенерировать секреты:
+
+```bash
+# POSTGRES_PASSWORD
+openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32
+
+# JWT_SECRET
+openssl rand -hex 64
+
+# MAX_WEBHOOK_SECRET
+openssl rand -hex 32
+```
+
+`openssl rand -base64 32` даёт 32 случайных байта в Base64, `tr -dc` выбрасывает
+служебные символы `+`, `/` и `=`, `head -c 32` обрезает до нужной длины.
+Для `MAX_WEBHOOK_SECRET` формат ограничен платформой — только буквы, цифры и
+дефис, поэтому `-hex` подходит лучше всего.
+
+Заполнить `.env`:
+
+| Переменная | Что вставить |
+|---|---|
+| `POSTGRES_PASSWORD` | сгенерированный пароль базы |
+| `JWT_SECRET` | сгенерированная строка для подписи токенов |
+| `GIGACHAT_CREDENTIALS` | Authorization key из личного кабинета developers.sber.ru |
+| `MAX_BOT_TOKEN` | токен бота из MAX |
+| `MAX_WEBHOOK_SECRET` | сгенерированный секрет вебхука |
+| `APP_PUBLIC_URL` | адрес мини-приложения, вместе с `https://` |
+
+### 4. Сертификат и запуск
+
+Сертификат выпускается до первого старта, пока порт 80 свободен:
+
+```bash
+certbot certonly --standalone   -d example.ru -d www.example.ru   --email you@example.ru --agree-tos -n
+```
+
+`certonly` только выпускает сертификат, не трогая конфигурацию веб-сервера.
+`--standalone` поднимает временный сервер на 80 порту для проверки домена —
+поэтому его и нужно выполнять до `docker compose up`. Домены указываются без
+`https://`, `-n` отключает интерактивные вопросы.
+
+Запуск с SSL-оверлеем:
+
+```bash
+mkdir -p certbot-webroot
+echo "DOMAIN=example.ru" >> .env
+
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d --build
+```
+
+Два файла конфигурации складываются: базовый описывает сервисы, `.ssl.yml`
+добавляет проброс сертификатов и 443 порт. `-d` уводит контейнеры в фон,
+`--build` пересобирает образы после изменений в коде.
+
+Миграции накатываются автоматически при старте контейнера — отдельный
+`alembic upgrade head` выполнять не нужно.
+
+Проверить:
+
+```bash
+docker compose ps
+docker compose logs -f
+curl https://example.ru/health
+# {"status":"ok","database":"ok"}
+```
+
+HTTP редиректит на HTTPS, а `/.well-known/acme-challenge/` остаётся доступным,
 поэтому продление сертификата проходит без остановки nginx. Чтобы nginx
-подхватил обновлённый сертификат, добавьте в
+подхватил обновлённый сертификат, положите в
 `/etc/letsencrypt/renewal-hooks/deploy/` скрипт с
 `docker compose -f ... exec nginx nginx -s reload`.
+
+### 5. Кнопка мини-приложения
+
+Когда стенд поднят и домен отвечает по HTTPS, остаётся повесить кнопку на бота:
+
+```bash
+docker compose exec backend python -m app.setup_bot https://example.ru
+```
+
+Демо-данные, если нужен заполненный класс для показа:
+
+```bash
+docker compose exec backend python -m app.seed
+```
 
 ## Что показать за три минуты
 
@@ -221,9 +429,16 @@ HTTP редиректит на HTTPS, `/.well-known/acme-challenge/` остаё�
 |---|---|
 | `DATABASE_URL` | Строка подключения backend → postgres |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | Учётка контейнера БД, должна совпадать с `DATABASE_URL` |
-| `OPENROUTER_API_KEY` | Ключ OpenRouter. Пустой → всегда rule-based рекомендации |
-| `OPENROUTER_MODEL` | Slug модели, по умолчанию `moonshotai/kimi-k2` |
+| `JWT_SECRET` | Подпись токенов. Пустой → генерируется случайный при старте, и все сессии отваливаются при перезапуске |
+| `AI_PROVIDER` | Кто подбирает профессии: `gigachat`, `openrouter` или `none`. Ключ одного провайдера не включает другого |
+| `GIGACHAT_CREDENTIALS` | Authorization key из личного кабинета developers.sber.ru. Пустой → всегда rule-based рекомендации |
+| `GIGACHAT_SCOPE` | `GIGACHAT_API_PERS` для физлиц, `_B2B` и `_CORP` для компаний |
+| `GIGACHAT_MODEL` | `GigaChat`, `GigaChat-2-Pro` или `GigaChat-2-Max` |
+| `GIGACHAT_CA_BUNDLE` / `GIGACHAT_VERIFY_SSL` | Сбер подписан НУЦ Минцифры, которого нет в стандартном наборе сертификатов. Путь к сертификату — или, для пробы, отключение проверки TLS |
+| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | Запасной провайдер, slug по умолчанию `moonshotai/kimi-k2` |
+| `MAX_BOT_TOKEN` / `TELEGRAM_BOT_TOKEN` | Токены ботов. MAX — целевая платформа, Telegram — площадка для отладки |
 | `MAX_WEBHOOK_SECRET` | Секрет подписки MAX: приходит обратно в заголовке `X-Max-Bot-Api-Secret`. Только буквы, цифры и дефис, 5–256 символов — `openssl rand -hex 32` |
+| `APP_PUBLIC_URL` | Адрес мини-приложения — бот присылает на него кнопку |
 
 Секреты читаются только из окружения, в коде их нет.
 
