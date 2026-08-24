@@ -41,9 +41,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 COPY --chown=appuser:appuser . .
 
-# Подстраховка на случай сборки из рабочей копии с CRLF (Windows):
-# без этого shebang ломается и контейнер не стартует
-RUN sed -i 's/$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 USER appuser
 

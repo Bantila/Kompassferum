@@ -1,0 +1,6575 @@
+{
+ "source": "AI-Atlas DataSeeder",
+ "subjects": [
+  "biology",
+  "chemistry",
+  "foreign_language",
+  "history",
+  "informatics",
+  "mathematics",
+  "physics",
+  "russian"
+ ],
+ "tasks": [
+  {
+   "id": "t0001",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "easy",
+   "question": "Реши: 3x + 9 = 0",
+   "answer": "-3",
+   "hint": "3x = -9 → x = ?",
+   "explanation": "x = -3"
+  },
+  {
+   "id": "t0002",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "easy",
+   "question": "Реши: 2x - 10 = 4",
+   "answer": "7",
+   "hint": "2x = 4+10",
+   "explanation": "x = 7"
+  },
+  {
+   "id": "t0003",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "easy",
+   "question": "Реши: x + 5 = 11",
+   "answer": "6",
+   "hint": "x = 11 - 5",
+   "explanation": "x = 6"
+  },
+  {
+   "id": "t0004",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "easy",
+   "question": "Реши: 4x = 20",
+   "answer": "5",
+   "hint": "x = 20/4",
+   "explanation": "x = 5"
+  },
+  {
+   "id": "t0005",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "easy",
+   "question": "Реши: x/3 = 9",
+   "answer": "27",
+   "hint": "x = 9 × 3",
+   "explanation": "x = 27"
+  },
+  {
+   "id": "t0006",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Площадь прямоугольника 7×8?",
+   "answer": "56",
+   "hint": "S = a × b",
+   "explanation": "56 кв.см"
+  },
+  {
+   "id": "t0007",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Периметр квадрата со стороной 6?",
+   "answer": "24",
+   "hint": "P = 4a",
+   "explanation": "P = 24"
+  },
+  {
+   "id": "t0008",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Площадь треугольника: основание 10, высота 4?",
+   "answer": "20",
+   "hint": "S = (a×h)/2",
+   "explanation": "S = 20"
+  },
+  {
+   "id": "t0009",
+   "subject": "mathematics",
+   "topic": "Проценты",
+   "difficulty": "easy",
+   "question": "25% от 100?",
+   "answer": "25",
+   "hint": "(часть/целое)×100",
+   "explanation": "25"
+  },
+  {
+   "id": "t0010",
+   "subject": "mathematics",
+   "topic": "Проценты",
+   "difficulty": "easy",
+   "question": "50% от 80?",
+   "answer": "40",
+   "hint": "80 × 0.5",
+   "explanation": "40"
+  },
+  {
+   "id": "t0011",
+   "subject": "mathematics",
+   "topic": "Степени",
+   "difficulty": "easy",
+   "question": "2⁵ = ?",
+   "answer": "32",
+   "hint": "2×2×2×2×2",
+   "explanation": "32"
+  },
+  {
+   "id": "t0012",
+   "subject": "mathematics",
+   "topic": "Степени",
+   "difficulty": "easy",
+   "question": "3³ = ?",
+   "answer": "27",
+   "hint": "3×3×3",
+   "explanation": "27"
+  },
+  {
+   "id": "t0013",
+   "subject": "mathematics",
+   "topic": "Дроби",
+   "difficulty": "easy",
+   "question": "1/2 + 1/2 = ?",
+   "answer": "1",
+   "hint": "Одинаковые знаменатели",
+   "explanation": "2/2 = 1"
+  },
+  {
+   "id": "t0014",
+   "subject": "mathematics",
+   "topic": "Дроби",
+   "difficulty": "easy",
+   "question": "3/4 + 1/4 = ?",
+   "answer": "1",
+   "hint": "3+1=4, знаменатель 4",
+   "explanation": "4/4 = 1"
+  },
+  {
+   "id": "t0015",
+   "subject": "mathematics",
+   "topic": "Дроби",
+   "difficulty": "easy",
+   "question": "2/3 - 1/3 = ?",
+   "answer": "1/3",
+   "hint": "Вычти числители",
+   "explanation": "1/3"
+  },
+  {
+   "id": "t0016",
+   "subject": "mathematics",
+   "topic": "Линейные уравнения",
+   "difficulty": "medium",
+   "question": "Реши: 5x + 3 = 2x + 12",
+   "answer": "3",
+   "hint": "Перенеси x",
+   "explanation": "3x = 9, x = 3"
+  },
+  {
+   "id": "t0017",
+   "subject": "mathematics",
+   "topic": "Квадратные уравнения",
+   "difficulty": "medium",
+   "question": "x² - 5x + 6 = 0. Меньший корень?",
+   "answer": "2",
+   "hint": "D = b² - 4ac",
+   "explanation": "x₁=2, x₂=3"
+  },
+  {
+   "id": "t0018",
+   "subject": "mathematics",
+   "topic": "Квадратные уравнения",
+   "difficulty": "medium",
+   "question": "x² - 7x + 10 = 0. Больший корень?",
+   "answer": "5",
+   "hint": "D=9",
+   "explanation": "x=2 и x=5"
+  },
+  {
+   "id": "t0019",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Гипотенуза 13, катет 5. Второй катет?",
+   "answer": "12",
+   "hint": "a²+b²=c²",
+   "explanation": "b²=144, b=12"
+  },
+  {
+   "id": "t0020",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Площадь круга r=7. Число перед π?",
+   "answer": "49",
+   "hint": "S = πr²",
+   "explanation": "S=49π"
+  },
+  {
+   "id": "t0021",
+   "subject": "mathematics",
+   "topic": "Проценты",
+   "difficulty": "medium",
+   "question": "15% от 200 = ?",
+   "answer": "30",
+   "hint": "200 × 0.15",
+   "explanation": "30"
+  },
+  {
+   "id": "t0022",
+   "subject": "mathematics",
+   "topic": "Проценты",
+   "difficulty": "medium",
+   "question": "35 от 140 = ?%",
+   "answer": "25",
+   "hint": "35/140 × 100",
+   "explanation": "25%"
+  },
+  {
+   "id": "t0023",
+   "subject": "mathematics",
+   "topic": "Степени",
+   "difficulty": "medium",
+   "question": "2⁸ = ?",
+   "answer": "256",
+   "hint": "2⁴×2⁴",
+   "explanation": "16×16=256"
+  },
+  {
+   "id": "t0024",
+   "subject": "mathematics",
+   "topic": "Логарифмы",
+   "difficulty": "medium",
+   "question": "log₂(32) = ?",
+   "answer": "5",
+   "hint": "2^?=32",
+   "explanation": "2⁵=32"
+  },
+  {
+   "id": "t0025",
+   "subject": "mathematics",
+   "topic": "Системы уравнений",
+   "difficulty": "medium",
+   "question": "x+y=10, 2x-y=5. Найди x.",
+   "answer": "5",
+   "hint": "Сложи уравнения",
+   "explanation": "3x=15, x=5"
+  },
+  {
+   "id": "t0026",
+   "subject": "mathematics",
+   "topic": "Дроби",
+   "difficulty": "medium",
+   "question": "2/3 + 1/6 = ?",
+   "answer": "5/6",
+   "hint": "Общий знаменатель 6",
+   "explanation": "4/6+1/6=5/6"
+  },
+  {
+   "id": "t0027",
+   "subject": "mathematics",
+   "topic": "Неравенства",
+   "difficulty": "medium",
+   "question": "Реши: 2x - 4 > 0. x > ?",
+   "answer": "2",
+   "hint": "2x > 4",
+   "explanation": "x > 2"
+  },
+  {
+   "id": "t0028",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "medium",
+   "question": "Арифм. прогрессия: 2,5,8,... Найди 10-й член.",
+   "answer": "29",
+   "hint": "aₙ = a₁+(n-1)d",
+   "explanation": "a₁₀=2+9×3=29"
+  },
+  {
+   "id": "t0029",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "medium",
+   "question": "Геом. прогрессия: 3,6,12,... Найди 5-й член.",
+   "answer": "48",
+   "hint": "bₙ=b₁×qⁿ⁻¹",
+   "explanation": "b₅=3×2⁴=48"
+  },
+  {
+   "id": "t0030",
+   "subject": "mathematics",
+   "topic": "Тригонометрия",
+   "difficulty": "medium",
+   "question": "sin(30°) = ?",
+   "answer": "0.5",
+   "hint": "Таблица значений",
+   "explanation": "sin30°=1/2=0.5"
+  },
+  {
+   "id": "t0031",
+   "subject": "mathematics",
+   "topic": "Квадратные уравнения",
+   "difficulty": "hard",
+   "question": "2x² - 5x + 2 = 0. Меньший корень?",
+   "answer": "0.5",
+   "hint": "D=25-16=9",
+   "explanation": "x=(5±3)/4, x₁=0.5"
+  },
+  {
+   "id": "t0032",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "hard",
+   "question": "Объём куба со стороной 4?",
+   "answer": "64",
+   "hint": "V = a³",
+   "explanation": "4³=64"
+  },
+  {
+   "id": "t0033",
+   "subject": "mathematics",
+   "topic": "Логарифмы",
+   "difficulty": "hard",
+   "question": "log₁₀(1000) = ?",
+   "answer": "3",
+   "hint": "10^?=1000",
+   "explanation": "10³=1000"
+  },
+  {
+   "id": "t0034",
+   "subject": "mathematics",
+   "topic": "Системы уравнений",
+   "difficulty": "hard",
+   "question": "3x+2y=12, x-y=1. Найди y.",
+   "answer": "9/5",
+   "hint": "x=1+y, подставь",
+   "explanation": "3(1+y)+2y=12, 5y=9"
+  },
+  {
+   "id": "t0035",
+   "subject": "mathematics",
+   "topic": "Производная",
+   "difficulty": "hard",
+   "question": "f(x)=x³+2x. Найди f'(2).",
+   "answer": "14",
+   "hint": "f'(x)=3x²+2",
+   "explanation": "f'(2)=12+2=14"
+  },
+  {
+   "id": "t0036",
+   "subject": "mathematics",
+   "topic": "Интеграл",
+   "difficulty": "hard",
+   "question": "∫(2x)dx от 0 до 3 = ?",
+   "answer": "9",
+   "hint": "∫2x dx = x²",
+   "explanation": "[x²]₀³ = 9"
+  },
+  {
+   "id": "t0037",
+   "subject": "mathematics",
+   "topic": "Тригонометрия",
+   "difficulty": "hard",
+   "question": "cos²α + sin²α = ?",
+   "answer": "1",
+   "hint": "Основное тождество",
+   "explanation": "Всегда равно 1"
+  },
+  {
+   "id": "t0038",
+   "subject": "mathematics",
+   "topic": "Комбинаторика",
+   "difficulty": "hard",
+   "question": "C(5,2) = ?",
+   "answer": "10",
+   "hint": "C(n,k) = n!/(k!(n-k)!)",
+   "explanation": "5!/(2!3!)=10"
+  },
+  {
+   "id": "t0039",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "hard",
+   "question": "Сумма первых 10 членов АП: a₁=1, d=2?",
+   "answer": "100",
+   "hint": "Sₙ=n/2×(2a₁+(n-1)d)",
+   "explanation": "S₁₀=5×(2+18)=100"
+  },
+  {
+   "id": "t0040",
+   "subject": "mathematics",
+   "topic": "Показательные",
+   "difficulty": "hard",
+   "question": "Реши: 2^x = 128",
+   "answer": "7",
+   "hint": "128 = 2^?",
+   "explanation": "2⁷=128, x=7"
+  },
+  {
+   "id": "t0041",
+   "subject": "physics",
+   "topic": "Кинематика",
+   "difficulty": "easy",
+   "question": "Скорость 60 км/ч, время 2 ч. Расстояние (км)?",
+   "answer": "120",
+   "hint": "S = v × t",
+   "explanation": "120 км"
+  },
+  {
+   "id": "t0042",
+   "subject": "physics",
+   "topic": "Кинематика",
+   "difficulty": "easy",
+   "question": "S = 200 м, t = 10 с. Скорость (м/с)?",
+   "answer": "20",
+   "hint": "v = S/t",
+   "explanation": "v = 20 м/с"
+  },
+  {
+   "id": "t0043",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "m=5 кг, a=3 м/с². Сила (Н)?",
+   "answer": "15",
+   "hint": "F = ma",
+   "explanation": "15 Н"
+  },
+  {
+   "id": "t0044",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "F=20 Н, m=4 кг. Ускорение (м/с²)?",
+   "answer": "5",
+   "hint": "a = F/m",
+   "explanation": "5 м/с²"
+  },
+  {
+   "id": "t0045",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "U=12 В, R=4 Ом. Ток (А)?",
+   "answer": "3",
+   "hint": "I = U/R",
+   "explanation": "I = 3 А"
+  },
+  {
+   "id": "t0046",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "I=2 А, R=6 Ом. Напряжение (В)?",
+   "answer": "12",
+   "hint": "U = IR",
+   "explanation": "U = 12 В"
+  },
+  {
+   "id": "t0047",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "R₁=4 Ом, R₂=6 Ом последовательно. Общее R?",
+   "answer": "10",
+   "hint": "R = R₁+R₂",
+   "explanation": "R = 10 Ом"
+  },
+  {
+   "id": "t0048",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "easy",
+   "question": "Точка кипения воды при 1 атм (°C)?",
+   "answer": "100",
+   "hint": "Из таблицы",
+   "explanation": "100°C"
+  },
+  {
+   "id": "t0049",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "easy",
+   "question": "Скорость света в вакууме (×10⁸ м/с)?",
+   "answer": "3",
+   "hint": "с ≈ 3×10⁸ м/с",
+   "explanation": "3×10⁸ м/с"
+  },
+  {
+   "id": "t0050",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "easy",
+   "question": "Закон отражения: угол падения = угол ...?",
+   "answer": "отражения",
+   "hint": "Из оптики",
+   "explanation": "угол отражения"
+  },
+  {
+   "id": "t0051",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Вес тела m=2 кг (Н), g=10?",
+   "answer": "20",
+   "hint": "P = mg",
+   "explanation": "P = 20 Н"
+  },
+  {
+   "id": "t0052",
+   "subject": "physics",
+   "topic": "Волны",
+   "difficulty": "easy",
+   "question": "Длина волны 0.5 м, частота 4 Гц. Скорость (м/с)?",
+   "answer": "2",
+   "hint": "v = λf",
+   "explanation": "v = 2 м/с"
+  },
+  {
+   "id": "t0053",
+   "subject": "physics",
+   "topic": "Кинематика",
+   "difficulty": "medium",
+   "question": "Разгон с 0 до 72 км/ч за 10 с. Ускорение (м/с²)?",
+   "answer": "2",
+   "hint": "72 км/ч = 20 м/с",
+   "explanation": "a=20/10=2 м/с²"
+  },
+  {
+   "id": "t0054",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "m=2 кг, h=10 м, g=10. Потенц. энергия (Дж)?",
+   "answer": "200",
+   "hint": "E = mgh",
+   "explanation": "200 Дж"
+  },
+  {
+   "id": "t0055",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "m=1 кг, v=6 м/с. Кинетич. энергия (Дж)?",
+   "answer": "18",
+   "hint": "Ek=mv²/2",
+   "explanation": "1×36/2=18 Дж"
+  },
+  {
+   "id": "t0056",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "P=100 Вт, U=220 В. Ток (А)? До сотых.",
+   "answer": "0.45",
+   "hint": "I = P/U",
+   "explanation": "100/220≈0.45 А"
+  },
+  {
+   "id": "t0057",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "R₁=6, R₂=3 — параллельно. R (Ом)?",
+   "answer": "2",
+   "hint": "1/R=1/R₁+1/R₂",
+   "explanation": "R=2 Ом"
+  },
+  {
+   "id": "t0058",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "Заряд q=2 Кл, U=6 В. Работа (Дж)?",
+   "answer": "12",
+   "hint": "A = qU",
+   "explanation": "A = 12 Дж"
+  },
+  {
+   "id": "t0059",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "medium",
+   "question": "Q = mcΔT. m=2 кг, c=4200, ΔT=5. Q (Дж)?",
+   "answer": "42000",
+   "hint": "Q = 2×4200×5",
+   "explanation": "Q = 42000 Дж"
+  },
+  {
+   "id": "t0060",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "medium",
+   "question": "p=200 Па, V=3 м³. Работа газа (Дж)?",
+   "answer": "600",
+   "hint": "A = pΔV",
+   "explanation": "A = 600 Дж"
+  },
+  {
+   "id": "t0061",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "medium",
+   "question": "Линза, f=20 см, d=40 см. Изображение (см)?",
+   "answer": "40",
+   "hint": "1/f=1/d+1/v",
+   "explanation": "v=40 см"
+  },
+  {
+   "id": "t0062",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "medium",
+   "question": "n=1.5, угол падения 30°. sin угла преломления?",
+   "answer": "0.33",
+   "hint": "n₁sinα=n₂sinβ",
+   "explanation": "sinβ≈0.33"
+  },
+  {
+   "id": "t0063",
+   "subject": "physics",
+   "topic": "Волны",
+   "difficulty": "medium",
+   "question": "Частота 440 Гц, v=340 м/с. Длина волны (м)?",
+   "answer": "0.77",
+   "hint": "λ=v/f",
+   "explanation": "λ≈0.77 м"
+  },
+  {
+   "id": "t0064",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "medium",
+   "question": "Период полураспада 10 лет. За 30 лет от 80 г останется?",
+   "answer": "10",
+   "hint": "3 периода: 80→40→20→10",
+   "explanation": "10 г"
+  },
+  {
+   "id": "t0065",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "F=100 Н, s=5 м. Работа (Дж)?",
+   "answer": "500",
+   "hint": "A = Fs",
+   "explanation": "A = 500 Дж"
+  },
+  {
+   "id": "t0066",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Ρ=500 Вт, A=1000 Дж. Время (с)?",
+   "answer": "2",
+   "hint": "P = A/t",
+   "explanation": "t = 2 с"
+  },
+  {
+   "id": "t0067",
+   "subject": "physics",
+   "topic": "Гравитация",
+   "difficulty": "medium",
+   "question": "Тело упало с h=20 м. Скорость при ударе (м/с)? g=10",
+   "answer": "20",
+   "hint": "v²=2gh",
+   "explanation": "v=√400=20 м/с"
+  },
+  {
+   "id": "t0068",
+   "subject": "physics",
+   "topic": "Давление",
+   "difficulty": "medium",
+   "question": "F=200 Н, S=0.02 м². Давление (Па)?",
+   "answer": "10000",
+   "hint": "P=F/S",
+   "explanation": "P=10000 Па"
+  },
+  {
+   "id": "t0069",
+   "subject": "physics",
+   "topic": "Магнетизм",
+   "difficulty": "medium",
+   "question": "F=qvB. q=1 Кл, v=2 м/с, B=3 Тл. Сила (Н)?",
+   "answer": "6",
+   "hint": "Сила Лоренца",
+   "explanation": "F=6 Н"
+  },
+  {
+   "id": "t0070",
+   "subject": "physics",
+   "topic": "Кинематика",
+   "difficulty": "hard",
+   "question": "Тело брошено вверх v₀=20 м/с. Высота (м)? g=10",
+   "answer": "20",
+   "hint": "h=v₀²/(2g)",
+   "explanation": "h=400/20=20 м"
+  },
+  {
+   "id": "t0071",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "hard",
+   "question": "R₁=4, R₂=6 последоват., U=20 В. Ток через R₁ (А)?",
+   "answer": "2",
+   "hint": "R=10, I=U/R",
+   "explanation": "I=2 А"
+  },
+  {
+   "id": "t0072",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Пружина k=100 Н/м, x=0.2 м. Сила (Н)?",
+   "answer": "20",
+   "hint": "F = kx",
+   "explanation": "20 Н"
+  },
+  {
+   "id": "t0073",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "hard",
+   "question": "КПД тепловой машины: T₁=500 К, T₂=300 К. η (%)?",
+   "answer": "40",
+   "hint": "η=(T₁-T₂)/T₁",
+   "explanation": "η=40%"
+  },
+  {
+   "id": "t0074",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "hard",
+   "question": "E=mc². m=1 кг. E = ? (×10¹⁶ Дж)",
+   "answer": "9",
+   "hint": "с²=9×10¹⁶",
+   "explanation": "E=9×10¹⁶ Дж"
+  },
+  {
+   "id": "t0075",
+   "subject": "physics",
+   "topic": "Электромагнетизм",
+   "difficulty": "hard",
+   "question": "ЭМИ: ε = BLv. B=2 Тл, L=0.5 м, v=4 м/с. ε (В)?",
+   "answer": "4",
+   "hint": "ε=BLv",
+   "explanation": "ε=4 В"
+  },
+  {
+   "id": "t0076",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "hard",
+   "question": "Дифракц. решётка 500 лин/мм, λ=600 нм. sinθ для 1-го порядка?",
+   "answer": "0.3",
+   "hint": "sinθ=mλ/d",
+   "explanation": "d=2 мкм, sin=0.3"
+  },
+  {
+   "id": "t0077",
+   "subject": "physics",
+   "topic": "Колебания",
+   "difficulty": "hard",
+   "question": "Период маятника L=1 м, g=10. T (с)?",
+   "answer": "2",
+   "hint": "T=2π√(L/g)",
+   "explanation": "T≈2 с"
+  },
+  {
+   "id": "t0078",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Тело массой 2 кг вращается r=0.5 м, v=4 м/с. F центр.(Н)?",
+   "answer": "64",
+   "hint": "F=mv²/r",
+   "explanation": "F=2×16/0.5=64 Н"
+  },
+  {
+   "id": "t0079",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "hard",
+   "question": "Конденсатор C=100 мкФ, U=50 В. Заряд (мКл)?",
+   "answer": "5",
+   "hint": "Q=CU",
+   "explanation": "Q=100×10⁻⁶×50=5×10⁻³ Кл"
+  },
+  {
+   "id": "t0080",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Символ кислорода?",
+   "answer": "O",
+   "hint": "Периодич. таблица",
+   "explanation": "O"
+  },
+  {
+   "id": "t0081",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Сколько протонов у атома натрия (Na)?",
+   "answer": "11",
+   "hint": "Z = номер в таблице",
+   "explanation": "11"
+  },
+  {
+   "id": "t0082",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Что означает число Авогадро? (×10²³)",
+   "answer": "6",
+   "hint": "6.022×10²³",
+   "explanation": "6.022×10²³"
+  },
+  {
+   "id": "t0083",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Молярная масса воды H₂O (г/моль)?",
+   "answer": "18",
+   "hint": "2×1+16",
+   "explanation": "18 г/моль"
+  },
+  {
+   "id": "t0084",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "pH нейтрального раствора?",
+   "answer": "7",
+   "hint": "pH = -log[H⁺]",
+   "explanation": "pH = 7"
+  },
+  {
+   "id": "t0085",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Химическая формула поваренной соли?",
+   "answer": "NaCl",
+   "hint": "Na + Cl",
+   "explanation": "NaCl"
+  },
+  {
+   "id": "t0086",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "easy",
+   "question": "Что выделяется при электролизе воды на катоде?",
+   "answer": "водород",
+   "hint": "2H⁺+2e⁻→H₂",
+   "explanation": "Водород H₂"
+  },
+  {
+   "id": "t0087",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "easy",
+   "question": "Na₂O + H₂O → ?",
+   "answer": "2NaOH",
+   "hint": "Оксид+вода→гидроксид",
+   "explanation": "2NaOH"
+  },
+  {
+   "id": "t0088",
+   "subject": "chemistry",
+   "topic": "Строение",
+   "difficulty": "easy",
+   "question": "Максимальное число электронов на 1-м энергоуровне?",
+   "answer": "2",
+   "hint": "2n²",
+   "explanation": "2"
+  },
+  {
+   "id": "t0089",
+   "subject": "chemistry",
+   "topic": "Строение",
+   "difficulty": "easy",
+   "question": "Валентность кислорода в большинстве соединений?",
+   "answer": "2",
+   "hint": "Группа VIA",
+   "explanation": "II"
+  },
+  {
+   "id": "t0090",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "easy",
+   "question": "Формула серной кислоты?",
+   "answer": "H2SO4",
+   "hint": "S(VI), кислород",
+   "explanation": "H₂SO₄"
+  },
+  {
+   "id": "t0091",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "easy",
+   "question": "Что образует CO₂ + H₂O?",
+   "answer": "H2CO3",
+   "hint": "Угольная кислота",
+   "explanation": "H₂CO₃"
+  },
+  {
+   "id": "t0092",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "medium",
+   "question": "n=2 моль H₂O. Масса (г)?",
+   "answer": "36",
+   "hint": "m = n × M",
+   "explanation": "36 г"
+  },
+  {
+   "id": "t0093",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "medium",
+   "question": "m=56 г Fe. Число молей? (M Fe = 56)",
+   "answer": "1",
+   "hint": "n = m/M",
+   "explanation": "1 моль"
+  },
+  {
+   "id": "t0094",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "medium",
+   "question": "2H₂ + O₂ → ? Расставь коэффициенты перед H₂O.",
+   "answer": "2",
+   "hint": "Закон сохранения масс",
+   "explanation": "2H₂O"
+  },
+  {
+   "id": "t0095",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "medium",
+   "question": "CaCO₃ → CaO + ? при нагревании",
+   "answer": "CO2",
+   "hint": "Разложение карбонатов",
+   "explanation": "CO₂"
+  },
+  {
+   "id": "t0096",
+   "subject": "chemistry",
+   "topic": "pH",
+   "difficulty": "medium",
+   "question": "[H⁺]=0.01 моль/л. pH = ?",
+   "answer": "2",
+   "hint": "pH=-log(0.01)",
+   "explanation": "pH = 2"
+  },
+  {
+   "id": "t0097",
+   "subject": "chemistry",
+   "topic": "pH",
+   "difficulty": "medium",
+   "question": "pH=4. Раствор кислый или щелочной?",
+   "answer": "кислый",
+   "hint": "pH < 7 — кислый",
+   "explanation": "Кислый"
+  },
+  {
+   "id": "t0098",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "medium",
+   "question": "Fe + CuSO₄ → FeSO₄ + ? Что выпадает?",
+   "answer": "Cu",
+   "hint": "Вытеснение металла",
+   "explanation": "Cu"
+  },
+  {
+   "id": "t0099",
+   "subject": "chemistry",
+   "topic": "Газы",
+   "difficulty": "medium",
+   "question": "Идеальный газ, pV=nRT. p=2 атм, V=3 л, n=1, T=? Из Р,V,n,R=0.082",
+   "answer": "73.2",
+   "hint": "T=pV/(nR)",
+   "explanation": "T≈73.2 К"
+  },
+  {
+   "id": "t0100",
+   "subject": "chemistry",
+   "topic": "Электролиз",
+   "difficulty": "medium",
+   "question": "Что выделяется на аноде при электролизе воды?",
+   "answer": "кислород",
+   "hint": "4OH⁻-4e⁻→O₂+2H₂O",
+   "explanation": "Кислород O₂"
+  },
+  {
+   "id": "t0101",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Простейший алкан?",
+   "answer": "метан",
+   "hint": "CH₄",
+   "explanation": "CH₄"
+  },
+  {
+   "id": "t0102",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Общая формула алканов?",
+   "answer": "CnH2n+2",
+   "hint": "Гомологич. ряд",
+   "explanation": "CₙH₂ₙ₊₂"
+  },
+  {
+   "id": "t0103",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Реакция присоединения H₂ к этилену называется?",
+   "answer": "гидрирование",
+   "hint": "Насыщение",
+   "explanation": "Гидрирование"
+  },
+  {
+   "id": "t0104",
+   "subject": "chemistry",
+   "topic": "Строение",
+   "difficulty": "medium",
+   "question": "Электронная конфигурация Na (11 протонов)?",
+   "answer": "2,8,1",
+   "hint": "1s²2s²2p⁶3s¹",
+   "explanation": "2-8-1"
+  },
+  {
+   "id": "t0105",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "hard",
+   "question": "Fe₂O₃ + 3H₂ → 2Fe + ? Что ещё образуется?",
+   "answer": "3H2O",
+   "hint": "Восстановление оксида",
+   "explanation": "3H₂O"
+  },
+  {
+   "id": "t0106",
+   "subject": "chemistry",
+   "topic": "Расчёты",
+   "difficulty": "hard",
+   "question": "Смешали 100 мл 0.1М HCl и 100 мл 0.1М NaOH. pH продукта?",
+   "answer": "7",
+   "hint": "Нейтрализация",
+   "explanation": "pH = 7"
+  },
+  {
+   "id": "t0107",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "hard",
+   "question": "Продукт реакции этанола с Na?",
+   "answer": "C2H5ONa",
+   "hint": "Спирт + металл",
+   "explanation": "C₂H₅ONa + H₂↑"
+  },
+  {
+   "id": "t0108",
+   "subject": "chemistry",
+   "topic": "Термохимия",
+   "difficulty": "hard",
+   "question": "ΔH реакции горения CH₄ = -890 кДж/моль. На 2 моль?",
+   "answer": "-1780",
+   "hint": "2 × (-890)",
+   "explanation": "−1780 кДж"
+  },
+  {
+   "id": "t0109",
+   "subject": "chemistry",
+   "topic": "Равновесие",
+   "difficulty": "hard",
+   "question": "Le Chatelier: рост P смещает равновесие в сторону...?",
+   "answer": "меньшего числа молей",
+   "hint": "Принцип Ле Шателье",
+   "explanation": "Меньшего числа молей газа"
+  },
+  {
+   "id": "t0110",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "hard",
+   "question": "Сколько изомеров у бутана C₄H₁₀?",
+   "answer": "2",
+   "hint": "н-бутан и изобутан",
+   "explanation": "2 изомера"
+  },
+  {
+   "id": "t0111",
+   "subject": "chemistry",
+   "topic": "Электрохимия",
+   "difficulty": "hard",
+   "question": "Стандартный потенциал Cu²⁺/Cu = +0.34 В, Zn²⁺/Zn = -0.76 В. ЭДС гальванического элемента?",
+   "answer": "1.1",
+   "hint": "ЭДС = φ₊ - φ₋",
+   "explanation": "1.10 В"
+  },
+  {
+   "id": "t0112",
+   "subject": "chemistry",
+   "topic": "Расчёты",
+   "difficulty": "hard",
+   "question": "Масса осадка BaSO₄ при реакции 0.1 моль BaCl₂ + избыток H₂SO₄? M(BaSO₄)=233",
+   "answer": "23.3",
+   "hint": "n(BaSO₄)=n(BaCl₂)",
+   "explanation": "0.1×233=23.3 г"
+  },
+  {
+   "id": "t0113",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "hard",
+   "question": "Бензол с HNO₃ даёт...?",
+   "answer": "нитробензол",
+   "hint": "Реакция нитрования",
+   "explanation": "C₆H₅NO₂"
+  },
+  {
+   "id": "t0114",
+   "subject": "chemistry",
+   "topic": "Координационная",
+   "difficulty": "hard",
+   "question": "Координационное число Cu в [Cu(NH₃)₄]²⁺?",
+   "answer": "4",
+   "hint": "Число лигандов",
+   "explanation": "4"
+  },
+  {
+   "id": "t0115",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Что управляет клеткой и содержит ДНК?",
+   "answer": "ядро",
+   "hint": "Органоид",
+   "explanation": "Ядро"
+  },
+  {
+   "id": "t0116",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Энергетическая станция клетки?",
+   "answer": "митохондрия",
+   "hint": "АТФ",
+   "explanation": "Митохондрия"
+  },
+  {
+   "id": "t0117",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Фотосинтез происходит в...?",
+   "answer": "хлоропластах",
+   "hint": "Зелёный пигмент",
+   "explanation": "Хлоропластах"
+  },
+  {
+   "id": "t0118",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "ДНК расшифровывается как...?",
+   "answer": "дезоксирибонуклеиновая кислота",
+   "hint": "ДНК — носитель генетич. информации",
+   "explanation": "Дезоксирибонуклеиновая кислота"
+  },
+  {
+   "id": "t0119",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Сколько хромосом у человека (диплоидный набор)?",
+   "answer": "46",
+   "hint": "2n=46",
+   "explanation": "46"
+  },
+  {
+   "id": "t0120",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "easy",
+   "question": "Кто производит органику из неорганики?",
+   "answer": "продуценты",
+   "hint": "Первое трофическое звено",
+   "explanation": "Продуценты"
+  },
+  {
+   "id": "t0121",
+   "subject": "biology",
+   "topic": "Ботаника",
+   "difficulty": "easy",
+   "question": "Орган фотосинтеза у растений?",
+   "answer": "лист",
+   "hint": "Хлорофилл в листьях",
+   "explanation": "Лист"
+  },
+  {
+   "id": "t0122",
+   "subject": "biology",
+   "topic": "Зоология",
+   "difficulty": "easy",
+   "question": "Млекопитающие — теплокровные или холоднокровные?",
+   "answer": "теплокровные",
+   "hint": "Постоянная температура тела",
+   "explanation": "Теплокровные"
+  },
+  {
+   "id": "t0123",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "easy",
+   "question": "Какая система транспортирует кровь?",
+   "answer": "кровеносная",
+   "hint": "Сердце + сосуды",
+   "explanation": "Кровеносная система"
+  },
+  {
+   "id": "t0124",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "easy",
+   "question": "Кто предложил теорию эволюции путём естественного отбора?",
+   "answer": "Дарвин",
+   "hint": "1859, «Происхождение видов»",
+   "explanation": "Чарльз Дарвин"
+  },
+  {
+   "id": "t0125",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Рибосомы синтезируют...?",
+   "answer": "белки",
+   "hint": "Трансляция — синтез белка",
+   "explanation": "Белки"
+  },
+  {
+   "id": "t0126",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Какой нуклеотид в РНК заменяет тимин?",
+   "answer": "урацил",
+   "hint": "А-У, Г-Ц в РНК",
+   "explanation": "Урацил (У)"
+  },
+  {
+   "id": "t0127",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Аа × Аа → сколько % АА?",
+   "answer": "25",
+   "hint": "Решётка Пеннета",
+   "explanation": "25%"
+  },
+  {
+   "id": "t0128",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Доминантный ген обозначается...?",
+   "answer": "А",
+   "hint": "Большая буква",
+   "explanation": "Большой буквой"
+  },
+  {
+   "id": "t0129",
+   "subject": "biology",
+   "topic": "Фотосинтез",
+   "difficulty": "medium",
+   "question": "6CO₂ + 6H₂O + свет → C₆H₁₂O₆ + ?",
+   "answer": "6O2",
+   "hint": "Уравнение фотосинтеза",
+   "explanation": "6O₂"
+  },
+  {
+   "id": "t0130",
+   "subject": "biology",
+   "topic": "Дыхание",
+   "difficulty": "medium",
+   "question": "Конечный акцептор электронов в аэробном дыхании?",
+   "answer": "O2",
+   "hint": "Цепь переноса электронов",
+   "explanation": "O₂"
+  },
+  {
+   "id": "t0131",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "medium",
+   "question": "Первичная продукция экосистемы создаётся...?",
+   "answer": "продуцентами",
+   "hint": "Автотрофы",
+   "explanation": "Продуцентами"
+  },
+  {
+   "id": "t0132",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Гормон поджелудочной железы, снижающий глюкозу?",
+   "answer": "инсулин",
+   "hint": "β-клетки",
+   "explanation": "Инсулин"
+  },
+  {
+   "id": "t0133",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Сколько камер в сердце человека?",
+   "answer": "4",
+   "hint": "2 предсердия, 2 желудочка",
+   "explanation": "4"
+  },
+  {
+   "id": "t0134",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "medium",
+   "question": "Что такое ароморфоз?",
+   "answer": "крупное прогрессивное изменение",
+   "hint": "Повышение уровня организации",
+   "explanation": "Крупное эволюционное изменение"
+  },
+  {
+   "id": "t0135",
+   "subject": "biology",
+   "topic": "Микробиология",
+   "difficulty": "medium",
+   "question": "Что такое вирус?",
+   "answer": "неклеточная форма жизни",
+   "hint": "Нет собственного метаболизма",
+   "explanation": "Неклеточная форма"
+  },
+  {
+   "id": "t0136",
+   "subject": "biology",
+   "topic": "Ботаника",
+   "difficulty": "medium",
+   "question": "Чем отличается однодольное от двудольного?",
+   "answer": "числом семядолей",
+   "hint": "Строение зародыша",
+   "explanation": "1 или 2 семядоли"
+  },
+  {
+   "id": "t0137",
+   "subject": "biology",
+   "topic": "Зоология",
+   "difficulty": "medium",
+   "question": "Тип червей с круглым сечением тела?",
+   "answer": "круглые черви",
+   "hint": "Нематоды",
+   "explanation": "Круглые черви (Нематоды)"
+  },
+  {
+   "id": "t0138",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Генотип АА называется...?",
+   "answer": "гомозиготный",
+   "hint": "Одинаковые аллели",
+   "explanation": "Гомозиготным"
+  },
+  {
+   "id": "t0139",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Клеточная стенка растений состоит из...?",
+   "answer": "целлюлозы",
+   "hint": "Полисахарид",
+   "explanation": "Целлюлозы"
+  },
+  {
+   "id": "t0140",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "Группы крови: мать I(00), отец IV(АВ). Возможна ли у ребёнка группа III(В)?",
+   "answer": "да",
+   "hint": "Отец даёт В, мать O",
+   "explanation": "Возможна: генотип ВО = III группа"
+  },
+  {
+   "id": "t0141",
+   "subject": "biology",
+   "topic": "Биохимия",
+   "difficulty": "hard",
+   "question": "АТФ расшифровывается?",
+   "answer": "аденозинтрифосфат",
+   "hint": "Макроэргические связи",
+   "explanation": "Аденозинтрифосфат"
+  },
+  {
+   "id": "t0142",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "Сцепленное с полом наследование: ген на X-хромосоме. Больной отец, здоровая мать (носитель). % больных сыновей?",
+   "answer": "50",
+   "hint": "Х^a Y × Х^A Х^a",
+   "explanation": "50% сыновей больны"
+  },
+  {
+   "id": "t0143",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "hard",
+   "question": "Правило 10%: с уровня на уровень передаётся 10% энергии. 10000 Дж у продуцентов. У 3-го потребителя (Дж)?",
+   "answer": "1",
+   "hint": "10000→1000→100→10→1",
+   "explanation": "1 Дж"
+  },
+  {
+   "id": "t0144",
+   "subject": "biology",
+   "topic": "Биохимия",
+   "difficulty": "hard",
+   "question": "Сколько молекул АТФ синтезируется при полном окислении 1 глюкозы?",
+   "answer": "38",
+   "hint": "Гликолиз+ЦТК+ОФ",
+   "explanation": "36-38 АТФ"
+  },
+  {
+   "id": "t0145",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "Дигибридное скрещивание АаВb × АаВb. Сколько % ААВВ?",
+   "answer": "6.25",
+   "hint": "1/4 × 1/4 = 1/16",
+   "explanation": "6.25%"
+  },
+  {
+   "id": "t0146",
+   "subject": "biology",
+   "topic": "Молекулярная",
+   "difficulty": "hard",
+   "question": "Код ДНК: ТАЦ-ГГА-ЦТА. Сколько аминокислот кодируется?",
+   "answer": "3",
+   "hint": "Один кодон = 1 а/к",
+   "explanation": "3 аминокислоты"
+  },
+  {
+   "id": "t0147",
+   "subject": "biology",
+   "topic": "Физиология",
+   "difficulty": "hard",
+   "question": "Рефлекторная дуга: рецептор → ... → исполнительный орган. Что в середине?",
+   "answer": "нервный центр",
+   "hint": "5 звеньев дуги",
+   "explanation": "Нервный центр"
+  },
+  {
+   "id": "t0148",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "hard",
+   "question": "Что такое дрейф генов?",
+   "answer": "случайное изменение частот аллелей",
+   "hint": "Малые популяции",
+   "explanation": "Случайное изменение аллельных частот"
+  },
+  {
+   "id": "t0149",
+   "subject": "biology",
+   "topic": "Биохимия",
+   "difficulty": "hard",
+   "question": "Мономер ДНК называется?",
+   "answer": "нуклеотид",
+   "hint": "Нуклеотиды",
+   "explanation": "Нуклеотид"
+  },
+  {
+   "id": "t0150",
+   "subject": "informatics",
+   "topic": "Системы счисления",
+   "difficulty": "easy",
+   "question": "10 в двоичной системе?",
+   "answer": "1010",
+   "hint": "10 = 8+2",
+   "explanation": "1010₂"
+  },
+  {
+   "id": "t0151",
+   "subject": "informatics",
+   "topic": "Системы счисления",
+   "difficulty": "easy",
+   "question": "1111₂ в десятичной?",
+   "answer": "15",
+   "hint": "8+4+2+1",
+   "explanation": "15"
+  },
+  {
+   "id": "t0152",
+   "subject": "informatics",
+   "topic": "Системы счисления",
+   "difficulty": "easy",
+   "question": "255 в шестнадцатеричной?",
+   "answer": "FF",
+   "hint": "255=16×15+15",
+   "explanation": "FF₁₆"
+  },
+  {
+   "id": "t0153",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "1 байт = ? бит",
+   "answer": "8",
+   "hint": "8 бит = 1 байт",
+   "explanation": "8 бит"
+  },
+  {
+   "id": "t0154",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "1 КБ = ? байт",
+   "answer": "1024",
+   "hint": "2¹⁰",
+   "explanation": "1024 байт"
+  },
+  {
+   "id": "t0155",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Сортировка пузырьком — сложность в худшем случае?",
+   "answer": "O(n²)",
+   "hint": "Вложенные циклы",
+   "explanation": "O(n²)"
+  },
+  {
+   "id": "t0156",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Что выведет: print(2**3)?",
+   "answer": "8",
+   "hint": "** — возведение в степень",
+   "explanation": "8"
+  },
+  {
+   "id": "t0157",
+   "subject": "informatics",
+   "topic": "Логика",
+   "difficulty": "easy",
+   "question": "True AND False = ?",
+   "answer": "False",
+   "hint": "Таблица истинности И",
+   "explanation": "False"
+  },
+  {
+   "id": "t0158",
+   "subject": "informatics",
+   "topic": "Логика",
+   "difficulty": "easy",
+   "question": "True OR False = ?",
+   "answer": "True",
+   "hint": "Таблица истинности ИЛИ",
+   "explanation": "True"
+  },
+  {
+   "id": "t0159",
+   "subject": "informatics",
+   "topic": "Логика",
+   "difficulty": "easy",
+   "question": "NOT True = ?",
+   "answer": "False",
+   "hint": "Отрицание",
+   "explanation": "False"
+  },
+  {
+   "id": "t0160",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "easy",
+   "question": "Протокол веба — HTTP расшифровывается?",
+   "answer": "HyperText Transfer Protocol",
+   "hint": "Протокол передачи гипертекста",
+   "explanation": "HyperText Transfer Protocol"
+  },
+  {
+   "id": "t0161",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "easy",
+   "question": "Порт HTTPS?",
+   "answer": "443",
+   "hint": "Стандартный порт",
+   "explanation": "443"
+  },
+  {
+   "id": "t0162",
+   "subject": "informatics",
+   "topic": "Системы счисления",
+   "difficulty": "medium",
+   "question": "101101₂ в десятичной?",
+   "answer": "45",
+   "hint": "32+8+4+1",
+   "explanation": "45"
+  },
+  {
+   "id": "t0163",
+   "subject": "informatics",
+   "topic": "Системы счисления",
+   "difficulty": "medium",
+   "question": "Сложи: 1011₂ + 0101₂ = ?",
+   "answer": "10000",
+   "hint": "11+5=16=10000₂",
+   "explanation": "10000₂"
+  },
+  {
+   "id": "t0164",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Двоичный поиск в массиве из 1024 элементов — макс. шагов?",
+   "answer": "10",
+   "hint": "log₂(1024)",
+   "explanation": "10"
+  },
+  {
+   "id": "t0165",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность двоичного поиска?",
+   "answer": "O(log n)",
+   "hint": "Делим пополам",
+   "explanation": "O(log n)"
+  },
+  {
+   "id": "t0166",
+   "subject": "informatics",
+   "topic": "Структуры",
+   "difficulty": "medium",
+   "question": "LIFO — это...?",
+   "answer": "стек",
+   "hint": "Last In, First Out",
+   "explanation": "Стек (Stack)"
+  },
+  {
+   "id": "t0167",
+   "subject": "informatics",
+   "topic": "Структуры",
+   "difficulty": "medium",
+   "question": "FIFO — это...?",
+   "answer": "очередь",
+   "hint": "First In, First Out",
+   "explanation": "Очередь (Queue)"
+  },
+  {
+   "id": "t0168",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Рекурсия factorial(5) = ?",
+   "answer": "120",
+   "hint": "5! = 5×4×3×2×1",
+   "explanation": "120"
+  },
+  {
+   "id": "t0169",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Что такое цикл while?",
+   "answer": "цикл с условием",
+   "hint": "Выполняется пока условие истинно",
+   "explanation": "Цикл с предусловием"
+  },
+  {
+   "id": "t0170",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "SQL: SELECT ... FROM ... Что идёт после WHERE?",
+   "answer": "условие",
+   "hint": "Фильтрация строк",
+   "explanation": "Условие фильтрации"
+  },
+  {
+   "id": "t0171",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "Первичный ключ в БД?",
+   "answer": "уникальный идентификатор строки",
+   "hint": "PRIMARY KEY",
+   "explanation": "Уникальный идентификатор"
+  },
+  {
+   "id": "t0172",
+   "subject": "informatics",
+   "topic": "Логика",
+   "difficulty": "medium",
+   "question": "A XOR B: когда истина?",
+   "answer": "когда A и B различны",
+   "hint": "Исключающее ИЛИ",
+   "explanation": "Когда значения разные"
+  },
+  {
+   "id": "t0173",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "medium",
+   "question": "IP-адрес состоит из скольки октетов?",
+   "answer": "4",
+   "hint": "192.168.1.1",
+   "explanation": "4 октета"
+  },
+  {
+   "id": "t0174",
+   "subject": "informatics",
+   "topic": "Кодирование",
+   "difficulty": "medium",
+   "question": "ASCII-код 'A' = ?",
+   "answer": "65",
+   "hint": "Таблица ASCII",
+   "explanation": "65"
+  },
+  {
+   "id": "t0175",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "hard",
+   "question": "Сортировка слиянием — сложность?",
+   "answer": "O(n log n)",
+   "hint": "Divide and Conquer",
+   "explanation": "O(n log n)"
+  },
+  {
+   "id": "t0176",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "hard",
+   "question": "Задача коммивояжёра — класс сложности?",
+   "answer": "NP-полная",
+   "hint": "NP-Hard/NP-Complete",
+   "explanation": "NP-полная"
+  },
+  {
+   "id": "t0177",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "hard",
+   "question": "Что выведет: [x*2 for x in range(3)]?",
+   "answer": "[0, 2, 4]",
+   "hint": "List comprehension",
+   "explanation": "[0, 2, 4]"
+  },
+  {
+   "id": "t0178",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "hard",
+   "question": "Паттерн Singleton — для чего?",
+   "answer": "один экземпляр класса",
+   "hint": "Design Patterns",
+   "explanation": "Гарантирует единственный экземпляр"
+  },
+  {
+   "id": "t0179",
+   "subject": "informatics",
+   "topic": "Структуры",
+   "difficulty": "hard",
+   "question": "Сложность поиска в хэш-таблице (в среднем)?",
+   "answer": "O(1)",
+   "hint": "Хэш-функция",
+   "explanation": "O(1)"
+  },
+  {
+   "id": "t0180",
+   "subject": "informatics",
+   "topic": "Криптография",
+   "difficulty": "hard",
+   "question": "RSA — симметричное или асимметричное шифрование?",
+   "answer": "асимметричное",
+   "hint": "Открытый и закрытый ключ",
+   "explanation": "Асимметричное"
+  },
+  {
+   "id": "t0181",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "hard",
+   "question": "Что такое TCP/IP?",
+   "answer": "стек протоколов интернета",
+   "hint": "Transport Control Protocol",
+   "explanation": "Набор сетевых протоколов"
+  },
+  {
+   "id": "t0182",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "hard",
+   "question": "Что такое нормализация БД?",
+   "answer": "устранение избыточности",
+   "hint": "1НФ, 2НФ, 3НФ",
+   "explanation": "Приведение к нормальным формам"
+  },
+  {
+   "id": "t0183",
+   "subject": "informatics",
+   "topic": "ОС",
+   "difficulty": "hard",
+   "question": "Дедлок в ОС — это?",
+   "answer": "взаимная блокировка процессов",
+   "hint": "Deadlock",
+   "explanation": "Взаимная блокировка"
+  },
+  {
+   "id": "t0184",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "hard",
+   "question": "Жадный алгоритм даёт...?",
+   "answer": "локально оптимальное решение",
+   "hint": "Greedy",
+   "explanation": "Локально оптимальный выбор на каждом шаге"
+  },
+  {
+   "id": "t0185",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "easy",
+   "question": "В каком году пала Западная Римская империя?",
+   "answer": "476",
+   "hint": "476 н.э.",
+   "explanation": "476 г."
+  },
+  {
+   "id": "t0186",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "easy",
+   "question": "Первый император Рима?",
+   "answer": "Август",
+   "hint": "Октавиан Август",
+   "explanation": "Октавиан Август (27 до н.э.)"
+  },
+  {
+   "id": "t0187",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "easy",
+   "question": "В каком веке произошло Крещение Руси?",
+   "answer": "10",
+   "hint": "988 год",
+   "explanation": "X век (988 г.)"
+  },
+  {
+   "id": "t0188",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "easy",
+   "question": "Первый московский князь, начавший объединение Руси?",
+   "answer": "Иван Калита",
+   "hint": "XIV век",
+   "explanation": "Иван I Калита"
+  },
+  {
+   "id": "t0189",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "easy",
+   "question": "Год Французской революции?",
+   "answer": "1789",
+   "hint": "1789–1799",
+   "explanation": "1789 г."
+  },
+  {
+   "id": "t0190",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "easy",
+   "question": "Кто открыл Америку для европейцев в 1492 году?",
+   "answer": "Колумб",
+   "hint": "Христофор Колумб",
+   "explanation": "Христофор Колумб"
+  },
+  {
+   "id": "t0191",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "easy",
+   "question": "Год основания Санкт-Петербурга?",
+   "answer": "1703",
+   "hint": "Пётр I, 1703",
+   "explanation": "1703 г."
+  },
+  {
+   "id": "t0192",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "easy",
+   "question": "Кто правил Россией во время Отечественной войны 1812 года?",
+   "answer": "Александр I",
+   "hint": "1801-1825",
+   "explanation": "Александр I"
+  },
+  {
+   "id": "t0193",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "easy",
+   "question": "В каком году началась Первая мировая война?",
+   "answer": "1914",
+   "hint": "1914–1918",
+   "explanation": "1914 г."
+  },
+  {
+   "id": "t0194",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "easy",
+   "question": "Год окончания Второй мировой войны?",
+   "answer": "1945",
+   "hint": "Май и сентябрь 1945",
+   "explanation": "1945 г."
+  },
+  {
+   "id": "t0195",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "medium",
+   "question": "Год битвы при Марафоне?",
+   "answer": "490",
+   "hint": "490 до н.э.",
+   "explanation": "490 г. до н.э."
+  },
+  {
+   "id": "t0196",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "medium",
+   "question": "Куликовская битва состоялась в...?",
+   "answer": "1380",
+   "hint": "8 сентября 1380",
+   "explanation": "1380 г."
+  },
+  {
+   "id": "t0197",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "medium",
+   "question": "Великая хартия вольностей подписана в...?",
+   "answer": "1215",
+   "hint": "Англия, 1215",
+   "explanation": "1215 г."
+  },
+  {
+   "id": "t0198",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "Какой царь отменил крепостное право?",
+   "answer": "Александр II",
+   "hint": "19 февраля 1861",
+   "explanation": "Александр II, 1861"
+  },
+  {
+   "id": "t0199",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "В каком году произошла революция 1905 года в России?",
+   "answer": "1905",
+   "hint": "Кровавое воскресенье",
+   "explanation": "1905 г."
+  },
+  {
+   "id": "t0200",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "medium",
+   "question": "Год образования СССР?",
+   "answer": "1922",
+   "hint": "30 декабря 1922",
+   "explanation": "1922 г."
+  },
+  {
+   "id": "t0201",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "medium",
+   "question": "Годы правления Сталина?",
+   "answer": "1924-1953",
+   "hint": "1924–1953",
+   "explanation": "1924–1953 гг."
+  },
+  {
+   "id": "t0202",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "medium",
+   "question": "Год распада СССР?",
+   "answer": "1991",
+   "hint": "25 декабря 1991",
+   "explanation": "1991 г."
+  },
+  {
+   "id": "t0203",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "Кто командовал русской армией в Бородинской битве?",
+   "answer": "Кутузов",
+   "hint": "М.И. Кутузов",
+   "explanation": "Михаил Кутузов"
+  },
+  {
+   "id": "t0204",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "Год начала промышленной революции в Англии?",
+   "answer": "1760",
+   "hint": "XVIII век",
+   "explanation": "1760-е гг."
+  },
+  {
+   "id": "t0205",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "medium",
+   "question": "Строительство Колизея в Риме — I или IV век?",
+   "answer": "I",
+   "hint": "Веспасиан, 72-80 н.э.",
+   "explanation": "I век н.э."
+  },
+  {
+   "id": "t0206",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "medium",
+   "question": "Крестовые походы: первый — год?",
+   "answer": "1096",
+   "hint": "1096–1099",
+   "explanation": "1096 г."
+  },
+  {
+   "id": "t0207",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "Год Венского конгресса?",
+   "answer": "1815",
+   "hint": "1814-1815",
+   "explanation": "1814-1815 гг."
+  },
+  {
+   "id": "t0208",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "Синод заменил патриаршество при...?",
+   "answer": "Петре I",
+   "hint": "1721 г.",
+   "explanation": "Петр I, 1721 г."
+  },
+  {
+   "id": "t0209",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "medium",
+   "question": "Операция «Оверлорд» — высадка союзников в Нормандии — год?",
+   "answer": "1944",
+   "hint": "6 июня 1944",
+   "explanation": "1944 г."
+  },
+  {
+   "id": "t0210",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "hard",
+   "question": "Соборное уложение 1649 года закрепило...?",
+   "answer": "крепостное право",
+   "hint": "Юридически оформило крепостничество",
+   "explanation": "Окончательное прикрепление крестьян"
+  },
+  {
+   "id": "t0211",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "hard",
+   "question": "Год начала Семилетней войны?",
+   "answer": "1756",
+   "hint": "1756-1763",
+   "explanation": "1756 г."
+  },
+  {
+   "id": "t0212",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "hard",
+   "question": "Манифест 17 октября 1905 года даровал...?",
+   "answer": "гражданские свободы и Думу",
+   "hint": "Ответ на революцию",
+   "explanation": "Свободы и законодательную Думу"
+  },
+  {
+   "id": "t0213",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "hard",
+   "question": "«Пакт Молотова-Риббентропа» подписан в...?",
+   "answer": "1939",
+   "hint": "23 августа 1939",
+   "explanation": "23 августа 1939 г."
+  },
+  {
+   "id": "t0214",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "hard",
+   "question": "Карибский кризис — год?",
+   "answer": "1962",
+   "hint": "Октябрь 1962",
+   "explanation": "1962 г."
+  },
+  {
+   "id": "t0215",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "hard",
+   "question": "Первый русский печатный датированный документ — год?",
+   "answer": "1564",
+   "hint": "Иван Фёдоров",
+   "explanation": "1564 г."
+  },
+  {
+   "id": "t0216",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "hard",
+   "question": "Декларация независимости США принята...?",
+   "answer": "1776",
+   "hint": "4 июля 1776",
+   "explanation": "4 июля 1776 г."
+  },
+  {
+   "id": "t0217",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "hard",
+   "question": "Год окончания Корейской войны?",
+   "answer": "1953",
+   "hint": "1950-1953",
+   "explanation": "1953 г."
+  },
+  {
+   "id": "t0218",
+   "subject": "history",
+   "topic": "Новейшее",
+   "difficulty": "hard",
+   "question": "«Холодная война» — период?",
+   "answer": "1947-1991",
+   "hint": "1947–1991",
+   "explanation": "1947–1991 гг."
+  },
+  {
+   "id": "t0219",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "hard",
+   "question": "Год принятия конституции современной России?",
+   "answer": "1993",
+   "hint": "12 декабря 1993",
+   "explanation": "1993 г."
+  },
+  {
+   "id": "t0220",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: бе(з/с)сердечный?",
+   "answer": "бессердечный",
+   "hint": "Перед с — с",
+   "explanation": "Перед глухой — с: бессердечный"
+  },
+  {
+   "id": "t0221",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: пр(и/е)красный?",
+   "answer": "прекрасный",
+   "hint": "Значение «очень» → пре-",
+   "explanation": "Пре- (= очень красный)"
+  },
+  {
+   "id": "t0222",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "easy",
+   "question": "Нужна ли запятая: «Он пришёл и сел.»?",
+   "answer": "нет",
+   "hint": "Однородные с союзом «и» — запятая не нужна",
+   "explanation": "Не нужна"
+  },
+  {
+   "id": "t0223",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Какая часть речи слово «быстро»?",
+   "answer": "наречие",
+   "hint": "Отвечает на «как?»",
+   "explanation": "Наречие"
+  },
+  {
+   "id": "t0224",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Существительное «стол» — какого рода?",
+   "answer": "мужской",
+   "hint": "Нет окончания",
+   "explanation": "Мужской род"
+  },
+  {
+   "id": "t0225",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "easy",
+   "question": "Подлежащее + сказуемое = ?",
+   "answer": "грамматическая основа",
+   "hint": "Основа предложения",
+   "explanation": "Грамматическая основа"
+  },
+  {
+   "id": "t0226",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: (не)зависимый (без зависимости)?",
+   "answer": "независимый",
+   "hint": "Слитно, можно заменить синонимом без не",
+   "explanation": "Слитно: независимый"
+  },
+  {
+   "id": "t0227",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Стекл(я/е)нный?",
+   "answer": "стеклянный",
+   "hint": "Исключение: стеклянный",
+   "explanation": "Стеклянный (исключение)"
+  },
+  {
+   "id": "t0228",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "easy",
+   "question": "Ставится ли запятая перед «что» в придаточном предложении?",
+   "answer": "да",
+   "hint": "Придаточное отделяется запятой",
+   "explanation": "Да"
+  },
+  {
+   "id": "t0229",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "«Красивый» — какая часть речи?",
+   "answer": "прилагательное",
+   "hint": "Отвечает «какой?»",
+   "explanation": "Прилагательное"
+  },
+  {
+   "id": "t0230",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: (н/нн) в слове «написа(н/нн)ый»?",
+   "answer": "написанный",
+   "hint": "Полное причастие — нн",
+   "explanation": "нн: написанный"
+  },
+  {
+   "id": "t0231",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: «(н/нн)е был» — «кра(н/нн)ый»?",
+   "answer": "крашеный",
+   "hint": "Краткое причастие — н",
+   "explanation": "н: крашеный (краткое прич.)"
+  },
+  {
+   "id": "t0232",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Слитно или раздельно: (не)смотря на?",
+   "answer": "несмотря",
+   "hint": "Производный предлог",
+   "explanation": "Слитно: несмотря на"
+  },
+  {
+   "id": "t0233",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "medium",
+   "question": "Нужна ли запятая: «Наступила тёплая, солнечная весна»?",
+   "answer": "да",
+   "hint": "Однородные определения",
+   "explanation": "Да"
+  },
+  {
+   "id": "t0234",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Какой тип связи: «читать книгу»?",
+   "answer": "управление",
+   "hint": "Зависимое в падеже",
+   "explanation": "Управление"
+  },
+  {
+   "id": "t0235",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Какой тип связи: «читать внимательно»?",
+   "answer": "примыкание",
+   "hint": "Неизменяемое слово",
+   "explanation": "Примыкание"
+  },
+  {
+   "id": "t0236",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: рас(с/-)считать?",
+   "answer": "рассчитать",
+   "hint": "Корень -счит-, приставка рас-",
+   "explanation": "Рассчитать"
+  },
+  {
+   "id": "t0237",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "medium",
+   "question": "Причастие образовано от...?",
+   "answer": "глагола",
+   "hint": "Признак предмета по действию",
+   "explanation": "Глагола"
+  },
+  {
+   "id": "t0238",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Через дефис или слитно: (темно)синий?",
+   "answer": "темно-синий",
+   "hint": "Сложное прилаг. цвета — дефис",
+   "explanation": "Через дефис"
+  },
+  {
+   "id": "t0239",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "medium",
+   "question": "Запятая при деепричастном обороте?",
+   "answer": "да",
+   "hint": "Деепр. оборот обособляется",
+   "explanation": "Да, обособляется"
+  },
+  {
+   "id": "t0240",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Слитно или раздельно: не(с)мотря на результат?",
+   "answer": "несмотря на",
+   "hint": "Производный предлог",
+   "explanation": "Несмотря на (слитно)"
+  },
+  {
+   "id": "t0241",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "medium",
+   "question": "Какой падеж: «Иду (куда?) домой»?",
+   "answer": "наречие (нет падежа)",
+   "hint": "Домой — наречие",
+   "explanation": "Это наречие, падежа нет"
+  },
+  {
+   "id": "t0242",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: бе(з/с)жалостный?",
+   "answer": "безжалостный",
+   "hint": "Перед звонкой — з",
+   "explanation": "Без- (перед звонкой): безжалостный"
+  },
+  {
+   "id": "t0243",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Вводные слова выделяются...?",
+   "answer": "запятыми",
+   "hint": "Обособление вводных слов",
+   "explanation": "Запятыми с обеих сторон"
+  },
+  {
+   "id": "t0244",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: (о/а)зарница?",
+   "answer": "зарница",
+   "hint": "Зар-/зор-: без ударения — а",
+   "explanation": "Зарница"
+  },
+  {
+   "id": "t0245",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: пр(е/и)вратить в золото?",
+   "answer": "превратить",
+   "hint": "Пре- = пере-",
+   "explanation": "Пре- (= переделать): превратить"
+  },
+  {
+   "id": "t0246",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: пр(е/и)вратности судьбы?",
+   "answer": "превратности",
+   "hint": "Пре- (= искажение)",
+   "explanation": "Превратности"
+  },
+  {
+   "id": "t0247",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: раз(о)жжённый?",
+   "answer": "разожжённый",
+   "hint": "Корень жж",
+   "explanation": "Разожжённый"
+  },
+  {
+   "id": "t0248",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "hard",
+   "question": "Нужно ли тире: «Москва — столица России»?",
+   "answer": "да",
+   "hint": "Подлежащее и сказуемое — сущ.",
+   "explanation": "Да, тире между сущ."
+  },
+  {
+   "id": "t0249",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "hard",
+   "question": "Что такое парцелляция?",
+   "answer": "намеренное разделение высказывания",
+   "hint": "Стилистический приём",
+   "explanation": "Разделение предложения точками"
+  },
+  {
+   "id": "t0250",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "hard",
+   "question": "Антоним слова «эфемерный»?",
+   "answer": "вечный",
+   "hint": "Эфемерный = кратковременный",
+   "explanation": "Вечный, постоянный"
+  },
+  {
+   "id": "t0251",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: (н/нн) — «асфальтирова(н/нн)ый»?",
+   "answer": "асфальтированный",
+   "hint": "Полное причастие с приставкой — нн",
+   "explanation": "нн: асфальтированный"
+  },
+  {
+   "id": "t0252",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "hard",
+   "question": "Полное или неполное: «Я пошёл. Он — тоже.»?",
+   "answer": "неполное",
+   "hint": "Пропущено сказуемое",
+   "explanation": "Неполное (пропущено «пошёл»)"
+  },
+  {
+   "id": "t0253",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "hard",
+   "question": "Что такое плеоназм?",
+   "answer": "лексическая избыточность",
+   "hint": "Масло масляное",
+   "explanation": "Лишние слова по смыслу"
+  },
+  {
+   "id": "t0254",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: «(в)следствие» (= из-за)?",
+   "answer": "вследствие",
+   "hint": "Производный предлог слитно",
+   "explanation": "Слитно: вследствие"
+  },
+  {
+   "id": "t0255",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "easy",
+   "question": "Переведи: Я иду в школу каждый день.",
+   "answer": "I go to school every day",
+   "hint": "Present Simple",
+   "explanation": "I go to school every day."
+  },
+  {
+   "id": "t0256",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "easy",
+   "question": "Переведи: Он сейчас читает книгу.",
+   "answer": "He is reading a book now",
+   "hint": "Present Continuous: is+V-ing",
+   "explanation": "He is reading a book now."
+  },
+  {
+   "id": "t0257",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "easy",
+   "question": "Переведи: Я читал вчера.",
+   "answer": "I read yesterday",
+   "hint": "Past Simple",
+   "explanation": "I read yesterday."
+  },
+  {
+   "id": "t0258",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Артикль перед 'apple': a или an?",
+   "answer": "an",
+   "hint": "Перед гласной — an",
+   "explanation": "an apple"
+  },
+  {
+   "id": "t0259",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Множественное число 'child'?",
+   "answer": "children",
+   "hint": "Исключение",
+   "explanation": "children"
+  },
+  {
+   "id": "t0260",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Множественное число 'man'?",
+   "answer": "men",
+   "hint": "Исключение",
+   "explanation": "men"
+  },
+  {
+   "id": "t0261",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "easy",
+   "question": "Перевод: 'beautiful'?",
+   "answer": "красивый",
+   "hint": "Прилагательное",
+   "explanation": "красивый/красивая"
+  },
+  {
+   "id": "t0262",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "easy",
+   "question": "Перевод: 'knowledge'?",
+   "answer": "знание",
+   "hint": "Существительное",
+   "explanation": "знание"
+  },
+  {
+   "id": "t0263",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "easy",
+   "question": "Перевод: 'opportunity'?",
+   "answer": "возможность",
+   "hint": "opportunity = шанс",
+   "explanation": "возможность"
+  },
+  {
+   "id": "t0264",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Степень сравнения: big → bigger → ?",
+   "answer": "the biggest",
+   "hint": "Превосходная: the +-est",
+   "explanation": "the biggest"
+  },
+  {
+   "id": "t0265",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "medium",
+   "question": "Переведи: Он уже поел.",
+   "answer": "He has already eaten",
+   "hint": "Present Perfect",
+   "explanation": "He has already eaten."
+  },
+  {
+   "id": "t0266",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "medium",
+   "question": "Переведи: Когда я пришёл, она спала.",
+   "answer": "When I came, she was sleeping",
+   "hint": "Past Continuous",
+   "explanation": "Past Continuous + Past Simple"
+  },
+  {
+   "id": "t0267",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "medium",
+   "question": "Переведи: Завтра я буду работать.",
+   "answer": "I will be working tomorrow",
+   "hint": "Future Continuous",
+   "explanation": "I will be working tomorrow."
+  },
+  {
+   "id": "t0268",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Переведи: Если бы я был богатым, я бы купил дом.",
+   "answer": "If I were rich, I would buy a house",
+   "hint": "Условное II",
+   "explanation": "If I were rich, I would buy a house."
+  },
+  {
+   "id": "t0269",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Пассивный залог: 'The book was written by Tolstoy.' Кто написал?",
+   "answer": "Tolstoy",
+   "hint": "by = кем",
+   "explanation": "Tolstoy"
+  },
+  {
+   "id": "t0270",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Косвенная речь: She said 'I am happy.' → She said that she...?",
+   "answer": "was happy",
+   "hint": "Сдвиг времён",
+   "explanation": "was happy"
+  },
+  {
+   "id": "t0271",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Модальный глагол для обязанности?",
+   "answer": "must / have to",
+   "hint": "Must, have to",
+   "explanation": "must / have to"
+  },
+  {
+   "id": "t0272",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "medium",
+   "question": "Синоним 'important'?",
+   "answer": "significant",
+   "hint": "significant, crucial",
+   "explanation": "significant / crucial"
+  },
+  {
+   "id": "t0273",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "medium",
+   "question": "Антоним 'ancient'?",
+   "answer": "modern",
+   "hint": "ancient = древний",
+   "explanation": "modern"
+  },
+  {
+   "id": "t0274",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "'I suggest that he ... (go/goes) there.' Выбери форму.",
+   "answer": "go",
+   "hint": "После suggest — Subjunctive",
+   "explanation": "go (Subjunctive Mood)"
+  },
+  {
+   "id": "t0275",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "medium",
+   "question": "Перевод: 'Nevertheless'?",
+   "answer": "тем не менее",
+   "hint": "Союз противопоставления",
+   "explanation": "тем не менее"
+  },
+  {
+   "id": "t0276",
+   "subject": "foreign_language",
+   "topic": "Словарь",
+   "difficulty": "medium",
+   "question": "Перевод: 'Subsequently'?",
+   "answer": "впоследствии",
+   "hint": "Наречие времени",
+   "explanation": "впоследствии"
+  },
+  {
+   "id": "t0277",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Герундий или инфинитив: 'She enjoys ... (swim/swimming)'?",
+   "answer": "swimming",
+   "hint": "enjoy + V-ing",
+   "explanation": "swimming"
+  },
+  {
+   "id": "t0278",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "'Despite ... (the rain / raining)', мы пошли гулять.",
+   "answer": "the rain",
+   "hint": "despite + noun/gerund",
+   "explanation": "Despite the rain...  (или 'raining')"
+  },
+  {
+   "id": "t0279",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "medium",
+   "question": "'By 2025 he will have worked here for 10 years.' Это...?",
+   "answer": "Future Perfect",
+   "hint": "will have + V3",
+   "explanation": "Future Perfect"
+  },
+  {
+   "id": "t0280",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Объясни разницу: 'Lying' в 'He is lying on the bed' vs 'lying about'?",
+   "answer": "лежать vs лгать",
+   "hint": "lie (лежать) vs lie (лгать)",
+   "explanation": "Омонимы: to lie (лежать) и to lie (лгать)"
+  },
+  {
+   "id": "t0281",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "'It is high time he ... (left/leave).' Правильная форма?",
+   "answer": "left",
+   "hint": "It's time + Past Subj.",
+   "explanation": "left (Past Subjunctive)"
+  },
+  {
+   "id": "t0282",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Инверсия: 'Hardly had I ... when...' — что дальше?",
+   "answer": "arrived / sat down",
+   "hint": "Hardly had + V3",
+   "explanation": "V3 в главном, Past Simple в придаточном"
+  },
+  {
+   "id": "t0283",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "hard",
+   "question": "Слово с противоположным значением в разных контекстах называется?",
+   "answer": "антоним",
+   "hint": "antonym",
+   "explanation": "Антоним"
+  },
+  {
+   "id": "t0284",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "'I wish I ... (knew/know) the answer.' Форма?",
+   "answer": "knew",
+   "hint": "I wish + Past Subj.",
+   "explanation": "knew (сослагательное)"
+  },
+  {
+   "id": "t0285",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "2x + 6 = 0. Найди x.",
+   "answer": "−3",
+   "hint": "2x = −6",
+   "explanation": "x = −3"
+  },
+  {
+   "id": "t0286",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Реши: 5x − 15 = 0",
+   "answer": "3",
+   "hint": "5x = 15",
+   "explanation": "x = 3"
+  },
+  {
+   "id": "t0287",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Упрости: 3a + 2a − a",
+   "answer": "4a",
+   "hint": "Подобные слагаемые",
+   "explanation": "3+2−1=4"
+  },
+  {
+   "id": "t0288",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Чему равно 2³?",
+   "answer": "8",
+   "hint": "2×2×2",
+   "explanation": "8"
+  },
+  {
+   "id": "t0289",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Чему равно (−3)²?",
+   "answer": "9",
+   "hint": "Квадрат отрицательного числа положителен",
+   "explanation": "9"
+  },
+  {
+   "id": "t0290",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Реши квадратное уравнение x²−5x+6=0",
+   "answer": "x=2, x=3",
+   "hint": "D=25−24=1",
+   "explanation": "(x−2)(x−3)=0"
+  },
+  {
+   "id": "t0291",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Реши: x²−7x+12=0",
+   "answer": "x=3, x=4",
+   "hint": "D=49−48=1",
+   "explanation": "(x−3)(x−4)=0"
+  },
+  {
+   "id": "t0292",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Найди дискриминант: 2x²+3x−2",
+   "answer": "25",
+   "hint": "D=9+16",
+   "explanation": "D=b²−4ac"
+  },
+  {
+   "id": "t0293",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "log₂(8) = ?",
+   "answer": "3",
+   "hint": "2³=8",
+   "explanation": "Логарифм по основанию 2"
+  },
+  {
+   "id": "t0294",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "log₁₀(1000) = ?",
+   "answer": "3",
+   "hint": "10³=1000",
+   "explanation": "Десятичный логарифм"
+  },
+  {
+   "id": "t0295",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "hard",
+   "question": "Реши систему: x+y=5, x−y=1",
+   "answer": "x=3, y=2",
+   "hint": "Сложение уравнений",
+   "explanation": "2x=6, x=3"
+  },
+  {
+   "id": "t0296",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "hard",
+   "question": "Реши: 2x²−x−1=0",
+   "answer": "x=1, x=−0.5",
+   "hint": "D=1+8=9",
+   "explanation": "(2x+1)(x−1)=0"
+  },
+  {
+   "id": "t0297",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Сумма углов треугольника равна?",
+   "answer": "180°",
+   "hint": "Аксиома геометрии",
+   "explanation": "Всегда 180°"
+  },
+  {
+   "id": "t0298",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Площадь квадрата со стороной 5?",
+   "answer": "25",
+   "hint": "S=a²",
+   "explanation": "5²=25"
+  },
+  {
+   "id": "t0299",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Периметр прямоугольника 3×4?",
+   "answer": "14",
+   "hint": "P=2(a+b)",
+   "explanation": "2×7=14"
+  },
+  {
+   "id": "t0300",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Гипотенуза прямоугольного треугольника с катетами 5 и 12?",
+   "answer": "13",
+   "hint": "a²+b²=c²",
+   "explanation": "25+144=169=13²"
+  },
+  {
+   "id": "t0301",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Площадь круга радиуса 3? (ответ через π)",
+   "answer": "9π",
+   "hint": "S=πr²",
+   "explanation": "π×9"
+  },
+  {
+   "id": "t0302",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Длина окружности радиуса 5? (через π)",
+   "answer": "10π",
+   "hint": "C=2πr",
+   "explanation": "2π×5"
+  },
+  {
+   "id": "t0303",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "hard",
+   "question": "Объём шара радиуса 3? (через π)",
+   "answer": "36π",
+   "hint": "V=4/3·πr³",
+   "explanation": "4/3·π·27=36π"
+  },
+  {
+   "id": "t0304",
+   "subject": "mathematics",
+   "topic": "Векторы",
+   "difficulty": "medium",
+   "question": "Длина вектора (3,4)?",
+   "answer": "5",
+   "hint": "√(3²+4²)",
+   "explanation": "√25=5"
+  },
+  {
+   "id": "t0305",
+   "subject": "mathematics",
+   "topic": "Векторы",
+   "difficulty": "medium",
+   "question": "Скалярное произведение (1,2)·(3,4)?",
+   "answer": "11",
+   "hint": "1×3+2×4",
+   "explanation": "11"
+  },
+  {
+   "id": "t0306",
+   "subject": "mathematics",
+   "topic": "Вероятность",
+   "difficulty": "medium",
+   "question": "Монету бросают дважды. P(два орла)?",
+   "answer": "0.25",
+   "hint": "(1/2)²",
+   "explanation": "0.25"
+  },
+  {
+   "id": "t0307",
+   "subject": "mathematics",
+   "topic": "Вероятность",
+   "difficulty": "hard",
+   "question": "Урна: 3 белых, 2 чёрных. P(белый)=?",
+   "answer": "0.6",
+   "hint": "3/5",
+   "explanation": "0.6"
+  },
+  {
+   "id": "t0308",
+   "subject": "mathematics",
+   "topic": "Матрицы",
+   "difficulty": "hard",
+   "question": "det([1,2; 3,4]) = ?",
+   "answer": "−2",
+   "hint": "ad−bc",
+   "explanation": "1×4−2×3=−2"
+  },
+  {
+   "id": "t0309",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Формула скорости равномерного движения?",
+   "answer": "v=s/t",
+   "hint": "Основная формула кинематики",
+   "explanation": "Скорость = путь / время"
+  },
+  {
+   "id": "t0310",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Тело движется 10 м/с. За 5 секунд пройдёт?",
+   "answer": "50 м",
+   "hint": "s=v·t",
+   "explanation": "10×5=50"
+  },
+  {
+   "id": "t0311",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Единица силы в СИ?",
+   "answer": "ньютон",
+   "hint": "Н=кг·м/с²",
+   "explanation": "Ньютон"
+  },
+  {
+   "id": "t0312",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Тело массой 2 кг ускоряется 3 м/с². Сила?",
+   "answer": "6 Н",
+   "hint": "F=ma",
+   "explanation": "2×3=6"
+  },
+  {
+   "id": "t0313",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Тело брошено вертикально вверх. Через 2 с скорость (g=10 м/с², v₀=30 м/с)?",
+   "answer": "10 м/с",
+   "hint": "v=v₀−g·t",
+   "explanation": "30−20=10"
+  },
+  {
+   "id": "t0314",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Потенциальная энергия тела 5 кг на высоте 4 м (g=10)?",
+   "answer": "200 Дж",
+   "hint": "E=mgh",
+   "explanation": "5×10×4"
+  },
+  {
+   "id": "t0315",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Тело движется с a=2 м/с², v₀=0. Путь за 5 с?",
+   "answer": "25 м",
+   "hint": "s=v₀t+at²/2",
+   "explanation": "0+2×25/2=25"
+  },
+  {
+   "id": "t0316",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "easy",
+   "question": "Температура кипения воды при норм. давлении?",
+   "answer": "100°C",
+   "hint": "Физическое свойство воды",
+   "explanation": "100°C=373K"
+  },
+  {
+   "id": "t0317",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "medium",
+   "question": "Количество теплоты: m=2кг, c=4200, ΔT=10?",
+   "answer": "84000 Дж",
+   "hint": "Q=mcΔT",
+   "explanation": "2×4200×10"
+  },
+  {
+   "id": "t0318",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "medium",
+   "question": "Газ при V=2л и P=1атм. Произведение P·V=?",
+   "answer": "2 л·атм",
+   "hint": "Закон Бойля-Мариотта",
+   "explanation": "PV=const"
+  },
+  {
+   "id": "t0319",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "hard",
+   "question": "КПД тепловой машины: Tнагр=500К, Tхол=300К?",
+   "answer": "40%",
+   "hint": "η=1−T₂/T₁",
+   "explanation": "1−0.6=0.4"
+  },
+  {
+   "id": "t0320",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "Закон Ома для участка цепи?",
+   "answer": "I=U/R",
+   "hint": "Основной закон электрических цепей",
+   "explanation": "Ток=Напряжение/Сопротивление"
+  },
+  {
+   "id": "t0321",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "U=12В, R=4Ом. Ток?",
+   "answer": "3 А",
+   "hint": "I=U/R",
+   "explanation": "12/4=3"
+  },
+  {
+   "id": "t0322",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "Мощность: U=220В, I=2А?",
+   "answer": "440 Вт",
+   "hint": "P=U·I",
+   "explanation": "220×2=440"
+  },
+  {
+   "id": "t0323",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "Два резистора 6 Ом и 3 Ом параллельно. Общее R?",
+   "answer": "2 Ом",
+   "hint": "1/R=1/R1+1/R2",
+   "explanation": "R=2 Ом"
+  },
+  {
+   "id": "t0324",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "medium",
+   "question": "Скорость света в вакууме?",
+   "answer": "300 000 км/с",
+   "hint": "Физическая константа",
+   "explanation": "3×10⁸ м/с"
+  },
+  {
+   "id": "t0325",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "hard",
+   "question": "Показатель преломления стекла n=1.5. Угол падения 30°. Угол преломления?",
+   "answer": "19.5°",
+   "hint": "n1·sin30°=n2·sinθ",
+   "explanation": "sinθ≈0.333"
+  },
+  {
+   "id": "t0326",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "medium",
+   "question": "Какой заряд имеет нейтрон?",
+   "answer": "0",
+   "hint": "Нейтральная частица",
+   "explanation": "0"
+  },
+  {
+   "id": "t0327",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Закон сохранения импульса: m₁=m₂=1кг, v₁=4м/с, v₂=0. Скорость после абс.неупр. удара?",
+   "answer": "2 м/с",
+   "hint": "m₁v₁=(m₁+m₂)v",
+   "explanation": "v=4/2=2"
+  },
+  {
+   "id": "t0328",
+   "subject": "chemistry",
+   "topic": "Периодический закон",
+   "difficulty": "easy",
+   "question": "Кто открыл периодический закон?",
+   "answer": "Менделеев",
+   "hint": "1869 год",
+   "explanation": "Д.И. Менделеев"
+  },
+  {
+   "id": "t0329",
+   "subject": "chemistry",
+   "topic": "Периодический закон",
+   "difficulty": "easy",
+   "question": "Атомный номер кислорода?",
+   "answer": "8",
+   "hint": "8 протонов в ядре",
+   "explanation": "Порядковый номер=число протонов"
+  },
+  {
+   "id": "t0330",
+   "subject": "chemistry",
+   "topic": "Строение атома",
+   "difficulty": "easy",
+   "question": "Что находится в ядре атома?",
+   "answer": "протоны и нейтроны",
+   "hint": "Ядро=нуклоны",
+   "explanation": "Нуклоны: протоны+нейтроны"
+  },
+  {
+   "id": "t0331",
+   "subject": "chemistry",
+   "topic": "Строение атома",
+   "difficulty": "medium",
+   "question": "Число электронов в атоме натрия Na?",
+   "answer": "11",
+   "hint": "Na — 11-й элемент",
+   "explanation": "Атомный номер=число протонов=число электронов"
+  },
+  {
+   "id": "t0332",
+   "subject": "chemistry",
+   "topic": "Химические реакции",
+   "difficulty": "easy",
+   "question": "Что означает коэффициент в химическом уравнении?",
+   "answer": "число молекул",
+   "hint": "Стехиометрический коэффициент",
+   "explanation": "Количество молекул/моль вещества"
+  },
+  {
+   "id": "t0333",
+   "subject": "chemistry",
+   "topic": "Химические реакции",
+   "difficulty": "medium",
+   "question": "2H₂ + O₂ → ? Что образуется?",
+   "answer": "2H₂O",
+   "hint": "Реакция горения водорода",
+   "explanation": "Вода"
+  },
+  {
+   "id": "t0334",
+   "subject": "chemistry",
+   "topic": "Химические реакции",
+   "difficulty": "medium",
+   "question": "Тип реакции: A + B → AB?",
+   "answer": "соединение",
+   "hint": "По числу реагентов и продуктов",
+   "explanation": "Реакция соединения"
+  },
+  {
+   "id": "t0335",
+   "subject": "chemistry",
+   "topic": "Растворы",
+   "difficulty": "easy",
+   "question": "pH нейтральной среды?",
+   "answer": "7",
+   "hint": "Водородный показатель",
+   "explanation": "pH=7 — нейтральная среда"
+  },
+  {
+   "id": "t0336",
+   "subject": "chemistry",
+   "topic": "Растворы",
+   "difficulty": "medium",
+   "question": "pH < 7 — среда?",
+   "answer": "кислая",
+   "hint": "Кислотная среда",
+   "explanation": "Кислая среда: избыток H⁺"
+  },
+  {
+   "id": "t0337",
+   "subject": "chemistry",
+   "topic": "Растворы",
+   "difficulty": "medium",
+   "question": "Молярная масса H₂SO₄?",
+   "answer": "98 г/моль",
+   "hint": "2×1+32+4×16",
+   "explanation": "98"
+  },
+  {
+   "id": "t0338",
+   "subject": "chemistry",
+   "topic": "Окислительно-восстановительные реакции",
+   "difficulty": "medium",
+   "question": "Процесс отдачи электронов называется?",
+   "answer": "окисление",
+   "hint": "Окисление — потеря e⁻",
+   "explanation": "Окисление=отдача электронов"
+  },
+  {
+   "id": "t0339",
+   "subject": "chemistry",
+   "topic": "Окислительно-восстановительные реакции",
+   "difficulty": "hard",
+   "question": "В реакции Fe + CuSO₄ → FeSO₄ + Cu. Что окисляется?",
+   "answer": "железо",
+   "hint": "Fe⁰ → Fe²⁺",
+   "explanation": "Fe теряет 2 электрона"
+  },
+  {
+   "id": "t0340",
+   "subject": "chemistry",
+   "topic": "Органическая химия",
+   "difficulty": "medium",
+   "question": "Общая формула алканов?",
+   "answer": "CₙH₂ₙ₊₂",
+   "hint": "Предельные углеводороды",
+   "explanation": "CnH(2n+2)"
+  },
+  {
+   "id": "t0341",
+   "subject": "chemistry",
+   "topic": "Органическая химия",
+   "difficulty": "medium",
+   "question": "Метан CH₄ — представитель какого класса?",
+   "answer": "алканы",
+   "hint": "Предельные углеводороды",
+   "explanation": "Алканы — насыщенные углеводороды"
+  },
+  {
+   "id": "t0342",
+   "subject": "chemistry",
+   "topic": "Органическая химия",
+   "difficulty": "hard",
+   "question": "Реакция CH₄ + Cl₂ → CH₃Cl + HCl — тип реакции?",
+   "answer": "замещение",
+   "hint": "Один атом замещает другой",
+   "explanation": "Реакция замещения"
+  },
+  {
+   "id": "t0343",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Что такое митоз?",
+   "answer": "деление клетки",
+   "hint": "Соматическое деление",
+   "explanation": "Митоз — деление соматических клеток"
+  },
+  {
+   "id": "t0344",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Органелла клетки, отвечающая за дыхание?",
+   "answer": "митохондрия",
+   "hint": "Энергетическая станция",
+   "explanation": "Митохондрия синтезирует АТФ"
+  },
+  {
+   "id": "t0345",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Где происходит фотосинтез в клетке?",
+   "answer": "хлоропласт",
+   "hint": "Пластиды с хлорофиллом",
+   "explanation": "Хлоропласты"
+  },
+  {
+   "id": "t0346",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Основная функция рибосом?",
+   "answer": "синтез белка",
+   "hint": "Трансляция",
+   "explanation": "Рибосомы — место синтеза белков"
+  },
+  {
+   "id": "t0347",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Какую структуру имеет ДНК?",
+   "answer": "двойную спираль",
+   "hint": "Уотсон и Крик, 1953",
+   "explanation": "Двойная спираль"
+  },
+  {
+   "id": "t0348",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Количество хромосом в соматических клетках человека?",
+   "answer": "46",
+   "hint": "23 пары",
+   "explanation": "2n=46"
+  },
+  {
+   "id": "t0349",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Что такое аллельные гены?",
+   "answer": "гены, определяющие одинаковые признаки",
+   "hint": "Расположены в одном локусе",
+   "explanation": "Аллели — варианты одного гена"
+  },
+  {
+   "id": "t0350",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Группы крови определяются по системе?",
+   "answer": "AB0",
+   "hint": "Система групп крови",
+   "explanation": "ABO система"
+  },
+  {
+   "id": "t0351",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "У матери II гр. крови (I0), у отца III гр. (I0). Возможны ли дети с I гр.?",
+   "answer": "да",
+   "hint": "II(I0)×III(I0)→ I(00),II,III",
+   "explanation": "Вероятность 25%"
+  },
+  {
+   "id": "t0352",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "easy",
+   "question": "Кто создал теорию эволюции путём естественного отбора?",
+   "answer": "Дарвин",
+   "hint": "1859, Происхождение видов",
+   "explanation": "Чарльз Дарвин"
+  },
+  {
+   "id": "t0353",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "medium",
+   "question": "Что такое мутация?",
+   "answer": "изменение в ДНК",
+   "hint": "Наследственное изменение",
+   "explanation": "Изменение последовательности нуклеотидов"
+  },
+  {
+   "id": "t0354",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "medium",
+   "question": "Что такое биоценоз?",
+   "answer": "совокупность организмов биотопа",
+   "hint": "Совместное обитание",
+   "explanation": "Сообщество организмов"
+  },
+  {
+   "id": "t0355",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "easy",
+   "question": "Сколько камер в сердце человека?",
+   "answer": "4",
+   "hint": "Два предсердия + два желудочка",
+   "explanation": "Четыре"
+  },
+  {
+   "id": "t0356",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Где вырабатывается инсулин?",
+   "answer": "поджелудочная железа",
+   "hint": "Бета-клетки",
+   "explanation": "Островки Лангерганса"
+  },
+  {
+   "id": "t0357",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Что такое алгоритм?",
+   "answer": "последовательность шагов для решения задачи",
+   "hint": "Точная инструкция",
+   "explanation": "Конечный набор правил"
+  },
+  {
+   "id": "t0358",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Сколько байт в одном килобайте?",
+   "answer": "1024",
+   "hint": "2¹⁰=1024",
+   "explanation": "1 КБ = 1024 байт"
+  },
+  {
+   "id": "t0359",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность пузырьковой сортировки в худшем случае?",
+   "answer": "O(n²)",
+   "hint": "n итераций по n",
+   "explanation": "Квадратичная"
+  },
+  {
+   "id": "t0360",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность двоичного поиска?",
+   "answer": "O(log n)",
+   "hint": "Делим пополам",
+   "explanation": "Логарифмическая"
+  },
+  {
+   "id": "t0361",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Что делает оператор % в большинстве языков?",
+   "answer": "остаток от деления",
+   "hint": "Модуль",
+   "explanation": "Например: 10 % 3 = 1"
+  },
+  {
+   "id": "t0362",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Какая структура данных работает по принципу FIFO?",
+   "answer": "очередь",
+   "hint": "First In First Out",
+   "explanation": "Queue"
+  },
+  {
+   "id": "t0363",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Что такое рекурсия?",
+   "answer": "функция, вызывающая саму себя",
+   "hint": "Самовызов",
+   "explanation": "Функция с базовым случаем"
+  },
+  {
+   "id": "t0364",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Что такое стек?",
+   "answer": "структура данных LIFO",
+   "hint": "Last In First Out",
+   "explanation": "Последний пришёл — первый вышел"
+  },
+  {
+   "id": "t0365",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "hard",
+   "question": "Что такое полиморфизм в ООП?",
+   "answer": "один интерфейс — разные реализации",
+   "hint": "Принцип ООП",
+   "explanation": "Объекты одного типа могут вести себя по-разному"
+  },
+  {
+   "id": "t0366",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "Что такое SQL?",
+   "answer": "язык структурированных запросов",
+   "hint": "Structured Query Language",
+   "explanation": "Язык для работы с БД"
+  },
+  {
+   "id": "t0367",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "Команда SQL для выборки данных?",
+   "answer": "SELECT",
+   "hint": "SELECT * FROM table",
+   "explanation": "Оператор выборки"
+  },
+  {
+   "id": "t0368",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "hard",
+   "question": "Что такое индекс в БД?",
+   "answer": "структура для ускорения поиска",
+   "hint": "Ускоряет SELECT",
+   "explanation": "B-дерево или хеш"
+  },
+  {
+   "id": "t0369",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "easy",
+   "question": "Что такое IP-адрес?",
+   "answer": "уникальный адрес устройства в сети",
+   "hint": "Internet Protocol",
+   "explanation": "Числовой идентификатор"
+  },
+  {
+   "id": "t0370",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "medium",
+   "question": "Протокол передачи гипертекста?",
+   "answer": "HTTP",
+   "hint": "HyperText Transfer Protocol",
+   "explanation": "HTTP/HTTPS"
+  },
+  {
+   "id": "t0371",
+   "subject": "informatics",
+   "topic": "ОС",
+   "difficulty": "medium",
+   "question": "Что такое процесс в ОС?",
+   "answer": "программа в исполнении",
+   "hint": "Process",
+   "explanation": "Исполняемый экземпляр программы"
+  },
+  {
+   "id": "t0372",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "hard",
+   "question": "Big O нотация O(1) означает?",
+   "answer": "константное время",
+   "hint": "Не зависит от n",
+   "explanation": "Константная сложность"
+  },
+  {
+   "id": "t0373",
+   "subject": "history",
+   "topic": "Древняя Русь",
+   "difficulty": "easy",
+   "question": "В каком году Олег захватил Киев?",
+   "answer": "882",
+   "hint": "Объединение Новгорода и Киева",
+   "explanation": "882 год — начало единого государства"
+  },
+  {
+   "id": "t0374",
+   "subject": "history",
+   "topic": "Древняя Русь",
+   "difficulty": "easy",
+   "question": "Кто был первым русским князем?",
+   "answer": "Рюрик",
+   "hint": "Призвание варягов 862",
+   "explanation": "Рюрик — основатель династии"
+  },
+  {
+   "id": "t0375",
+   "subject": "history",
+   "topic": "Древняя Русь",
+   "difficulty": "medium",
+   "question": "В каком году крестили Русь?",
+   "answer": "988",
+   "hint": "Владимир I Святой",
+   "explanation": "988 год — Крещение Руси"
+  },
+  {
+   "id": "t0376",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "easy",
+   "question": "В каком году монголы разорили Киев?",
+   "answer": "1240",
+   "hint": "Батыево нашествие",
+   "explanation": "Батый разорил Киев в 1240 г."
+  },
+  {
+   "id": "t0377",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "medium",
+   "question": "Куликовская битва — год?",
+   "answer": "1380",
+   "hint": "Дмитрий Донской против Мамая",
+   "explanation": "8 сентября 1380 года"
+  },
+  {
+   "id": "t0378",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "easy",
+   "question": "Кто основал Санкт-Петербург?",
+   "answer": "Пётр I",
+   "hint": "1703 год",
+   "explanation": "Основан в 1703 году"
+  },
+  {
+   "id": "t0379",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "В каком году Наполеон напал на Россию?",
+   "answer": "1812",
+   "hint": "Отечественная война",
+   "explanation": "Июнь 1812 года"
+  },
+  {
+   "id": "t0380",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "Отмена крепостного права в России?",
+   "answer": "1861",
+   "hint": "Александр II",
+   "explanation": "19 февраля 1861 года"
+  },
+  {
+   "id": "t0381",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "easy",
+   "question": "В каком году началась Первая мировая война?",
+   "answer": "1914",
+   "hint": "Убийство Франца Фердинанда",
+   "explanation": "28 июля 1914 года"
+  },
+  {
+   "id": "t0382",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "easy",
+   "question": "В каком году закончилась Вторая мировая война?",
+   "answer": "1945",
+   "hint": "Капитуляция Германии и Японии",
+   "explanation": "9 мая 1945 (в Европе)"
+  },
+  {
+   "id": "t0383",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "medium",
+   "question": "Кто первым полетел в космос?",
+   "answer": "Гагарин",
+   "hint": "12 апреля 1961",
+   "explanation": "Юрий Алексеевич Гагарин"
+  },
+  {
+   "id": "t0384",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "medium",
+   "question": "В каком году распался СССР?",
+   "answer": "1991",
+   "hint": "25 декабря 1991",
+   "explanation": "Беловежские соглашения"
+  },
+  {
+   "id": "t0385",
+   "subject": "history",
+   "topic": "Всеобщая история",
+   "difficulty": "medium",
+   "question": "В каком году Колумб открыл Америку?",
+   "answer": "1492",
+   "hint": "12 октября 1492",
+   "explanation": "Экспедиция Колумба"
+  },
+  {
+   "id": "t0386",
+   "subject": "history",
+   "topic": "Всеобщая история",
+   "difficulty": "hard",
+   "question": "Какая страна первой получила всеобщее избирательное право для женщин?",
+   "answer": "Новая Зеландия",
+   "hint": "1893 год",
+   "explanation": "Новая Зеландия — 1893"
+  },
+  {
+   "id": "t0387",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: не(з/с)абываемый?",
+   "answer": "незабываемый",
+   "hint": "Перед звонкой — НЕЗ",
+   "explanation": "Приставка НЕЗ перед звонкими"
+  },
+  {
+   "id": "t0388",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: пр(е/и)мер?",
+   "answer": "пример",
+   "hint": "Значение: присоединение",
+   "explanation": "ПРИ — приближение, присоединение"
+  },
+  {
+   "id": "t0389",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Тся или ться: он учится/учиться?",
+   "answer": "учится",
+   "hint": "Что делает? = тся",
+   "explanation": "Тся — в 3-м лице"
+  },
+  {
+   "id": "t0390",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Раздельно или слитно: (не)вероятный?",
+   "answer": "невероятный",
+   "hint": "Без НЕ не употребляется",
+   "explanation": "Слитно: без НЕ нет слова"
+  },
+  {
+   "id": "t0391",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "easy",
+   "question": "Нужна ли запятая: «Я пришёл _ и ты ушёл»?",
+   "answer": "да",
+   "hint": "Сложносочинённое предложение",
+   "explanation": "Запятая между простыми предложениями"
+  },
+  {
+   "id": "t0392",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "medium",
+   "question": "Ставится ли запятая перед И в: «Солнце зашло_ и стало темно»?",
+   "answer": "да",
+   "hint": "Разные подлежащие",
+   "explanation": "СПП с разными подлежащими"
+  },
+  {
+   "id": "t0393",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Определи часть речи: «красивый»",
+   "answer": "прилагательное",
+   "hint": "Отвечает на вопрос «какой?»",
+   "explanation": "Прилагательное"
+  },
+  {
+   "id": "t0394",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Склонение существительного «стол» — какое?",
+   "answer": "второе",
+   "hint": "Мужской род, нулевое окончание",
+   "explanation": "2-е склонение: м.р. и ср.р."
+  },
+  {
+   "id": "t0395",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "medium",
+   "question": "Определи падеж: «иду в лес»",
+   "answer": "винительный",
+   "hint": "Вопрос: куда? во что?",
+   "explanation": "Винительный падеж"
+  },
+  {
+   "id": "t0396",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Тип предложения: «Дождь идёт, и ветер дует»",
+   "answer": "сложносочинённое",
+   "hint": "Два равноправных простых",
+   "explanation": "ССП"
+  },
+  {
+   "id": "t0397",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "hard",
+   "question": "Найди грамматическую основу: «Читающий мальчик улыбается»",
+   "answer": "мальчик улыбается",
+   "hint": "Подлежащее + сказуемое",
+   "explanation": "Читающий — определение"
+  },
+  {
+   "id": "t0398",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Антоним к слову «добрый»?",
+   "answer": "злой",
+   "hint": "Противоположное значение",
+   "explanation": "Антоним — противоположное слово"
+  },
+  {
+   "id": "t0399",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Слово «самолёт» — пример?",
+   "answer": "сложного слова",
+   "hint": "Сложение двух корней",
+   "explanation": "Сам+лёт"
+  },
+  {
+   "id": "t0400",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Артикль перед словом 'apple'?",
+   "answer": "an",
+   "hint": "Гласная начальная буква",
+   "explanation": "AN перед гласными звуками"
+  },
+  {
+   "id": "t0401",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Мн.ч. от 'child'?",
+   "answer": "children",
+   "hint": "Неправильное мн.ч.",
+   "explanation": "Исключение из правил"
+  },
+  {
+   "id": "t0402",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Переведи: 'She is reading a book'",
+   "answer": "Она читает книгу",
+   "hint": "Present Continuous",
+   "explanation": "is + Ving"
+  },
+  {
+   "id": "t0403",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Когда используется Present Perfect?",
+   "answer": "действие в прошлом, связанное с настоящим",
+   "hint": "Have/has + V3",
+   "explanation": "Результат важен сейчас"
+  },
+  {
+   "id": "t0404",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "'I have never been to Paris' — время?",
+   "answer": "Present Perfect",
+   "hint": "Never — маркер PP",
+   "explanation": "Have + been"
+  },
+  {
+   "id": "t0405",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Образуй сравнительную степень: 'good'",
+   "answer": "better",
+   "hint": "Неправильное прилагательное",
+   "explanation": "good→better→best"
+  },
+  {
+   "id": "t0406",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Условное предложение 2-го типа: If I were rich, I ___ travel.",
+   "answer": "would",
+   "hint": "Unreal present condition",
+   "explanation": "If + Past → would + inf"
+  },
+  {
+   "id": "t0407",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Переведи: 'knowledge'",
+   "answer": "знание",
+   "hint": "Знание, осведомлённость",
+   "explanation": "Knowledge = знания"
+  },
+  {
+   "id": "t0408",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Антоним к 'ancient'?",
+   "answer": "modern",
+   "hint": "Старый — новый",
+   "explanation": "Ancient = древний, Modern = современный"
+  },
+  {
+   "id": "t0409",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Синоним к слову 'big'?",
+   "answer": "large",
+   "hint": "Большой",
+   "explanation": "Large, huge, enormous"
+  },
+  {
+   "id": "t0410",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Фразовый глагол 'give up' означает?",
+   "answer": "сдаваться",
+   "hint": "Phrasal verb",
+   "explanation": "To give up = прекратить попытки"
+  },
+  {
+   "id": "t0411",
+   "subject": "foreign_language",
+   "topic": "Произношение",
+   "difficulty": "medium",
+   "question": "Как правильно читается слово 'though'?",
+   "answer": "δoʊ",
+   "hint": "Silent gh",
+   "explanation": "Читается как «доу»"
+  },
+  {
+   "id": "t0412",
+   "subject": "foreign_language",
+   "topic": "Произношение",
+   "difficulty": "hard",
+   "question": "Слово с немой буквой К: 'kn...'?",
+   "answer": "kneel/know/knife",
+   "hint": "K перед N не произносится",
+   "explanation": "Silent K в kneel, know, knife"
+  },
+  {
+   "id": "t0413",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Реши: 15 + 28 = ?",
+   "answer": "43",
+   "hint": "Сложение",
+   "explanation": "15+28=43"
+  },
+  {
+   "id": "t0414",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Реши: 100 - 37 = ?",
+   "answer": "63",
+   "hint": "Вычитание",
+   "explanation": "100-37=63"
+  },
+  {
+   "id": "t0415",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Чему равно 6²?",
+   "answer": "36",
+   "hint": "Степень",
+   "explanation": "6×6=36"
+  },
+  {
+   "id": "t0416",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Упрости: 4x + 3x",
+   "answer": "7x",
+   "hint": "Подобные слагаемые",
+   "explanation": "Сложи коэффициенты"
+  },
+  {
+   "id": "t0417",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "easy",
+   "question": "Найди x: x + 9 = 15",
+   "answer": "6",
+   "hint": "Уравнение",
+   "explanation": "x=15-9"
+  },
+  {
+   "id": "t0418",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Реши: 3x - 7 = 14",
+   "answer": "7",
+   "hint": "Линейное уравнение",
+   "explanation": "3x=21, x=7"
+  },
+  {
+   "id": "t0419",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Разложи на множители: x²-4",
+   "answer": "(x-2)(x+2)",
+   "hint": "Разность квадратов",
+   "explanation": "a²-b²=(a-b)(a+b)"
+  },
+  {
+   "id": "t0420",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Найди корни: x²-5x+6=0",
+   "answer": "2 и 3",
+   "hint": "Квадратное уравнение",
+   "explanation": "D=1, x=2; x=3"
+  },
+  {
+   "id": "t0421",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Упрости: (a+b)²",
+   "answer": "a²+2ab+b²",
+   "hint": "Квадрат суммы",
+   "explanation": "Формула квадрата суммы"
+  },
+  {
+   "id": "t0422",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "medium",
+   "question": "Реши: 2x+3y=7, x+y=3",
+   "answer": "x=2, y=1",
+   "hint": "Система уравнений",
+   "explanation": "Метод подстановки"
+  },
+  {
+   "id": "t0423",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "hard",
+   "question": "Найди сумму корней: 2x²-6x+4=0",
+   "answer": "3",
+   "hint": "Теорема Виета",
+   "explanation": "x1+x2=-b/a=6/2=3"
+  },
+  {
+   "id": "t0424",
+   "subject": "mathematics",
+   "topic": "Алгебра",
+   "difficulty": "hard",
+   "question": "Реши: |2x-1|=5",
+   "answer": "x=3 или x=-2",
+   "hint": "Модуль",
+   "explanation": "2x-1=±5"
+  },
+  {
+   "id": "t0425",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Площадь прямоугольника 5×3?",
+   "answer": "15",
+   "hint": "S=a×b",
+   "explanation": "5×3=15"
+  },
+  {
+   "id": "t0426",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Периметр квадрата со стороной 4?",
+   "answer": "16",
+   "hint": "P=4a",
+   "explanation": "4×4=16"
+  },
+  {
+   "id": "t0427",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "easy",
+   "question": "Сумма углов треугольника?",
+   "answer": "180°",
+   "hint": "Теорема",
+   "explanation": "Всегда 180°"
+  },
+  {
+   "id": "t0428",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Площадь круга радиуса 3?",
+   "answer": "9π",
+   "hint": "S=πr²",
+   "explanation": "π×9=9π"
+  },
+  {
+   "id": "t0429",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Гипотенуза если катеты 3 и 4?",
+   "answer": "5",
+   "hint": "Теорема Пифагора",
+   "explanation": "3²+4²=25, √25=5"
+  },
+  {
+   "id": "t0430",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "medium",
+   "question": "Площадь треугольника: основание 6, высота 4?",
+   "answer": "12",
+   "hint": "S=½bh",
+   "explanation": "½×6×4=12"
+  },
+  {
+   "id": "t0431",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "hard",
+   "question": "Длина окружности радиуса 5?",
+   "answer": "10π",
+   "hint": "L=2πr",
+   "explanation": "2×π×5=10π"
+  },
+  {
+   "id": "t0432",
+   "subject": "mathematics",
+   "topic": "Геометрия",
+   "difficulty": "hard",
+   "question": "Объём куба со стороной 3?",
+   "answer": "27",
+   "hint": "V=a³",
+   "explanation": "3³=27"
+  },
+  {
+   "id": "t0433",
+   "subject": "mathematics",
+   "topic": "Статистика",
+   "difficulty": "medium",
+   "question": "Среднее: 2,4,6,8,10?",
+   "answer": "6",
+   "hint": "Среднее арифметическое",
+   "explanation": "30/5=6"
+  },
+  {
+   "id": "t0434",
+   "subject": "mathematics",
+   "topic": "Статистика",
+   "difficulty": "medium",
+   "question": "Медиана: 1,3,5,7,9?",
+   "answer": "5",
+   "hint": "Медиана",
+   "explanation": "Средний элемент"
+  },
+  {
+   "id": "t0435",
+   "subject": "mathematics",
+   "topic": "Статистика",
+   "difficulty": "hard",
+   "question": "Дисперсия: 2,4,6 (среднее=4)?",
+   "answer": "2.67",
+   "hint": "Дисперсия",
+   "explanation": "(4+0+4)/3≈2.67"
+  },
+  {
+   "id": "t0436",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Единица силы в СИ?",
+   "answer": "Ньютон (Н)",
+   "hint": "СИ",
+   "explanation": "F измеряется в Н"
+  },
+  {
+   "id": "t0437",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Формула скорости?",
+   "answer": "v=s/t",
+   "hint": "Кинематика",
+   "explanation": "Путь делить на время"
+  },
+  {
+   "id": "t0438",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "easy",
+   "question": "Ускорение свободного падения?",
+   "answer": "9,8 м/с²",
+   "hint": "Земля",
+   "explanation": "g≈10 м/с²"
+  },
+  {
+   "id": "t0439",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Сила если масса 5кг, ускорение 3 м/с²?",
+   "answer": "15 Н",
+   "hint": "F=ma",
+   "explanation": "5×3=15"
+  },
+  {
+   "id": "t0440",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Скорость тела через 4с при a=3 м/с²?",
+   "answer": "12 м/с",
+   "hint": "v=at",
+   "explanation": "3×4=12"
+  },
+  {
+   "id": "t0441",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Работа при F=20Н, s=5м?",
+   "answer": "100 Дж",
+   "hint": "A=Fs",
+   "explanation": "20×5=100"
+  },
+  {
+   "id": "t0442",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "КПД машины если A=80Дж, Aп=100Дж?",
+   "answer": "80%",
+   "hint": "η=A/Aп×100%",
+   "explanation": "80/100×100=80%"
+  },
+  {
+   "id": "t0443",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Потенциальная энергия тела 2кг на высоте 5м?",
+   "answer": "100 Дж",
+   "hint": "Ep=mgh",
+   "explanation": "2×10×5=100"
+  },
+  {
+   "id": "t0444",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "easy",
+   "question": "Абсолютный нуль в °C?",
+   "answer": "-273°C",
+   "hint": "Кельвин",
+   "explanation": "0К=-273°C"
+  },
+  {
+   "id": "t0445",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "easy",
+   "question": "При каком процессе температура постоянна?",
+   "answer": "изотермический",
+   "hint": "Термодинамика",
+   "explanation": "T=const"
+  },
+  {
+   "id": "t0446",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "medium",
+   "question": "Количество теплоты: Q=mcΔT, m=2, c=500, ΔT=10?",
+   "answer": "10000 Дж",
+   "hint": "Q=mcΔT",
+   "explanation": "2×500×10"
+  },
+  {
+   "id": "t0447",
+   "subject": "physics",
+   "topic": "Термодинамика",
+   "difficulty": "hard",
+   "question": "Газ сжали вдвое при T=const. Давление?",
+   "answer": "удвоилось",
+   "hint": "Закон Бойля-Мариотта",
+   "explanation": "pV=const"
+  },
+  {
+   "id": "t0448",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "easy",
+   "question": "Скорость света в вакууме?",
+   "answer": "300000 км/с",
+   "hint": "Константа",
+   "explanation": "c≈3×10⁸ м/с"
+  },
+  {
+   "id": "t0449",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "easy",
+   "question": "Угол падения равен углу...?",
+   "answer": "отражения",
+   "hint": "Закон отражения",
+   "explanation": "Закон Декарта"
+  },
+  {
+   "id": "t0450",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "medium",
+   "question": "Линза собирает лучи. Она...?",
+   "answer": "выпуклая (собирающая)",
+   "hint": "Оптика",
+   "explanation": "Converging lens"
+  },
+  {
+   "id": "t0451",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "Единица сопротивления?",
+   "answer": "Ом (Ω)",
+   "hint": "СИ",
+   "explanation": "Сопротивление в Омах"
+  },
+  {
+   "id": "t0452",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "Ток при U=12В, R=4Ом?",
+   "answer": "3 А",
+   "hint": "I=U/R",
+   "explanation": "12/4=3"
+  },
+  {
+   "id": "t0453",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "Мощность при I=2А, U=6В?",
+   "answer": "12 Вт",
+   "hint": "P=UI",
+   "explanation": "2×6=12"
+  },
+  {
+   "id": "t0454",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "hard",
+   "question": "Сопротивления 3Ом и 6Ом параллельно. Итог?",
+   "answer": "2 Ом",
+   "hint": "1/R=1/R1+1/R2",
+   "explanation": "1/3+1/6=1/2"
+  },
+  {
+   "id": "t0455",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "medium",
+   "question": "Что такое α-частица?",
+   "answer": "ядро гелия",
+   "hint": "Ядерная физика",
+   "explanation": "2 протона + 2 нейтрона"
+  },
+  {
+   "id": "t0456",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "hard",
+   "question": "Период полураспада 20 лет. Через 40 лет осталось?",
+   "answer": "25%",
+   "hint": "Распад",
+   "explanation": "½×½=¼=25%"
+  },
+  {
+   "id": "t0457",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Химический символ кислорода?",
+   "answer": "O",
+   "hint": "Периодическая таблица",
+   "explanation": "Oxygen, №8"
+  },
+  {
+   "id": "t0458",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Валентность водорода?",
+   "answer": "I",
+   "hint": "Валентность",
+   "explanation": "H всегда +I"
+  },
+  {
+   "id": "t0459",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Самый лёгкий элемент?",
+   "answer": "водород (H)",
+   "hint": "Таблица Менделеева",
+   "explanation": "Атомная масса 1"
+  },
+  {
+   "id": "t0460",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Формула воды?",
+   "answer": "H₂O",
+   "hint": "Химия",
+   "explanation": "2 атома H + 1 O"
+  },
+  {
+   "id": "t0461",
+   "subject": "chemistry",
+   "topic": "Основы",
+   "difficulty": "medium",
+   "question": "Атомная масса углерода?",
+   "answer": "12",
+   "hint": "Периодическая таблица",
+   "explanation": "C = 12 а.е.м."
+  },
+  {
+   "id": "t0462",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "easy",
+   "question": "Формула соляной кислоты?",
+   "answer": "HCl",
+   "hint": "Кислоты",
+   "explanation": "Хлороводородная кислота"
+  },
+  {
+   "id": "t0463",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "easy",
+   "question": "Формула серной кислоты?",
+   "answer": "H₂SO₄",
+   "hint": "Кислоты",
+   "explanation": "Двухосновная кислота"
+  },
+  {
+   "id": "t0464",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "medium",
+   "question": "pH нейтрального раствора?",
+   "answer": "7",
+   "hint": "pH шкала",
+   "explanation": "7=нейтральный"
+  },
+  {
+   "id": "t0465",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "medium",
+   "question": "Кислота + основание = ?",
+   "answer": "соль + вода",
+   "hint": "Реакция нейтрализации",
+   "explanation": "HCl+NaOH→NaCl+H₂O"
+  },
+  {
+   "id": "t0466",
+   "subject": "chemistry",
+   "topic": "Кислоты",
+   "difficulty": "hard",
+   "question": "Степень окисления S в H₂SO₄?",
+   "answer": "+6",
+   "hint": "Степень окисления",
+   "explanation": "2(+1)+x+4(-2)=0"
+  },
+  {
+   "id": "t0467",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "easy",
+   "question": "Простейший углеводород?",
+   "answer": "метан CH₄",
+   "hint": "Алканы",
+   "explanation": "Первый член ряда"
+  },
+  {
+   "id": "t0468",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "easy",
+   "question": "Формула этилена?",
+   "answer": "C₂H₄",
+   "hint": "Алкены",
+   "explanation": "Двойная связь"
+  },
+  {
+   "id": "t0469",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Что образуется при горении метана?",
+   "answer": "CO₂ и H₂O",
+   "hint": "Горение",
+   "explanation": "CH₄+2O₂→CO₂+2H₂O"
+  },
+  {
+   "id": "t0470",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Какая реакция характерна для алкенов?",
+   "answer": "присоединения",
+   "hint": "Алкены",
+   "explanation": "Двойная связь=активна"
+  },
+  {
+   "id": "t0471",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "hard",
+   "question": "Гомолог этана (С₂Н₆) — следующий?",
+   "answer": "пропан C₃H₈",
+   "hint": "Гомологи",
+   "explanation": "+CH₂"
+  },
+  {
+   "id": "t0472",
+   "subject": "chemistry",
+   "topic": "Металлы",
+   "difficulty": "easy",
+   "question": "Самый распространённый металл в земной коре?",
+   "answer": "алюминий",
+   "hint": "Химия",
+   "explanation": "Al — 8% земной коры"
+  },
+  {
+   "id": "t0473",
+   "subject": "chemistry",
+   "topic": "Металлы",
+   "difficulty": "medium",
+   "question": "Fe + HCl → ?",
+   "answer": "FeCl₂ + H₂",
+   "hint": "Реакция металла с кислотой",
+   "explanation": "Железо растворяется"
+  },
+  {
+   "id": "t0474",
+   "subject": "chemistry",
+   "topic": "Металлы",
+   "difficulty": "hard",
+   "question": "Степень окисления Fe в Fe₂O₃?",
+   "answer": "+3",
+   "hint": "Оксид железа III",
+   "explanation": "2x+3(-2)=0, x=+3"
+  },
+  {
+   "id": "t0475",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Что управляет клеткой?",
+   "answer": "ядро",
+   "hint": "Клеточная биология",
+   "explanation": "Nucleus"
+  },
+  {
+   "id": "t0476",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Энергетическая станция клетки?",
+   "answer": "митохондрия",
+   "hint": "Органоиды",
+   "explanation": "ATP production"
+  },
+  {
+   "id": "t0477",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Оболочка растительной клетки?",
+   "answer": "клеточная стенка",
+   "hint": "Растения",
+   "explanation": "Целлюлоза"
+  },
+  {
+   "id": "t0478",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Где синтезируется белок?",
+   "answer": "рибосома",
+   "hint": "Биосинтез",
+   "explanation": "Ribosome"
+  },
+  {
+   "id": "t0479",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Процесс деления клетки?",
+   "answer": "митоз",
+   "hint": "Клеточный цикл",
+   "explanation": "Mitosis"
+  },
+  {
+   "id": "t0480",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Носитель наследственной информации?",
+   "answer": "ДНК",
+   "hint": "Генетика",
+   "explanation": "DNA"
+  },
+  {
+   "id": "t0481",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Сколько хромосом у человека?",
+   "answer": "46",
+   "hint": "Кариотип",
+   "explanation": "23 пары"
+  },
+  {
+   "id": "t0482",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Что такое ген?",
+   "answer": "участок ДНК, кодирующий белок",
+   "hint": "Генетика",
+   "explanation": "Unit of heredity"
+  },
+  {
+   "id": "t0483",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "Доминантный признак обозначается?",
+   "answer": "заглавной буквой (А)",
+   "hint": "Генетика",
+   "explanation": "Dominant allele"
+  },
+  {
+   "id": "t0484",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "Закон расщепления Менделя: Аа×Аа?",
+   "answer": "3:1 (3 доминантных : 1 рецессивный)",
+   "hint": "Второй закон",
+   "explanation": "AA:Aa:aa=1:2:1"
+  },
+  {
+   "id": "t0485",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "easy",
+   "question": "Кто автор теории эволюции?",
+   "answer": "Чарльз Дарвин",
+   "hint": "История биологии",
+   "explanation": "Origin of Species 1859"
+  },
+  {
+   "id": "t0486",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "medium",
+   "question": "Движущие силы эволюции?",
+   "answer": "наследственность, изменчивость, отбор",
+   "hint": "Дарвинизм",
+   "explanation": "Natural selection"
+  },
+  {
+   "id": "t0487",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "easy",
+   "question": "Что такое экосистема?",
+   "answer": "совокупность живых организмов и среды",
+   "hint": "Экология",
+   "explanation": "Ecosystem"
+  },
+  {
+   "id": "t0488",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "medium",
+   "question": "Первое звено пищевой цепи?",
+   "answer": "продуценты (растения)",
+   "hint": "Трофические уровни",
+   "explanation": "Producers"
+  },
+  {
+   "id": "t0489",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "easy",
+   "question": "Самая крупная кость человека?",
+   "answer": "бедренная",
+   "hint": "Скелет",
+   "explanation": "Femur"
+  },
+  {
+   "id": "t0490",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "easy",
+   "question": "Орган кроветворения?",
+   "answer": "красный костный мозг",
+   "hint": "Кроветворение",
+   "explanation": "Гемопоэз"
+  },
+  {
+   "id": "t0491",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Функция эритроцитов?",
+   "answer": "перенос кислорода",
+   "hint": "Кровь",
+   "explanation": "Гемоглобин+О₂"
+  },
+  {
+   "id": "t0492",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Отделы головного мозга?",
+   "answer": "продолговатый, мост, мозжечок, средний, промежуточный, большой",
+   "hint": "Нервная система",
+   "explanation": "5 отделов"
+  },
+  {
+   "id": "t0493",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "hard",
+   "question": "Где происходит газообмен?",
+   "answer": "альвеолы лёгких",
+   "hint": "Дыхание",
+   "explanation": "Alveoli"
+  },
+  {
+   "id": "t0494",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Сколько бит в байте?",
+   "answer": "8",
+   "hint": "Информатика",
+   "explanation": "1 byte = 8 bits"
+  },
+  {
+   "id": "t0495",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "1 Килобайт = ? байт",
+   "answer": "1024",
+   "hint": "Системы счисления",
+   "explanation": "2¹⁰=1024"
+  },
+  {
+   "id": "t0496",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Двоичный код числа 5?",
+   "answer": "101",
+   "hint": "Двоичная система",
+   "explanation": "4+1=5"
+  },
+  {
+   "id": "t0497",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "easy",
+   "question": "Что такое CPU?",
+   "answer": "процессор",
+   "hint": "Архитектура",
+   "explanation": "Central Processing Unit"
+  },
+  {
+   "id": "t0498",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "medium",
+   "question": "Переведи 1010₂ в десятичную?",
+   "answer": "10",
+   "hint": "Перевод систем",
+   "explanation": "8+2=10"
+  },
+  {
+   "id": "t0499",
+   "subject": "informatics",
+   "topic": "Основы",
+   "difficulty": "medium",
+   "question": "16 в шестнадцатеричной системе?",
+   "answer": "10",
+   "hint": "HEX",
+   "explanation": "0-9 затем A-F"
+  },
+  {
+   "id": "t0500",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Что такое алгоритм?",
+   "answer": "последовательность действий для решения задачи",
+   "hint": "Алгоритмы",
+   "explanation": "Конечная последовательность"
+  },
+  {
+   "id": "t0501",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Условный оператор в программировании?",
+   "answer": "if-else",
+   "hint": "Ветвление",
+   "explanation": "Условие"
+  },
+  {
+   "id": "t0502",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность линейного поиска?",
+   "answer": "O(n)",
+   "hint": "Big-O",
+   "explanation": "Перебор всех элементов"
+  },
+  {
+   "id": "t0503",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность бинарного поиска?",
+   "answer": "O(log n)",
+   "hint": "Big-O",
+   "explanation": "Делим пополам"
+  },
+  {
+   "id": "t0504",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "hard",
+   "question": "Сложность пузырьковой сортировки?",
+   "answer": "O(n²)",
+   "hint": "Сортировка",
+   "explanation": "n×(n-1)/2 сравнений"
+  },
+  {
+   "id": "t0505",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Что такое переменная?",
+   "answer": "именованная область памяти",
+   "hint": "Программирование",
+   "explanation": "Variable"
+  },
+  {
+   "id": "t0506",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Что делает цикл for?",
+   "answer": "повторяет код заданное число раз",
+   "hint": "Циклы",
+   "explanation": "For loop"
+  },
+  {
+   "id": "t0507",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Что возвращает функция?",
+   "answer": "результат вычислений",
+   "hint": "Функции",
+   "explanation": "Return value"
+  },
+  {
+   "id": "t0508",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "Что такое рекурсия?",
+   "answer": "функция, вызывающая сама себя",
+   "hint": "Рекурсия",
+   "explanation": "Recursive function"
+  },
+  {
+   "id": "t0509",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "easy",
+   "question": "Что такое IP-адрес?",
+   "answer": "уникальный адрес устройства в сети",
+   "hint": "Сети",
+   "explanation": "Internet Protocol"
+  },
+  {
+   "id": "t0510",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "medium",
+   "question": "Протокол передачи веб-страниц?",
+   "answer": "HTTP/HTTPS",
+   "hint": "Интернет",
+   "explanation": "HyperText Transfer Protocol"
+  },
+  {
+   "id": "t0511",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "medium",
+   "question": "Что такое DNS?",
+   "answer": "система доменных имён",
+   "hint": "Интернет",
+   "explanation": "Domain Name System"
+  },
+  {
+   "id": "t0512",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "Что такое SQL?",
+   "answer": "язык запросов к базам данных",
+   "hint": "БД",
+   "explanation": "Structured Query Language"
+  },
+  {
+   "id": "t0513",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "hard",
+   "question": "SELECT * FROM — что делает?",
+   "answer": "выбирает все записи из таблицы",
+   "hint": "SQL",
+   "explanation": "* = все столбцы"
+  },
+  {
+   "id": "t0514",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "easy",
+   "question": "В каком году пало Западное Римское государство?",
+   "answer": "476",
+   "hint": "Рим",
+   "explanation": "476 н.э."
+  },
+  {
+   "id": "t0515",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "easy",
+   "question": "Первый правитель объединённого Египта?",
+   "answer": "Мина (Нармер)",
+   "hint": "Египет",
+   "explanation": "~3100 до н.э."
+  },
+  {
+   "id": "t0516",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "medium",
+   "question": "Полис — это?",
+   "answer": "город-государство в Греции",
+   "hint": "Греция",
+   "explanation": "Polis"
+  },
+  {
+   "id": "t0517",
+   "subject": "history",
+   "topic": "Средневековье",
+   "difficulty": "easy",
+   "question": "Год Крещения Руси?",
+   "answer": "988",
+   "hint": "Русь",
+   "explanation": "988 — Владимир I"
+  },
+  {
+   "id": "t0518",
+   "subject": "history",
+   "topic": "Средневековье",
+   "difficulty": "easy",
+   "question": "Столица Byzantine Empire?",
+   "answer": "Константинополь",
+   "hint": "Byzantium",
+   "explanation": "Istanbul сейчас"
+  },
+  {
+   "id": "t0519",
+   "subject": "history",
+   "topic": "Средневековье",
+   "difficulty": "medium",
+   "question": "Монгольское нашествие на Русь — когда?",
+   "answer": "1237-1241",
+   "hint": "Монголы",
+   "explanation": "Батый хан"
+  },
+  {
+   "id": "t0520",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "easy",
+   "question": "Год Великой Французской революции?",
+   "answer": "1789",
+   "hint": "Франция",
+   "explanation": "Liberty, equality, fraternity"
+  },
+  {
+   "id": "t0521",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "Промышленная революция началась в?",
+   "answer": "Англии",
+   "hint": "XVIII-XIX вв",
+   "explanation": "Steam engine"
+  },
+  {
+   "id": "t0522",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "easy",
+   "question": "Год начала Первой мировой войны?",
+   "answer": "1914",
+   "hint": "WWI",
+   "explanation": "28 июля 1914"
+  },
+  {
+   "id": "t0523",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "easy",
+   "question": "Год окончания Второй мировой войны?",
+   "answer": "1945",
+   "hint": "WWII",
+   "explanation": "2 сентября 1945"
+  },
+  {
+   "id": "t0524",
+   "subject": "history",
+   "topic": "XX век",
+   "difficulty": "medium",
+   "question": "В каком году распался СССР?",
+   "answer": "1991",
+   "hint": "СССР",
+   "explanation": "25 декабря 1991"
+  },
+  {
+   "id": "t0525",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "easy",
+   "question": "Первый русский царь?",
+   "answer": "Иван IV Грозный",
+   "hint": "Россия",
+   "explanation": "1547 год"
+  },
+  {
+   "id": "t0526",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "Реформы Петра I направлены на?",
+   "answer": "европеизацию России",
+   "hint": "Пётр I",
+   "explanation": "Вестернизация"
+  },
+  {
+   "id": "t0527",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "hard",
+   "question": "Декабристы восстали в?",
+   "answer": "1825",
+   "hint": "Декабристы",
+   "explanation": "14 декабря 1825"
+  },
+  {
+   "id": "t0528",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Правило ЖИ-ШИ?",
+   "answer": "пиши с И",
+   "hint": "Орфография",
+   "explanation": "Жить, шить"
+  },
+  {
+   "id": "t0529",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Не с глаголами пишется?",
+   "answer": "раздельно",
+   "hint": "Правописание",
+   "explanation": "Не хочу"
+  },
+  {
+   "id": "t0530",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Проверочное слово к «вода»?",
+   "answer": "воды",
+   "hint": "Безударная гласная",
+   "explanation": "Во́ды"
+  },
+  {
+   "id": "t0531",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Правописание: «прИбежать» или «прЕбежать»?",
+   "answer": "прибежать",
+   "hint": "Приставки",
+   "explanation": "ПРИ = приближение"
+  },
+  {
+   "id": "t0532",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Написание: «ннный» или «нный» в причастии?",
+   "answer": "нный",
+   "hint": "Двойная Н",
+   "explanation": "Полные причастия с суффиксом -НН-"
+  },
+  {
+   "id": "t0533",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "easy",
+   "question": "Перед «что» ставится?",
+   "answer": "запятая",
+   "hint": "Союзы",
+   "explanation": "Придаточное предложение"
+  },
+  {
+   "id": "t0534",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "medium",
+   "question": "Тире в предложении: «Москва — столица»?",
+   "answer": "между подлежащим и сказуемым-существительным",
+   "hint": "Тире",
+   "explanation": "Оба — существительные"
+  },
+  {
+   "id": "t0535",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Часть речи слова «бежать»?",
+   "answer": "глагол",
+   "hint": "Морфология",
+   "explanation": "Действие"
+  },
+  {
+   "id": "t0536",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Имя прилагательное отвечает на вопрос?",
+   "answer": "какой? какая? какое?",
+   "hint": "Морфология",
+   "explanation": "Признак предмета"
+  },
+  {
+   "id": "t0537",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "medium",
+   "question": "Наречие отвечает на вопросы?",
+   "answer": "где? куда? когда? как? зачем?",
+   "hint": "Морфология",
+   "explanation": "Обстоятельство"
+  },
+  {
+   "id": "t0538",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "easy",
+   "question": "Главные члены предложения?",
+   "answer": "подлежащее и сказуемое",
+   "hint": "Синтаксис",
+   "explanation": "Subject+Predicate"
+  },
+  {
+   "id": "t0539",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Обособленное определение обособляется если?",
+   "answer": "стоит после определяемого слова",
+   "hint": "Причастный оборот",
+   "explanation": "Запятые"
+  },
+  {
+   "id": "t0540",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Форма глагола 'to be' для I?",
+   "answer": "am",
+   "hint": "To be",
+   "explanation": "I am"
+  },
+  {
+   "id": "t0541",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Как образовать отрицание в Present Simple?",
+   "answer": "don't/doesn't + инфинитив",
+   "hint": "Отрицание",
+   "explanation": "I don't know"
+  },
+  {
+   "id": "t0542",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Вопрос в Past Simple образуется через?",
+   "answer": "did",
+   "hint": "Вспомогательный глагол",
+   "explanation": "Did you go?"
+  },
+  {
+   "id": "t0543",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "'He __ going to school' (Present Continuous)?",
+   "answer": "is",
+   "hint": "To be + V-ing",
+   "explanation": "Настоящее продолженное"
+  },
+  {
+   "id": "t0544",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Future Simple образуется через?",
+   "answer": "will + инфинитив",
+   "hint": "Будущее",
+   "explanation": "I will go"
+  },
+  {
+   "id": "t0545",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Пассивный залог Present Simple?",
+   "answer": "is/are + V3",
+   "hint": "Passive",
+   "explanation": "The book is written"
+  },
+  {
+   "id": "t0546",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Conditional 3: If I had known, I __ helped?",
+   "answer": "would have",
+   "hint": "Third conditional",
+   "explanation": "Irreversible past"
+  },
+  {
+   "id": "t0547",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Reported speech: 'I am tired' → He said he __ tired?",
+   "answer": "was",
+   "hint": "Косвенная речь",
+   "explanation": "Backshift"
+  },
+  {
+   "id": "t0548",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Перевод: 'beautiful'?",
+   "answer": "красивый",
+   "hint": "Лексика",
+   "explanation": "Красота"
+  },
+  {
+   "id": "t0549",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Перевод: 'dangerous'?",
+   "answer": "опасный",
+   "hint": "Лексика",
+   "explanation": "Danger"
+  },
+  {
+   "id": "t0550",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Слово противоположное 'success'?",
+   "answer": "failure",
+   "hint": "Антонимы",
+   "explanation": "Успех-неудача"
+  },
+  {
+   "id": "t0551",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Фразовый глагол 'look up' в словаре означает?",
+   "answer": "искать (информацию)",
+   "hint": "Phrasal verbs",
+   "explanation": "Look up a word"
+  },
+  {
+   "id": "t0552",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "hard",
+   "question": "'Despite' используется с?",
+   "answer": "существительным или герундием",
+   "hint": "Предлоги",
+   "explanation": "Despite doing"
+  },
+  {
+   "id": "t0553",
+   "subject": "foreign_language",
+   "topic": "Чтение",
+   "difficulty": "medium",
+   "question": "'Thorough' произносится как?",
+   "answer": "θʌrə",
+   "hint": "Произношение",
+   "explanation": "Звук TH"
+  },
+  {
+   "id": "t0554",
+   "subject": "foreign_language",
+   "topic": "Чтение",
+   "difficulty": "hard",
+   "question": "Silent letters в слове 'knight'?",
+   "answer": "k и gh",
+   "hint": "Немые буквы",
+   "explanation": "Читается 'найт'"
+  },
+  {
+   "id": "t0555",
+   "subject": "mathematics",
+   "topic": "Теория вероятностей",
+   "difficulty": "easy",
+   "question": "Вероятность выпадения орла: ?",
+   "answer": "0.5",
+   "hint": "P=1/2",
+   "explanation": "50%"
+  },
+  {
+   "id": "t0556",
+   "subject": "mathematics",
+   "topic": "Теория вероятностей",
+   "difficulty": "medium",
+   "question": "Из 10 карточек 3 красных. Вероятность вытащить красную?",
+   "answer": "0.3",
+   "hint": "P=3/10",
+   "explanation": "0.3"
+  },
+  {
+   "id": "t0557",
+   "subject": "mathematics",
+   "topic": "Теория вероятностей",
+   "difficulty": "hard",
+   "question": "Два кубика. Вероятность суммы 7?",
+   "answer": "1/6",
+   "hint": "6 вариантов из 36",
+   "explanation": "P=6/36"
+  },
+  {
+   "id": "t0558",
+   "subject": "mathematics",
+   "topic": "Комбинаторика",
+   "difficulty": "easy",
+   "question": "C(5,2) = ?",
+   "answer": "10",
+   "hint": "C=5!/(2!·3!)",
+   "explanation": "10"
+  },
+  {
+   "id": "t0559",
+   "subject": "mathematics",
+   "topic": "Комбинаторика",
+   "difficulty": "medium",
+   "question": "Перестановки 4 элементов?",
+   "answer": "24",
+   "hint": "P=4!=24",
+   "explanation": "24"
+  },
+  {
+   "id": "t0560",
+   "subject": "mathematics",
+   "topic": "Комбинаторика",
+   "difficulty": "hard",
+   "question": "Размещения A(6,3) = ?",
+   "answer": "120",
+   "hint": "A=6·5·4",
+   "explanation": "120"
+  },
+  {
+   "id": "t0561",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "easy",
+   "question": "3,6,12... Следующее?",
+   "answer": "24",
+   "hint": "Геометрическая, q=2",
+   "explanation": "24"
+  },
+  {
+   "id": "t0562",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "medium",
+   "question": "Сумма первых 10 членов: a₁=1, d=2?",
+   "answer": "100",
+   "hint": "S=n/2·(2a₁+(n-1)d)",
+   "explanation": "100"
+  },
+  {
+   "id": "t0563",
+   "subject": "mathematics",
+   "topic": "Прогрессии",
+   "difficulty": "hard",
+   "question": "Геом. прогрессия: b₁=2, b₄=16. Знаменатель?",
+   "answer": "2",
+   "hint": "q³=8, q=2",
+   "explanation": "2"
+  },
+  {
+   "id": "t0564",
+   "subject": "mathematics",
+   "topic": "Логарифмы",
+   "difficulty": "easy",
+   "question": "log₂(8) = ?",
+   "answer": "3",
+   "hint": "2³=8",
+   "explanation": "3"
+  },
+  {
+   "id": "t0565",
+   "subject": "mathematics",
+   "topic": "Логарифмы",
+   "difficulty": "medium",
+   "question": "log₁₀(1000) = ?",
+   "answer": "3",
+   "hint": "10³=1000",
+   "explanation": "3"
+  },
+  {
+   "id": "t0566",
+   "subject": "mathematics",
+   "topic": "Логарифмы",
+   "difficulty": "hard",
+   "question": "log₂(32) − log₂(4) = ?",
+   "answer": "3",
+   "hint": "log₂(32/4)=log₂(8)",
+   "explanation": "3"
+  },
+  {
+   "id": "t0567",
+   "subject": "mathematics",
+   "topic": "Тригонометрия",
+   "difficulty": "easy",
+   "question": "sin(0°) = ?",
+   "answer": "0",
+   "hint": "По определению",
+   "explanation": "0"
+  },
+  {
+   "id": "t0568",
+   "subject": "mathematics",
+   "topic": "Тригонометрия",
+   "difficulty": "medium",
+   "question": "cos(60°) = ?",
+   "answer": "0.5",
+   "hint": "Табличное значение",
+   "explanation": "0.5"
+  },
+  {
+   "id": "t0569",
+   "subject": "mathematics",
+   "topic": "Тригонометрия",
+   "difficulty": "hard",
+   "question": "sin(30°) + cos(60°) = ?",
+   "answer": "1",
+   "hint": "0.5+0.5",
+   "explanation": "1"
+  },
+  {
+   "id": "t0570",
+   "subject": "mathematics",
+   "topic": "Производные",
+   "difficulty": "easy",
+   "question": "f(x)=x². f'(x) = ?",
+   "answer": "2x",
+   "hint": "Правило степени",
+   "explanation": "2x"
+  },
+  {
+   "id": "t0571",
+   "subject": "mathematics",
+   "topic": "Производные",
+   "difficulty": "medium",
+   "question": "f(x)=3x³. f'(x) = ?",
+   "answer": "9x²",
+   "hint": "3·3x²",
+   "explanation": "9x²"
+  },
+  {
+   "id": "t0572",
+   "subject": "mathematics",
+   "topic": "Производные",
+   "difficulty": "hard",
+   "question": "f(x)=sin(x). f'(π/2) = ?",
+   "answer": "0",
+   "hint": "cos(π/2)=0",
+   "explanation": "0"
+  },
+  {
+   "id": "t0573",
+   "subject": "mathematics",
+   "topic": "Интегралы",
+   "difficulty": "medium",
+   "question": "∫x dx = ?",
+   "answer": "x²/2 + C",
+   "hint": "Обратная к производной",
+   "explanation": "x²/2+C"
+  },
+  {
+   "id": "t0574",
+   "subject": "mathematics",
+   "topic": "Интегралы",
+   "difficulty": "hard",
+   "question": "∫₀¹ x² dx = ?",
+   "answer": "1/3",
+   "hint": "x³/3 от 0 до 1",
+   "explanation": "1/3"
+  },
+  {
+   "id": "t0575",
+   "subject": "mathematics",
+   "topic": "Матрицы",
+   "difficulty": "medium",
+   "question": "det|2 0; 0 3| = ?",
+   "answer": "6",
+   "hint": "det=2·3-0·0",
+   "explanation": "6"
+  },
+  {
+   "id": "t0576",
+   "subject": "mathematics",
+   "topic": "Матрицы",
+   "difficulty": "hard",
+   "question": "Ранг матрицы |1 2; 2 4| = ?",
+   "answer": "1",
+   "hint": "Строки пропорциональны",
+   "explanation": "1"
+  },
+  {
+   "id": "t0577",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "easy",
+   "question": "Скорость света (м/с)?",
+   "answer": "300000000",
+   "hint": "c=3×10⁸ м/с",
+   "explanation": "3×10⁸"
+  },
+  {
+   "id": "t0578",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "medium",
+   "question": "Угол падения=30°. Угол отражения?",
+   "answer": "30",
+   "hint": "Закон отражения",
+   "explanation": "30°"
+  },
+  {
+   "id": "t0579",
+   "subject": "physics",
+   "topic": "Оптика",
+   "difficulty": "hard",
+   "question": "n₁sin θ₁ = n₂sin θ₂. n₁=1, θ₁=30°, n₂=1.5. θ₂?",
+   "answer": "19.47",
+   "hint": "sin θ₂=sin30°/1.5",
+   "explanation": "≈19.5°"
+  },
+  {
+   "id": "t0580",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "easy",
+   "question": "U=220В, R=44 Ом. I (А)?",
+   "answer": "5",
+   "hint": "I=U/R",
+   "explanation": "5 А"
+  },
+  {
+   "id": "t0581",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "medium",
+   "question": "P=100 Вт, U=220 В. I (А)?",
+   "answer": "0.45",
+   "hint": "I=P/U",
+   "explanation": "≈0.45 А"
+  },
+  {
+   "id": "t0582",
+   "subject": "physics",
+   "topic": "Электричество",
+   "difficulty": "hard",
+   "question": "Два резистора 10 и 40 Ом параллельно. R общ (Ом)?",
+   "answer": "8",
+   "hint": "1/R=1/10+1/40",
+   "explanation": "8 Ом"
+  },
+  {
+   "id": "t0583",
+   "subject": "physics",
+   "topic": "Магнетизм",
+   "difficulty": "medium",
+   "question": "F=qvB. q=1Кл, v=10 м/с, B=2 Тл. F?",
+   "answer": "20",
+   "hint": "F=1·10·2",
+   "explanation": "20 Н"
+  },
+  {
+   "id": "t0584",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "easy",
+   "question": "Атомный номер углерода?",
+   "answer": "6",
+   "hint": "Периодическая таблица",
+   "explanation": "6"
+  },
+  {
+   "id": "t0585",
+   "subject": "physics",
+   "topic": "Ядерная физика",
+   "difficulty": "medium",
+   "question": "E=mc². m=1кг, c=3×10⁸. E (Дж)?",
+   "answer": "9e16",
+   "hint": "E=1·(3×10⁸)²",
+   "explanation": "9×10¹⁶"
+  },
+  {
+   "id": "t0586",
+   "subject": "physics",
+   "topic": "Волны",
+   "difficulty": "medium",
+   "question": "λ=v/f. v=340 м/с, f=170 Гц. λ?",
+   "answer": "2",
+   "hint": "λ=340/170",
+   "explanation": "2 м"
+  },
+  {
+   "id": "t0587",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "hard",
+   "question": "Импульс: m=5кг, v=20 м/с. p?",
+   "answer": "100",
+   "hint": "p=mv",
+   "explanation": "100 кг·м/с"
+  },
+  {
+   "id": "t0588",
+   "subject": "physics",
+   "topic": "Механика",
+   "difficulty": "medium",
+   "question": "Работа: F=50 Н, s=10 м, α=0°. A?",
+   "answer": "500",
+   "hint": "A=Fs·cosα",
+   "explanation": "500 Дж"
+  },
+  {
+   "id": "t0589",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "easy",
+   "question": "Простейший алкан?",
+   "answer": "метан",
+   "hint": "CH₄",
+   "explanation": "Метан"
+  },
+  {
+   "id": "t0590",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "medium",
+   "question": "Формула этанола?",
+   "answer": "C₂H₅OH",
+   "hint": "Двухатомный спирт",
+   "explanation": "C₂H₅OH"
+  },
+  {
+   "id": "t0591",
+   "subject": "chemistry",
+   "topic": "Органика",
+   "difficulty": "hard",
+   "question": "Число изомеров пентана?",
+   "answer": "3",
+   "hint": "н-пентан, изопентан, неопентан",
+   "explanation": "3"
+  },
+  {
+   "id": "t0592",
+   "subject": "chemistry",
+   "topic": "Неорганика",
+   "difficulty": "easy",
+   "question": "Оксид железа: формула?",
+   "answer": "Fe₂O₃",
+   "hint": "Основный оксид",
+   "explanation": "Fe₂O₃"
+  },
+  {
+   "id": "t0593",
+   "subject": "chemistry",
+   "topic": "Неорганика",
+   "difficulty": "medium",
+   "question": "pH кислого раствора?",
+   "answer": "меньше 7",
+   "hint": "pH<7 — кислота",
+   "explanation": "<7"
+  },
+  {
+   "id": "t0594",
+   "subject": "chemistry",
+   "topic": "Неорганика",
+   "difficulty": "hard",
+   "question": "Молярная масса H₂SO₄ (г/моль)?",
+   "answer": "98",
+   "hint": "2+32+64",
+   "explanation": "98"
+  },
+  {
+   "id": "t0595",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "medium",
+   "question": "Тип реакции: A+B → AB?",
+   "answer": "соединение",
+   "hint": "Реакция соединения",
+   "explanation": "соединения"
+  },
+  {
+   "id": "t0596",
+   "subject": "chemistry",
+   "topic": "Реакции",
+   "difficulty": "hard",
+   "question": "Коэффициенты: Fe+O₂→Fe₂O₃. Перед Fe?",
+   "answer": "4",
+   "hint": "4Fe+3O₂→2Fe₂O₃",
+   "explanation": "4"
+  },
+  {
+   "id": "t0597",
+   "subject": "chemistry",
+   "topic": "Электрохимия",
+   "difficulty": "medium",
+   "question": "Электролиз воды: на аноде выделяется?",
+   "answer": "кислород",
+   "hint": "Окисление OH⁻",
+   "explanation": "O₂"
+  },
+  {
+   "id": "t0598",
+   "subject": "chemistry",
+   "topic": "Растворы",
+   "difficulty": "easy",
+   "question": "Формула воды?",
+   "answer": "H₂O",
+   "hint": "Два водорода, один кислород",
+   "explanation": "H₂O"
+  },
+  {
+   "id": "t0599",
+   "subject": "chemistry",
+   "topic": "Растворы",
+   "difficulty": "medium",
+   "question": "Растворимость NaCl при 20°C ≈ (г/100г воды)?",
+   "answer": "36",
+   "hint": "Табличное значение",
+   "explanation": "36"
+  },
+  {
+   "id": "t0600",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "easy",
+   "question": "Сколько хромосом в соматической клетке человека?",
+   "answer": "46",
+   "hint": "23 пары",
+   "explanation": "46"
+  },
+  {
+   "id": "t0601",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "medium",
+   "question": "АА×аа → какой процент Аа?",
+   "answer": "100",
+   "hint": "Все потомки Аа",
+   "explanation": "100%"
+  },
+  {
+   "id": "t0602",
+   "subject": "biology",
+   "topic": "Генетика",
+   "difficulty": "hard",
+   "question": "Дигибридное скрещивание AaBb×AaBb. Доля AABB?",
+   "answer": "1/16",
+   "hint": "1/4×1/4",
+   "explanation": "1/16"
+  },
+  {
+   "id": "t0603",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "easy",
+   "question": "Первичные продуценты в экосистеме?",
+   "answer": "растения",
+   "hint": "Фотосинтез",
+   "explanation": "Растения"
+  },
+  {
+   "id": "t0604",
+   "subject": "biology",
+   "topic": "Экология",
+   "difficulty": "medium",
+   "question": "Правило 10%: эффективность передачи энергии?",
+   "answer": "10",
+   "hint": "Пирамида энергий",
+   "explanation": "10%"
+  },
+  {
+   "id": "t0605",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "easy",
+   "question": "Органоид — место синтеза белка?",
+   "answer": "рибосома",
+   "hint": "Трансляция",
+   "explanation": "Рибосома"
+  },
+  {
+   "id": "t0606",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "medium",
+   "question": "Митоз: сколько дочерних клеток?",
+   "answer": "2",
+   "hint": "Деление надвое",
+   "explanation": "2"
+  },
+  {
+   "id": "t0607",
+   "subject": "biology",
+   "topic": "Клетка",
+   "difficulty": "hard",
+   "question": "Мейоз: сколько гаплоидных клеток?",
+   "answer": "4",
+   "hint": "Два деления",
+   "explanation": "4"
+  },
+  {
+   "id": "t0608",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "easy",
+   "question": "Самая крупная артерия?",
+   "answer": "аорта",
+   "hint": "От левого желудочка",
+   "explanation": "Аорта"
+  },
+  {
+   "id": "t0609",
+   "subject": "biology",
+   "topic": "Анатомия",
+   "difficulty": "medium",
+   "question": "Функция инсулина?",
+   "answer": "снижает глюкозу",
+   "hint": "Поджелудочная железа",
+   "explanation": "Снижает сахар"
+  },
+  {
+   "id": "t0610",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "medium",
+   "question": "Автор теории естественного отбора?",
+   "answer": "Дарвин",
+   "hint": "1859 год",
+   "explanation": "Чарльз Дарвин"
+  },
+  {
+   "id": "t0611",
+   "subject": "biology",
+   "topic": "Эволюция",
+   "difficulty": "hard",
+   "question": "Гомологичные органы — пример?",
+   "answer": "рука человека и крыло птицы",
+   "hint": "Общее происхождение",
+   "explanation": "Рука и крыло"
+  },
+  {
+   "id": "t0612",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "easy",
+   "question": "Сложность бинарного поиска?",
+   "answer": "O(log n)",
+   "hint": "Делим пополам",
+   "explanation": "O(log n)"
+  },
+  {
+   "id": "t0613",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "medium",
+   "question": "Сложность сортировки пузырьком?",
+   "answer": "O(n²)",
+   "hint": "n²/2 сравнений",
+   "explanation": "O(n²)"
+  },
+  {
+   "id": "t0614",
+   "subject": "informatics",
+   "topic": "Алгоритмы",
+   "difficulty": "hard",
+   "question": "Алгоритм Дейкстры решает задачу?",
+   "answer": "кратчайший путь",
+   "hint": "Взвешенный граф",
+   "explanation": "Кратчайший путь"
+  },
+  {
+   "id": "t0615",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "easy",
+   "question": "SQL-оператор для выборки?",
+   "answer": "SELECT",
+   "hint": "DML",
+   "explanation": "SELECT"
+  },
+  {
+   "id": "t0616",
+   "subject": "informatics",
+   "topic": "Базы данных",
+   "difficulty": "medium",
+   "question": "Нормализация: 1НФ требует?",
+   "answer": "атомарные значения",
+   "hint": "Неделимые поля",
+   "explanation": "Атомарность"
+  },
+  {
+   "id": "t0617",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "easy",
+   "question": "Протокол HTTP работает на порту?",
+   "answer": "80",
+   "hint": "По умолчанию",
+   "explanation": "80"
+  },
+  {
+   "id": "t0618",
+   "subject": "informatics",
+   "topic": "Сети",
+   "difficulty": "medium",
+   "question": "IP-адрес состоит из скольки байт?",
+   "answer": "4",
+   "hint": "IPv4",
+   "explanation": "32 бита = 4 байта"
+  },
+  {
+   "id": "t0619",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "easy",
+   "question": "Тип данных для целых чисел в Java?",
+   "answer": "int",
+   "hint": "Примитивный тип",
+   "explanation": "int"
+  },
+  {
+   "id": "t0620",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "medium",
+   "question": "ООП: что такое инкапсуляция?",
+   "answer": "скрытие данных",
+   "hint": "Принцип ООП",
+   "explanation": "Скрытие реализации"
+  },
+  {
+   "id": "t0621",
+   "subject": "informatics",
+   "topic": "Программирование",
+   "difficulty": "hard",
+   "question": "Паттерн проектирования Singleton обеспечивает?",
+   "answer": "один экземпляр",
+   "hint": "Creational pattern",
+   "explanation": "Единственный объект"
+  },
+  {
+   "id": "t0622",
+   "subject": "informatics",
+   "topic": "Числа",
+   "difficulty": "medium",
+   "question": "2¹⁰ = ?",
+   "answer": "1024",
+   "hint": "Степень двойки",
+   "explanation": "1024"
+  },
+  {
+   "id": "t0623",
+   "subject": "informatics",
+   "topic": "Числа",
+   "difficulty": "easy",
+   "question": "0xFF в десятичной?",
+   "answer": "255",
+   "hint": "16²-1",
+   "explanation": "255"
+  },
+  {
+   "id": "t0624",
+   "subject": "history",
+   "topic": "ВОВ",
+   "difficulty": "easy",
+   "question": "Год начала Великой Отечественной войны?",
+   "answer": "1941",
+   "hint": "22 июня 1941",
+   "explanation": "1941"
+  },
+  {
+   "id": "t0625",
+   "subject": "history",
+   "topic": "ВОВ",
+   "difficulty": "medium",
+   "question": "Битва под Сталинградом: год окончания?",
+   "answer": "1943",
+   "hint": "Февраль 1943",
+   "explanation": "1943"
+  },
+  {
+   "id": "t0626",
+   "subject": "history",
+   "topic": "Революция",
+   "difficulty": "easy",
+   "question": "Год Октябрьской революции?",
+   "answer": "1917",
+   "hint": "25 октября 1917",
+   "explanation": "1917"
+  },
+  {
+   "id": "t0627",
+   "subject": "history",
+   "topic": "Революция",
+   "difficulty": "medium",
+   "question": "Первый председатель Совнаркома?",
+   "answer": "Ленин",
+   "hint": "В.И. Ленин",
+   "explanation": "Ленин"
+  },
+  {
+   "id": "t0628",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "easy",
+   "question": "Год основания Москвы?",
+   "answer": "1147",
+   "hint": "Юрий Долгорукий",
+   "explanation": "1147"
+  },
+  {
+   "id": "t0629",
+   "subject": "history",
+   "topic": "Россия",
+   "difficulty": "medium",
+   "question": "Реформа отмены крепостного права?",
+   "answer": "1861",
+   "hint": "19 февраля 1861",
+   "explanation": "1861"
+  },
+  {
+   "id": "t0630",
+   "subject": "history",
+   "topic": "Мировая",
+   "difficulty": "easy",
+   "question": "Год окончания Первой мировой?",
+   "answer": "1918",
+   "hint": "11 ноября 1918",
+   "explanation": "1918"
+  },
+  {
+   "id": "t0631",
+   "subject": "history",
+   "topic": "Мировая",
+   "difficulty": "medium",
+   "question": "Организация созданная после ВМВ?",
+   "answer": "ООН",
+   "hint": "1945 год",
+   "explanation": "ООН"
+  },
+  {
+   "id": "t0632",
+   "subject": "history",
+   "topic": "Древний мир",
+   "difficulty": "easy",
+   "question": "Первый Рим — на каком полуострове?",
+   "answer": "Апеннинский",
+   "hint": "Италия",
+   "explanation": "Апеннинский"
+  },
+  {
+   "id": "t0633",
+   "subject": "history",
+   "topic": "Средние века",
+   "difficulty": "medium",
+   "question": "Год взятия Константинополя турками?",
+   "answer": "1453",
+   "hint": "Конец Византии",
+   "explanation": "1453"
+  },
+  {
+   "id": "t0634",
+   "subject": "history",
+   "topic": "Новое время",
+   "difficulty": "medium",
+   "question": "Год Великой французской революции?",
+   "answer": "1789",
+   "hint": "14 июля 1789",
+   "explanation": "1789"
+  },
+  {
+   "id": "t0635",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "easy",
+   "question": "Как пишется: бе_конечный?",
+   "answer": "бесконечный",
+   "hint": "Перед глухой — бес-",
+   "explanation": "бесконечный"
+  },
+  {
+   "id": "t0636",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "medium",
+   "question": "Как пишется: р_стение?",
+   "answer": "растение",
+   "hint": "Исключение из правила",
+   "explanation": "растение"
+  },
+  {
+   "id": "t0637",
+   "subject": "russian",
+   "topic": "Орфография",
+   "difficulty": "hard",
+   "question": "Как пишется: пр_образование?",
+   "answer": "преобразование",
+   "hint": "Пре- = очень",
+   "explanation": "преобразование"
+  },
+  {
+   "id": "t0638",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "easy",
+   "question": "Нужна ли запятая: Я пришёл_ и сел?",
+   "answer": "нет",
+   "hint": "Однородные без союза — нет",
+   "explanation": "нет"
+  },
+  {
+   "id": "t0639",
+   "subject": "russian",
+   "topic": "Пунктуация",
+   "difficulty": "medium",
+   "question": "Обособление деепричастного оборота?",
+   "answer": "да",
+   "hint": "Выделяется запятыми",
+   "explanation": "да"
+  },
+  {
+   "id": "t0640",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "easy",
+   "question": "Часть речи слова 'бегать'?",
+   "answer": "глагол",
+   "hint": "Действие",
+   "explanation": "глагол"
+  },
+  {
+   "id": "t0641",
+   "subject": "russian",
+   "topic": "Морфология",
+   "difficulty": "medium",
+   "question": "Суффикс деепричастия?",
+   "answer": "-а/-я/-в/-вши",
+   "hint": "Форма глагола",
+   "explanation": "-а, -я, -в"
+  },
+  {
+   "id": "t0642",
+   "subject": "russian",
+   "topic": "Синтаксис",
+   "difficulty": "medium",
+   "question": "Главные члены предложения?",
+   "answer": "подлежащее и сказуемое",
+   "hint": "Грамматическая основа",
+   "explanation": "Подл. и сказ."
+  },
+  {
+   "id": "t0643",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Антоним к 'горячий'?",
+   "answer": "холодный",
+   "hint": "Противоположное",
+   "explanation": "холодный"
+  },
+  {
+   "id": "t0644",
+   "subject": "russian",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Синоним к 'большой'?",
+   "answer": "крупный",
+   "hint": "Близкое по значению",
+   "explanation": "крупный/огромный"
+  },
+  {
+   "id": "t0645",
+   "subject": "russian",
+   "topic": "Состав слова",
+   "difficulty": "medium",
+   "question": "Приставка в слове 'переход'?",
+   "answer": "пере-",
+   "hint": "Перед корнем",
+   "explanation": "пере-"
+  },
+  {
+   "id": "t0646",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "easy",
+   "question": "Present Simple: She ___ (to go)?",
+   "answer": "goes",
+   "hint": "3-е лицо +s",
+   "explanation": "goes"
+  },
+  {
+   "id": "t0647",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "medium",
+   "question": "Past Simple to 'write'?",
+   "answer": "wrote",
+   "hint": "Irregular verb",
+   "explanation": "wrote"
+  },
+  {
+   "id": "t0648",
+   "subject": "foreign_language",
+   "topic": "Времена",
+   "difficulty": "hard",
+   "question": "Present Perfect: I ___ never ___ (to see) this?",
+   "answer": "have/seen",
+   "hint": "have+V3",
+   "explanation": "have never seen"
+  },
+  {
+   "id": "t0649",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "easy",
+   "question": "Артикль перед 'apple'?",
+   "answer": "an",
+   "hint": "Гласная буква",
+   "explanation": "an apple"
+  },
+  {
+   "id": "t0650",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "medium",
+   "question": "Степени сравнения 'good'?",
+   "answer": "good-better-best",
+   "hint": "Неправильное",
+   "explanation": "better, best"
+  },
+  {
+   "id": "t0651",
+   "subject": "foreign_language",
+   "topic": "Грамматика",
+   "difficulty": "hard",
+   "question": "Условное 2: If I ___ (to be) rich, I ___ buy?",
+   "answer": "were/would",
+   "hint": "Second conditional",
+   "explanation": "were/would buy"
+  },
+  {
+   "id": "t0652",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "easy",
+   "question": "Перевод 'книга'?",
+   "answer": "book",
+   "hint": "Базовое слово",
+   "explanation": "book"
+  },
+  {
+   "id": "t0653",
+   "subject": "foreign_language",
+   "topic": "Лексика",
+   "difficulty": "medium",
+   "question": "Фразовый глагол look up = ?",
+   "answer": "искать в словаре",
+   "hint": "Phrasal verb",
+   "explanation": "to look up"
+  },
+  {
+   "id": "t0654",
+   "subject": "foreign_language",
+   "topic": "Чтение",
+   "difficulty": "easy",
+   "question": "Произношение: 'ough' в 'through'?",
+   "answer": "у",
+   "hint": "Исключение",
+   "explanation": "[uː]"
+  },
+  {
+   "id": "t0655",
+   "subject": "foreign_language",
+   "topic": "Письмо",
+   "difficulty": "medium",
+   "question": "Формальное приветствие в письме?",
+   "answer": "Dear Sir/Madam",
+   "hint": "Business letter",
+   "explanation": "Dear Sir/Madam"
+  },
+  {
+   "id": "t0656",
+   "subject": "foreign_language",
+   "topic": "Речь",
+   "difficulty": "easy",
+   "question": "Как сказать 'спасибо' по-английски?",
+   "answer": "thank you",
+   "hint": "Базовая фраза",
+   "explanation": "Thank you"
+  }
+ ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import uuid
 from collections import Counter, defaultdict
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -10,7 +11,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import TestResult, User, UserRole
+from app.models import SchoolClass, TestResult, User, UserRole
+from app.routers.auth import get_current_user
 from app.schemas.user import ClassSummaryResponse
 from app.services.test_scoring import load_questions
 
@@ -21,32 +23,38 @@ router = APIRouter(prefix="/api/teacher", tags=["teacher"])
 MIN_STUDENTS_FOR_SUMMARY = 3
 
 
-@router.get("/{teacher_max_id}/class-summary", response_model=ClassSummaryResponse)
+@router.get("/class-summary", response_model=ClassSummaryResponse)
 async def class_summary(
-    teacher_max_id: str,
-    school_class: str = Query(min_length=1, max_length=16, description="Например: 7Б"),
+    class_id: uuid.UUID = Query(description="id класса из /api/teacher/classes"),
+    teacher: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> ClassSummaryResponse:
     """Агрегированная картина по классу: куда тянет ребят и где проседают знания.
 
     Имена, id учеников и индивидуальные рекомендации сюда не попадают.
+    Класс определяется по class_id, а не по свободному вводу названия —
+    это исключает просмотр чужого класса по угаданному номеру.
 
-    TODO (после MVP): проверять, что teacher_max_id действительно закреплён за
-    этим классом, и отдавать только данные тех учеников, чьи родители дали
+    TODO (после MVP): отдавать только данные тех учеников, чьи родители дали
     согласие на обработку — сейчас согласия нигде не хранятся.
     """
-    teacher = await session.scalar(select(User).where(User.max_user_id == teacher_max_id))
-    if teacher is None or teacher.role != UserRole.teacher:
+    if teacher.role != UserRole.teacher:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             "Сводка доступна только пользователю с ролью teacher",
         )
 
+    school_class = await session.scalar(
+        select(SchoolClass).where(SchoolClass.id == class_id, SchoolClass.teacher_id == teacher.id)
+    )
+    if school_class is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Класс не найден среди ваших классов")
+
     results = (
         await session.scalars(
             select(TestResult)
             .join(User, User.id == TestResult.user_id)
-            .where(User.school_class == school_class, User.role == UserRole.student)
+            .where(User.class_id == class_id, User.role == UserRole.student)
         )
     ).all()
 
@@ -55,7 +63,7 @@ async def class_summary(
         # k-анонимность: на двух учениках «агрегат» — это персональные данные
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            f"В классе {school_class} тест прошли {len(students)} чел. — "
+            f"В классе {school_class.name} тест прошли {len(students)} чел. — "
             f"сводка формируется от {MIN_STUDENTS_FOR_SUMMARY}",
         )
 
@@ -94,7 +102,7 @@ async def class_summary(
     )[:5]
 
     return ClassSummaryResponse(
-        school_class=school_class,
+        school_class=school_class.name,
         students_tested=len(students),
         tests_completed=len(results),
         category_distribution=dict(categories.most_common()),

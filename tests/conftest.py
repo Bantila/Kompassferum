@@ -19,6 +19,7 @@ _DB_FILE.unlink(missing_ok=True)
 # Переменные окружения выставляются ДО импорта app: engine и Settings
 # создаются на импорте модуля и кэшируются.
 os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{_DB_FILE.as_posix()}"
+os.environ["AI_PROVIDER"] = "openrouter"
 os.environ["OPENROUTER_API_KEY"] = "test-key"
 os.environ["OPENROUTER_MODEL"] = "moonshotai/kimi-k2"
 os.environ["MAX_WEBHOOK_SECRET"] = "test-secret"

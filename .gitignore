@@ -21,7 +21,6 @@ venv/
 Thumbs.db
 
 # ТЗ, макеты и служебные артефакты — в репозиторий не идут
-*-prompt-*.md
 *.docx
 graphify-out/
 kompas-screens-*.html

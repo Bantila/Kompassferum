@@ -1,10 +1,14 @@
-"""Подбор профессий через OpenRouter + rule-based запасной вариант.
+"""Подбор профессий моделью + rule-based запасной вариант.
+
+Провайдер выбирается настройкой AI_PROVIDER: gigachat (российская модель,
+основной вариант), openrouter или none. Промпт, разбор ответа и запасной
+алгоритм общие — меняется только то, у кого спрашиваем.
 
 Наружу торчит одна функция — recommend_professions(). Она никогда не бросает
-исключение из-за проблем с LLM: любой сбой сети, таймаут, кривой JSON или
-не-200 от OpenRouter приводят к rule-based ответу с флагом fallback=True.
-Это требование критерия «Стабильность и отклик»: демо не должно падать
-из-за чужого API.
+исключение из-за проблем с моделью: сбой сети, таймаут, кривой JSON или
+отказ сервиса приводят к rule-based ответу с флагом fallback=True. Это
+требование критерия «Стабильность и отклик»: демо не должно падать из-за
+чужого API.
 """
 
 from __future__ import annotations
@@ -12,9 +16,10 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import Any
+from typing import Any, Literal
 
 import httpx
+from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from app.services.test_scoring import load_questions
@@ -39,6 +44,13 @@ SYSTEM_PROMPT = """Ты — профориентационный ассисте�
 - Предметы для подтягивания выбирай из тех, что реально нужны профессии и где у ученика балл ниже.
 - category — одно из: технологии, наука, творчество, услуги, менеджмент, медицина, образование.
 
+Ровно 5 элементов в списке профессий."""
+
+# GigaChat проверяет ответ по JSON-схеме на своей стороне, поэтому просить
+# его «верни валидный JSON» не нужно. OpenRouter такого не умеет — ему
+# формат приходится описывать словами.
+JSON_FORMAT_TAIL = """
+
 Ответ верни СТРОГО валидным JSON без markdown-обёртки, без ``` и без пояснений до или после:
 {
   "professions": [
@@ -49,8 +61,41 @@ SYSTEM_PROMPT = """Ты — профориентационный ассисте�
       "category": "технологии"
     }
   ]
-}
-Ровно 5 элементов в массиве professions."""
+}"""
+
+CATEGORIES = (
+    "технологии", "наука", "творчество", "услуги", "менеджмент", "медицина", "образование",
+)
+
+
+class ProfessionSuggestion(BaseModel):
+    """Одна профессия в ответе модели.
+
+    Описания полей уходят в JSON-схему и работают как часть промпта:
+    GigaChat видит их при генерации, поэтому формулировки здесь — тоже
+    требования к ответу, а не комментарии для разработчика.
+    """
+
+    name: str = Field(description="Название профессии на русском языке")
+    reasoning: str = Field(
+        description=(
+            "Два-три предложения, почему профессия подходит именно этому ученику. "
+            "Обязательно назови конкретные баллы из профиля. Обращайся на «ты»."
+        )
+    )
+    subjects_to_improve: list[str] = Field(
+        description="Школьные предметы, которые ученику стоит подтянуть ради этой профессии"
+    )
+    category: Literal[CATEGORIES] = Field(  # type: ignore[valid-type]
+        description="Направление, к которому относится профессия"
+    )
+
+
+class ProfessionAdvice(BaseModel):
+    """Ответ модели целиком: ровно пять профессий, меньше или больше не принимаем."""
+
+    professions: list[ProfessionSuggestion] = Field(min_length=5, max_length=5)
+
 
 # По одной профессии-заглушке на каждый тип Голланда — используется,
 # когда LLM недоступна.
@@ -231,24 +276,75 @@ def _validate_professions(payload: Any) -> list[dict[str, Any]]:
     return result
 
 
-async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
-    """Подобрать 5 профессий по агрегированному профилю ученика.
+MISTAKE_PROMPT = """Ты — доброжелательный репетитор для школьника 12–16 лет.
 
-    Возвращает {"professions": [...], "fallback": bool, "model_used": str,
-    "raw_response": {...}}. Исключения наружу не пробрасываются.
+Ученик ошибся в задаче. Объясни коротко (2–3 предложения, на «ты»), в чём именно
+ошибка и как решать правильно. Без морализаторства и без «ты невнимателен».
+Опирайся на данные ниже. Ответь простым текстом, без markdown и без списков."""
+
+
+async def explain_mistake(
+    question: str,
+    correct_answer: str,
+    user_answer: str,
+    error_label: str,
+    explanation: str = "",
+) -> str | None:
+    """Разбор ошибки словами от ИИ.
+
+    Возвращает None при любой недоступности LLM — у вызывающего всегда остаётся
+    правило-базированная рекомендация, поэтому ученик не остаётся без разбора.
     """
     settings = get_settings()
-
     if not settings.openrouter_api_key:
-        logger.warning("OPENROUTER_API_KEY не задан — отдаю rule-based рекомендации")
-        result = build_fallback(scores)
-        return {**result, "model_used": FALLBACK_MODEL_NAME, "raw_response": {}}
+        return None
 
-    request_body = {
+    user_content = (
+        f"Задача: {question}\n"
+        f"Правильный ответ: {correct_answer}\n"
+        f"Ответ ученика: {user_answer}\n"
+        f"Тип ошибки: {error_label}\n"
+        f"Краткое решение: {explanation}"
+    )
+    body = {
+        "model": settings.openrouter_model,
+        "temperature": 0.4,
+        "max_tokens": 400,
+        "messages": [
+            {"role": "system", "content": MISTAKE_PROMPT},
+            {"role": "user", "content": user_content},
+        ],
+    }
+    headers = {
+        "Authorization": f"Bearer {settings.openrouter_api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/Gemr007/Kompassferum",
+        "X-Title": "Kompas",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
+            response = await client.post(settings.openrouter_url, json=body, headers=headers)
+            response.raise_for_status()
+            # content бывает null — например, когда модель отказалась отвечать
+            # или упёрлась в лимит токенов. Разбор ошибки не обязателен, поэтому
+            # это не сбой: у вызывающего остаётся правило-базированный совет.
+            content = response.json()["choices"][0]["message"].get("content")
+            return content.strip() or None if content else None
+    except (httpx.HTTPError, AttributeError, KeyError, IndexError, TypeError, ValueError) as exc:
+        logger.warning("Разбор ошибки от ИИ недоступен: %s", exc)
+        return None
+
+
+async def _ask_openrouter(scores: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Запрос к OpenRouter. Формат ответа держится только на тексте промпта,
+    поэтому JSON приходится вылавливать из ответа и проверять вручную."""
+    settings = get_settings()
+    body = {
         "model": settings.openrouter_model,
         "temperature": 0.3,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": SYSTEM_PROMPT + JSON_FORMAT_TAIL},
             {"role": "user", "content": json.dumps(scores, ensure_ascii=False)},
         ],
     }
@@ -256,40 +352,112 @@ async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
         # OpenRouter просит идентифицировать приложение
-        "HTTP-Referer": "https://github.com/Gemr007/Kompassferum",
+        "HTTP-Referer": "https://github.com/Bantila/Kompassferum",
         "X-Title": "Kompas",
     }
 
+    async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
+        response = await client.post(settings.openrouter_url, json=body, headers=headers)
+        response.raise_for_status()
+        raw = response.json()
+
+    content = raw["choices"][0]["message"]["content"]
+    return _validate_professions(json.loads(_strip_markdown_fence(content))), raw
+
+
+async def _ask_gigachat(scores: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Запрос к GigaChat со строгой схемой ответа.
+
+    Схема ProfessionAdvice уходит в API как json_schema, и модель физически
+    не может ответить произвольным текстом: ни markdown-обёртки, ни пяти с
+    половиной профессий, ни выдуманной категории. Разбор текста и проверки
+    на нашей стороне становятся не нужны.
+
+    SDK сам меняет Authorization key на токен доступа и обновляет его, когда
+    тридцать минут жизни токена истекают. Импорт внутри функции: без
+    выбранного провайдера тянуть langchain в память незачем.
+    """
+    from langchain_core.messages import HumanMessage, SystemMessage
+    from langchain_gigachat import GigaChat
+
+    settings = get_settings()
+    model = GigaChat(
+        credentials=settings.gigachat_credentials,
+        scope=settings.gigachat_scope,
+        model=settings.gigachat_model,
+        base_url=settings.gigachat_base_url,
+        verify_ssl_certs=settings.gigachat_verify_ssl,
+        ca_bundle_file=settings.gigachat_ca_bundle or None,
+        timeout=settings.openrouter_timeout_seconds,
+        temperature=0.3,
+    )
+    structured = model.with_structured_output(
+        ProfessionAdvice, method="json_schema", strict=True
+    )
+
+    advice: ProfessionAdvice = await structured.ainvoke(
+        [
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=json.dumps(scores, ensure_ascii=False)),
+        ]
+    )
+    return [p.model_dump() for p in advice.professions], advice.model_dump()
+
+
+def _select_provider() -> tuple[str, Any, str] | None:
+    """Провайдер, функция запроса и имя модели — либо None, если не настроен."""
+    settings = get_settings()
+    provider = settings.ai_provider.strip().lower()
+
+    if provider == "gigachat" and settings.gigachat_credentials:
+        return provider, _ask_gigachat, settings.gigachat_model
+    if provider == "openrouter" and settings.openrouter_api_key:
+        return provider, _ask_openrouter, settings.openrouter_model
+    return None
+
+
+async def recommend_professions(scores: dict[str, Any]) -> dict[str, Any]:
+    """Подобрать 5 профессий по агрегированному профилю ученика.
+
+    Возвращает {"professions": [...], "fallback": bool, "model_used": str,
+    "raw_response": {...}}. Исключения наружу не пробрасываются.
+    """
+    selected = _select_provider()
+    if selected is None:
+        logger.warning(
+            "Провайдер модели не настроен (AI_PROVIDER=%s) — отдаю rule-based рекомендации",
+            get_settings().ai_provider,
+        )
+        return {**build_fallback(scores), "model_used": FALLBACK_MODEL_NAME, "raw_response": {}}
+
+    provider, ask, model_name = selected
     raw_response: dict[str, Any] = {}
     try:
-        async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
-            response = await client.post(
-                settings.openrouter_url, json=request_body, headers=headers
-            )
-            response.raise_for_status()
-            raw_response = response.json()
-
-        content = raw_response["choices"][0]["message"]["content"]
-        parsed = json.loads(_strip_markdown_fence(content))
-        professions = _validate_professions(parsed)
+        professions, raw_response = await ask(scores)
 
     except httpx.TimeoutException:
-        logger.error("OpenRouter не ответил за %ss", settings.openrouter_timeout_seconds)
+        logger.error("%s не ответил за %ss", provider, get_settings().openrouter_timeout_seconds)
     except httpx.HTTPStatusError as exc:
-        logger.error(
-            "OpenRouter вернул %s: %s", exc.response.status_code, exc.response.text[:500]
-        )
+        logger.error("%s вернул %s: %s", provider, exc.response.status_code, exc.response.text[:500])
     except httpx.HTTPError as exc:
-        logger.error("Сетевая ошибка при обращении к OpenRouter: %s", exc)
-    except (json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError) as exc:
-        logger.error("Не удалось разобрать ответ OpenRouter: %s", exc)
+        logger.error("Сетевая ошибка при обращении к %s: %s", provider, exc)
+    except (json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError, AttributeError) as exc:
+        logger.error("Не удалось разобрать ответ %s: %s", provider, exc)
+    except Exception as exc:  # noqa: BLE001
+        # SDK GigaChat бросает свои классы ошибок (авторизация, лимиты, 5xx).
+        # Перечислять их здесь — значит ломать сборку при обновлении пакета,
+        # а контракт функции один: что бы ни случилось, вернуть рекомендации.
+        logger.error("%s: %s: %s", provider, exc.__class__.__name__, exc)
     else:
         return {
             "professions": professions,
             "fallback": False,
-            "model_used": settings.openrouter_model,
+            "model_used": model_name,
             "raw_response": raw_response,
         }
 
-    result = build_fallback(scores)
-    return {**result, "model_used": FALLBACK_MODEL_NAME, "raw_response": raw_response}
+    return {
+        **build_fallback(scores),
+        "model_used": FALLBACK_MODEL_NAME,
+        "raw_response": raw_response,
+    }

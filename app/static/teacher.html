@@ -3,40 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101114">
-<title>Компас — сводка по классу</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23007AFF'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M20 12l-2.5 5.5L12 20l2.5-5.5L20 12z' fill='white'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="/static/styles.css">
+<meta name="theme-color" content="#0D0D1A">
+<title>Компас — кабинет педагога</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%237C3AED'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M20 12l-2.5 5.5L12 20l2.5-5.5L20 12z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/styles.css?v=11">
 </head>
 <body>
 
 <div class="desk">
-  <div class="bar tall" style="border-radius:14px;margin-bottom:16px">
-    <div class="h4">Компас · сводка по классу</div>
-    <a href="/" class="link" style="text-decoration:none">К тесту</a>
-  </div>
-
-  <div class="panel" style="margin-bottom:16px">
-    <div class="cols" style="gap:8px;align-items:flex-end">
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div class="label">Ваш ID в MAX</div>
-        <input class="field" id="teacher-id" placeholder="teacher_1" autocomplete="off">
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div class="label">Класс</div>
-        <input class="field" id="school-class" placeholder="7Б" autocomplete="off">
-      </div>
-      <div class="btn md" id="load" style="flex:0 0 auto">Показать сводку</div>
+  <div class="desk-head">
+    <div class="brand"><b>Компас</b> <span>кабинет педагога</span></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="t3" id="who"></span>
+      <span class="link hidden" id="logout">Выйти</span>
+      <a href="/" class="link" style="text-decoration:none">Мини-приложение</a>
     </div>
-    <div class="t4s">Сводка обезличена: показываются только агрегаты по классу, без результатов отдельных учеников.</div>
   </div>
 
-  <div id="out"></div>
+  <!-- вход -->
+  <div class="panel" id="auth-panel" style="max-width:420px">
+    <div class="h5" style="font-size:16px" id="auth-title">Вход для педагога</div>
+    <input class="field" id="auth-name" placeholder="Имя и фамилия" autocomplete="name" style="display:none">
+    <input class="field" id="auth-email" placeholder="Почта" type="email" autocomplete="email">
+    <input class="field" id="auth-password" placeholder="Пароль" type="password" autocomplete="current-password">
+    <div id="auth-status" class="t3" style="min-height:18px"></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="btn md" id="auth-submit" style="flex:0 0 auto">Войти</div>
+      <div class="link" id="auth-toggle">Создать аккаунт педагога</div>
+    </div>
+  </div>
+
+  <!-- рабочая область -->
+  <div id="workspace" style="display:none">
+    <div class="split-view">
+      <aside class="side">
+        <h6>Классы</h6>
+        <div id="class-list"></div>
+        <div style="padding:10px 12px;display:flex;gap:6px;border-top:1px solid var(--line)">
+          <input class="field sm" id="new-class-name" placeholder="Например, 7Б" autocomplete="off">
+          <div class="btn sm" id="create-class" style="flex:0 0 auto">+</div>
+        </div>
+      </aside>
+
+      <div class="main-col">
+        <div class="toolbar">
+          <div class="seg-tabs" id="view-tabs">
+            <div class="seg-tab on" data-view="roster">Ученики</div>
+            <div class="seg-tab" data-view="tasks">Задания</div>
+            <div class="seg-tab" data-view="summary">Сводка</div>
+          </div>
+          <div class="grow"></div>
+          <span class="t3" id="class-caption"></span>
+        </div>
+        <div id="out"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
+<script src="/static/shared.js?v=11"></script>
 <script>
 const out = document.getElementById('out');
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const classList = document.getElementById('class-list');
+const TOKEN_KEY = 'kompas_teacher_token';
+let token = localStorage.getItem(TOKEN_KEY);
+const api = (path, options = {}) => apiFetch(path, options, token);
 
 const SOFTSKILL_TITLES = {
   teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
@@ -44,37 +75,272 @@ const SOFTSKILL_TITLES = {
 };
 const HOLLAND_TITLES = {
   realistic: 'Реалист', investigative: 'Исследователь', artistic: 'Артист',
-  social: 'Социальный', enterprising: 'Предприним.', conventional: 'Конвенц.',
+  social: 'Социальный', enterprising: 'Предприниматель', conventional: 'Организованный',
 };
 
+let classes = [];
+let current = null;       // выбранный класс
+let view = 'roster';      // ученики | задания | сводка
+let subjects = [];        // предметы банка задач
+
 function message(title, text, tone = 'var(--t3)') {
-  out.innerHTML = `<div class="panel"><div class="h4">${esc(title)}</div><div style="font-size:15px;line-height:21px;color:${tone}">${esc(text)}</div></div>`;
+  out.innerHTML = `<div class="panel"><div class="h5" style="font-size:16px">${esc(title)}</div>
+    <div style="font-size:14px;line-height:20px;color:${tone}">${esc(text)}</div></div>`;
 }
 
-function bars(entries, max, format) {
-  return entries.map(([name, value]) => `
-    <div class="barline">
-      <div class="name">${esc(name)}</div>
-      <div class="track"><i style="width:${Math.round((value / max) * 100)}%"></i></div>
-      <div class="val">${format(value)}</div>
+const loading = (text) => `<div class="panel" style="flex-direction:row;align-items:center;gap:12px">
+  <div class="spinner"></div><div class="t3">${text}</div></div>`;
+
+const pct = (v) => `${Math.round(v * 100)}%`;
+
+/* ---------- классы ---------- */
+
+async function loadClasses(keepSelection = false) {
+  classList.innerHTML = '<div class="side-item"><span class="t3">Загрузка…</span></div>';
+  try {
+    classes = await api('/api/teacher/classes');
+  } catch (error) {
+    classList.innerHTML = '';
+    if (error.status === 401) return logout();
+    return message('Не удалось загрузить классы', error.message, 'var(--orange)');
+  }
+
+  if (!classes.length) {
+    classList.innerHTML = '<div class="side-item"><span class="t3">Пока нет классов</span></div>';
+    current = null;
+    return message('Начните с класса', 'Создайте класс внизу списка — появится код, который вы дадите ученикам.');
+  }
+
+  if (!keepSelection || !classes.some((c) => c.id === current?.id)) current = classes[0];
+  renderClassList();
+  renderView();
+}
+
+function renderClassList() {
+  classList.innerHTML = classes.map((c) => `
+    <div class="side-item ${c.id === current?.id ? 'on' : ''}" data-class="${c.id}">
+      <span class="nm">${esc(c.name)}</span>
+      <span class="cnt">${c.students_count}</span>
     </div>`).join('');
+
+  classList.querySelectorAll('[data-class]').forEach((el) => {
+    el.onclick = () => {
+      current = classes.find((c) => c.id === el.dataset.class);
+      renderClassList();
+      renderView();
+    };
+  });
 }
 
-async function loadSummary() {
-  const teacherId = document.getElementById('teacher-id').value.trim();
-  const schoolClass = document.getElementById('school-class').value.trim();
-  if (!teacherId || !schoolClass) return message('Заполните поля', 'Нужны ваш ID в MAX и номер класса.');
+async function createClass() {
+  const input = document.getElementById('new-class-name');
+  const name = input.value.trim();
+  if (!name) return input.focus();
+  try {
+    await api('/api/teacher/classes', { method: 'POST', body: JSON.stringify({ name }) });
+    input.value = '';
+    await loadClasses(true);
+  } catch (error) {
+    if (error.status === 401) return logout();
+    message('Не удалось создать класс', error.message, 'var(--orange)');
+  }
+}
 
-  localStorage.setItem('kompas_teacher', JSON.stringify({ teacherId, schoolClass }));
-  out.innerHTML = '<div class="panel" style="flex-direction:row;align-items:center;gap:12px"><div class="spinner"></div><div class="t3">Считаем агрегаты…</div></div>';
+/* ---------- переключение разделов ---------- */
 
+function renderView() {
+  if (!current) return;
+  document.getElementById('class-caption').textContent =
+    `${current.name} · код ${current.join_code} · ${current.students_count} учеников`;
+  ({ roster: viewRoster, tasks: viewAssignments, summary: viewSummary })[view]();
+}
+
+/* ---------- раздел: ученики (рейтинг) ---------- */
+
+async function viewRoster() {
+  out.innerHTML = loading('Считаем рейтинг…');
   let data;
   try {
-    const response = await fetch(`/api/teacher/${encodeURIComponent(teacherId)}/class-summary?school_class=${encodeURIComponent(schoolClass)}`);
-    data = await response.json();
-    if (!response.ok) return message('Сводка недоступна', data.detail || `Ошибка ${response.status}`, 'var(--orange)');
+    data = await api(`/api/teacher/classes/${current.id}/leaderboard`);
   } catch (error) {
-    return message('Нет связи с сервером', String(error), 'var(--orange)');
+    if (error.status === 401) return logout();
+    return message('Рейтинг недоступен', error.message, 'var(--orange)');
+  }
+
+  if (!data.rows.length) {
+    return message('В классе пока никого',
+      `Дайте ученикам код ${current.join_code} — после входа они появятся здесь.`);
+  }
+
+  out.innerHTML = `
+    <div class="table-wrap">
+      <table class="grid">
+        <thead><tr>
+          <th class="rank">#</th><th>Ученик</th>
+          <th class="num">Ур.</th><th class="num">XP</th>
+          <th class="num">Решено</th><th>Точность</th>
+          <th class="num">Серия</th><th>Тест</th>
+        </tr></thead>
+        <tbody>
+          ${data.rows.map((r) => `
+            <tr class="${r.rank <= 3 ? 'top' : ''}">
+              <td class="rank">${r.rank}</td>
+              <td class="name">${esc(r.full_name)}</td>
+              <td class="num">${r.level}</td>
+              <td class="num">${r.xp}</td>
+              <td class="num">${r.solved}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="meter" style="flex:1"><i style="width:${r.accuracy * 100}%"></i></div>
+                  <span style="font-variant-numeric:tabular-nums;color:var(--t3);width:38px;text-align:right">${r.solved ? pct(r.accuracy) : '—'}</span>
+                </div>
+              </td>
+              <td class="num">${r.streak_days || '—'}</td>
+              <td style="color:${r.test_done ? 'var(--green)' : 'var(--t4)'}">${r.test_done ? 'пройден' : 'нет'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="muted-note">Список виден только вам. Точность считается по решённым задачам тренажёра.</div>
+    </div>`;
+}
+
+/* ---------- раздел: задания ---------- */
+
+async function viewAssignments() {
+  out.innerHTML = loading('Загружаем задания…');
+  let items;
+  try {
+    if (!subjects.length) subjects = (await api('/api/practice/subjects')).subjects;
+    items = await api(`/api/teacher/classes/${current.id}/assignments`);
+  } catch (error) {
+    if (error.status === 401) return logout();
+    return message('Задания недоступны', error.message, 'var(--orange)');
+  }
+
+  out.innerHTML = `
+    <div class="panel">
+      <div class="h5" style="font-size:16px">Новое задание</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:2 1 220px;display:flex;flex-direction:column;gap:6px">
+          <div class="label">Название</div>
+          <input class="field sm" id="a-title" placeholder="Например, повторение перед контрольной">
+        </div>
+        <div style="flex:0 0 92px;display:flex;flex-direction:column;gap:6px">
+          <div class="label">Задач</div>
+          <input class="field sm" id="a-size" type="number" min="1" max="20" value="5">
+        </div>
+        <div style="flex:0 0 132px;display:flex;flex-direction:column;gap:6px">
+          <div class="label">Сложность</div>
+          <select class="field sm" id="a-diff">
+            <option value="">любая</option>
+            <option value="easy">лёгкие</option>
+            <option value="medium">средние</option>
+            <option value="hard">сложные</option>
+          </select>
+        </div>
+        <div style="flex:0 0 150px;display:flex;flex-direction:column;gap:6px">
+          <div class="label">Срок</div>
+          <input class="field sm" id="a-due" type="date">
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="label">Предметы — если не выбрать, каждому подберутся его слабые</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="a-subjects">
+          ${subjects.map((s) => `<span class="pill" data-code="${s.code}">${esc(s.title)}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="btn md" id="a-create" style="flex:0 0 auto">Выдать классу</div>
+        <span class="t3" id="a-status"></span>
+      </div>
+    </div>
+
+    ${items.length ? `
+      <div class="table-wrap">
+        <table class="grid">
+          <thead><tr>
+            <th>Задание</th><th>Предметы</th>
+            <th class="num">Задач</th><th>Срок</th><th>Взялись</th><th></th>
+          </tr></thead>
+          <tbody>
+            ${items.map((a) => `
+              <tr>
+                <td class="name">${esc(a.title)}
+                  <div class="t4s">${new Date(a.created_at).toLocaleDateString('ru-RU')}</div>
+                </td>
+                <td>${a.subjects.length ? a.subjects.map((c) => esc(subjectTitle(c))).join(', ') : 'по слабым местам'}</td>
+                <td class="num">${a.size}${a.difficulty ? `<div class="t4s">${esc(a.difficulty)}</div>` : ''}</td>
+                <td>${a.due_date ? new Date(a.due_date).toLocaleDateString('ru-RU') : '—'}</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="meter" style="flex:1"><i style="width:${a.students_total ? (a.completed_by / a.students_total) * 100 : 0}%"></i></div>
+                    <span style="font-variant-numeric:tabular-nums;color:var(--t3)">${a.completed_by}/${a.students_total}</span>
+                  </div>
+                </td>
+                <td><span class="link" data-del="${a.id}" style="font-size:13px">Удалить</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+        <div class="muted-note">«Взялись» — сколько учеников решали задачи по предметам задания после его выдачи.</div>
+      </div>` : '<div class="panel"><div class="t3">Заданий пока нет.</div></div>'}`;
+
+  out.querySelectorAll('#a-subjects .pill').forEach((pill) => {
+    pill.onclick = () => pill.classList.toggle('on');
+  });
+  document.getElementById('a-create').onclick = createAssignment;
+  out.querySelectorAll('[data-del]').forEach((el) => {
+    el.onclick = async () => {
+      if (!confirm('Удалить задание?')) return;
+      try {
+        await api(`/api/teacher/assignments/${el.dataset.del}`, { method: 'DELETE' });
+        viewAssignments();
+      } catch (error) { message('Не удалось удалить', error.message, 'var(--orange)'); }
+    };
+  });
+}
+
+const subjectTitle = (code) => subjects.find((s) => s.code === code)?.title || code;
+
+async function createAssignment() {
+  const title = document.getElementById('a-title').value.trim();
+  const status = document.getElementById('a-status');
+  if (!title) {
+    status.style.color = 'var(--orange)';
+    status.textContent = 'Введите название задания.';
+    return;
+  }
+  const picked = [...out.querySelectorAll('#a-subjects .pill.on')].map((p) => p.dataset.code);
+  const due = document.getElementById('a-due').value;
+
+  try {
+    await api(`/api/teacher/classes/${current.id}/assignments`, {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        subjects: picked,
+        size: Number(document.getElementById('a-size').value) || 5,
+        difficulty: document.getElementById('a-diff').value || null,
+        due_date: due || null,
+      }),
+    });
+    viewAssignments();
+  } catch (error) {
+    if (error.status === 401) return logout();
+    status.style.color = 'var(--orange)';
+    status.textContent = error.message;
+  }
+}
+
+/* ---------- раздел: сводка ---------- */
+
+async function viewSummary() {
+  out.innerHTML = loading('Считаем агрегаты…');
+  let data;
+  try {
+    data = await api(`/api/teacher/class-summary?class_id=${encodeURIComponent(current.id)}`);
+  } catch (error) {
+    if (error.status === 401) return logout();
+    return message('Сводка недоступна', error.message, 'var(--orange)');
   }
 
   const categories = Object.entries(data.category_distribution);
@@ -83,7 +349,7 @@ async function loadSummary() {
   const softskills = Object.entries(data.average_softskills).sort((a, b) => b[1] - a[1]);
 
   out.innerHTML = `
-    <div class="stats" style="margin-bottom:16px">
+    <div class="stats">
       <div class="stat"><div class="t3">Прошли тест</div><div class="num">${data.students_tested}</div><div class="t4s">учеников класса ${esc(data.school_class)}</div></div>
       <div class="stat"><div class="t3">Всего прохождений</div><div class="num">${data.tests_completed}</div><div class="t4s">включая повторные</div></div>
       <div class="stat"><div class="t3">Ведущее направление</div><div class="num" style="font-size:20px;line-height:26px">${esc(categories[0]?.[0] || '—')}</div><div class="t4s">${categories[0]?.[1] || 0} упоминаний</div></div>
@@ -91,15 +357,11 @@ async function loadSummary() {
 
     <div class="cols">
       <div class="panel" style="flex:1.4 1 340px">
-        <div style="display:flex;align-items:baseline;justify-content:space-between">
-          <div class="h5" style="font-size:16px">Категории профессий в рекомендациях</div>
-          <div class="t4s">${data.students_tested} учеников</div>
-        </div>
+        <div class="h5" style="font-size:16px">Категории профессий в рекомендациях</div>
         <div style="display:flex;flex-direction:column;gap:12px">
           ${categories.length ? bars(categories, maxCategory, (n) => n) : '<div class="t3">Пока нет рекомендаций.</div>'}
         </div>
       </div>
-
       <div class="panel">
         <div class="h5" style="font-size:16px">Слабые предметы класса</div>
         <div style="display:flex;flex-direction:column;gap:10px">
@@ -107,14 +369,14 @@ async function loadSummary() {
             ${i ? '<div style="height:1px;background:var(--line)"></div>' : ''}
             <div style="display:flex;align-items:center;gap:10px">
               <div style="flex:1;font-size:14px;color:var(--t2)">${esc(item.title || item.subject)}</div>
-              <div style="font-size:14px;color:var(--t3)">средний ${Math.round((item.average_knowledge / 5) * 100)}%</div>
+              <div style="font-size:14px;color:var(--t3);font-variant-numeric:tabular-nums">${Math.round((item.average_knowledge / 5) * 100)}%</div>
             </div>`).join('') : '<div class="t3">Данных пока нет.</div>'}
         </div>
         <div class="t4s" style="margin-top:auto">Балл знаний по шкале 1–5 переведён в проценты.</div>
       </div>
     </div>
 
-    <div class="cols" style="margin-top:16px">
+    <div class="cols">
       <div class="panel">
         <div class="h5" style="font-size:16px">Средний профиль интересов</div>
         <div style="display:flex;flex-direction:column;gap:12px">${bars(interests.map(([k, v]) => [HOLLAND_TITLES[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
@@ -124,19 +386,103 @@ async function loadSummary() {
         <div style="display:flex;flex-direction:column;gap:12px">${bars(softskills.map(([k, v]) => [SOFTSKILL_TITLES[k] || k, v]), 5, (v) => v.toFixed(1))}</div>
       </div>
     </div>
-  `;
+
+    <div class="muted-note" style="border:1px solid var(--stroke);border-radius:10px;background:var(--card)">
+      Сводка обезличена: только агрегаты по классу, без результатов отдельных учеников.
+    </div>`;
 }
 
-document.getElementById('load').onclick = loadSummary;
-document.addEventListener('keydown', (e) => e.key === 'Enter' && loadSummary());
+/* ---------- вход ---------- */
 
-try {
-  const saved = JSON.parse(localStorage.getItem('kompas_teacher'));
-  if (saved) {
-    document.getElementById('teacher-id').value = saved.teacherId;
-    document.getElementById('school-class').value = saved.schoolClass;
+const authPanel = document.getElementById('auth-panel');
+const workspace = document.getElementById('workspace');
+const authStatus = document.getElementById('auth-status');
+const authSubmit = document.getElementById('auth-submit');
+const nameField = document.getElementById('auth-name');
+let registerMode = false;
+
+function setMode(toRegister) {
+  registerMode = toRegister;
+  document.getElementById('auth-title').textContent = toRegister ? 'Регистрация педагога' : 'Вход для педагога';
+  nameField.style.display = toRegister ? '' : 'none';
+  authSubmit.textContent = toRegister ? 'Зарегистрироваться' : 'Войти';
+  document.getElementById('auth-toggle').textContent = toRegister ? 'У меня уже есть аккаунт' : 'Создать аккаунт педагога';
+  authStatus.textContent = '';
+}
+
+function showWorkspace(profile) {
+  document.getElementById('who').textContent = profile.full_name || profile.email;
+  document.getElementById('logout').classList.remove('hidden');
+  authPanel.style.display = 'none';
+  workspace.style.display = '';
+  loadClasses();
+}
+
+function logout() {
+  token = null;
+  localStorage.removeItem(TOKEN_KEY);
+  workspace.style.display = 'none';
+  authPanel.style.display = '';
+  document.getElementById('who').textContent = '';
+  document.getElementById('logout').classList.add('hidden');
+  out.innerHTML = '';
+  classList.innerHTML = '';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const fullName = nameField.value.trim();
+  if (!email || !password || (registerMode && !fullName)) {
+    authStatus.style.color = 'var(--orange)';
+    authStatus.textContent = 'Заполните все поля.';
+    return;
   }
-} catch { /* нет сохранённых значений — оставляем пустыми */ }
+
+  const label = authSubmit.textContent;
+  authSubmit.textContent = 'Секунду…';
+  authStatus.textContent = '';
+  try {
+    const body = registerMode
+      // роль не передаём: регистрация по почте и так заводит только педагога
+      ? { email, password, full_name: fullName }
+      : { email, password };
+    const data = await apiFetch(`/api/auth/${registerMode ? 'register' : 'login'}`,
+      { method: 'POST', body: JSON.stringify(body) });
+    if (data.user.role !== 'teacher') {
+      authSubmit.textContent = label;
+      authStatus.style.color = 'var(--orange)';
+      authStatus.textContent = 'Это аккаунт ученика — кабинет доступен только педагогам.';
+      return;
+    }
+    token = data.access_token;
+    localStorage.setItem(TOKEN_KEY, token);
+    showWorkspace(data.user);
+  } catch (error) {
+    authSubmit.textContent = label;
+    authStatus.style.color = 'var(--orange)';
+    authStatus.textContent = error.message;
+  }
+}
+
+document.getElementById('create-class').onclick = createClass;
+document.getElementById('new-class-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') createClass(); });
+authSubmit.onclick = submitAuth;
+document.getElementById('logout').onclick = logout;
+document.getElementById('auth-toggle').onclick = () => setMode(!registerMode);
+['auth-email', 'auth-password', 'auth-name'].forEach((id) => {
+  document.getElementById(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
+});
+document.getElementById('view-tabs').addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-view]');
+  if (!tab) return;
+  view = tab.dataset.view;
+  document.querySelectorAll('#view-tabs .seg-tab').forEach((el) => el.classList.toggle('on', el === tab));
+  renderView();
+});
+
+// токен мог протухнуть — проверяем до показа кабинета
+if (token) apiFetch('/api/auth/me', {}, token).then(showWorkspace).catch(logout);
 </script>
 </body>
 </html>

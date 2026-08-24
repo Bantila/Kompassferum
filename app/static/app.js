@@ -14,6 +14,29 @@ const HOLLAND_TITLES = {
 };
 // порядок осей радара по часовой стрелке, начиная сверху
 const RADAR_ORDER = ['investigative', 'artistic', 'social', 'enterprising', 'conventional', 'realistic'];
+// Незакрытое достижение — не «замок», а ненанесённая отметка на карте:
+// эмодзи в каждой ОС выглядит по-своему и ломает набор.
+const ICON_PENDING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+  stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true">
+  <circle cx="12" cy="12" r="7.5" stroke-dasharray="3 3"></circle></svg>`;
+const ICON_STREAK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+  stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
+  <path d="M4 18 L9 11 L13 14 L20 6"></path><path d="M20 11 V6 H15"></path></svg>`;
+
+// Полученные отметки — впереди, из ненанесённых показываем только ближайшие:
+// восемнадцать одинаковых плиток занимают экран и ничего не сообщают.
+const BADGES_SHOWN = 6;
+
+function badgeTiles(achievements, showAll) {
+  const sorted = [...achievements].sort((a, b) => Number(b.earned) - Number(a.earned));
+  const visible = showAll ? sorted : sorted.filter((a, i) => a.earned || i < BADGES_SHOWN);
+  return visible.map((a) => `
+    <div class="badge ${a.earned ? '' : 'locked'}" title="${esc(a.hint)}">
+      <div class="ico">${a.earned ? a.icon : ICON_PENDING}</div>
+      <div class="nm">${esc(a.earned ? a.title : a.hint)}</div>
+    </div>`).join('');
+}
+
 const SOFTSKILL_TITLES = {
   teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
   analytical: 'Аналитика', resilience: 'Усидчивость',
@@ -23,6 +46,11 @@ const CATEGORY_GRADIENTS = {
   'услуги': 'var(--grad-orange)', 'менеджмент': 'var(--grad-violet)',
   'медицина': 'var(--grad-green)', 'образование': 'var(--grad-violet)',
 };
+const ERROR_TITLES = {
+  calculation: 'Вычислительные', sign: 'Знак', unit: 'Единицы измерения',
+  attention: 'Невнимательность', conceptual: 'Понимание темы',
+  methodology: 'Порядок решения', incomplete: 'Неполный ответ',
+};
 // Пропуск знаниевого вопроса. Не «нет ответа», а заведомо неверный индекс:
 // иначе пропустивший сложные вопросы получил бы завышенный knowledge_score.
 const SKIPPED = -1;
@@ -31,6 +59,7 @@ const view = document.getElementById('view');
 const barTitle = document.getElementById('bar-title');
 const barAction = document.getElementById('bar-action');
 const barProgress = document.getElementById('bar-progress');
+const tabsBar = document.getElementById('tabs');
 
 let Q = null;          // банк вопросов с бэкенда
 let S = loadState();   // состояние прохождения
@@ -48,6 +77,9 @@ function loadState() {
     answers: {},
     lastResultId: null,
     schoolClass: '',
+    classId: null,
+    fullName: '',
+    token: null,
   };
 }
 
@@ -57,23 +89,24 @@ function save() {
 
 /* ---------- утилиты ---------- */
 
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => (
-  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
-));
+const api = (path, options = {}) => apiFetch(path, options, S.token);
 
-async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`${response.status}: ${body.slice(0, 300)}`);
-  }
-  return response.json();
+// заполняется на старте из /api/public-config
+let BOT_USERNAME = '';
+
+/* Профиль с сервера в локальное состояние. */
+function applyProfile(profile) {
+  S.userId = profile.max_user_id;
+  S.fullName = profile.full_name || '';
+  S.classId = profile.class_id || null;
+  S.schoolClass = profile.school_class || '';
+  S.role = profile.role;
+  save();
 }
 
-function render(html, { title = 'Компас', progress = 0, action = null } = {}) {
+/* tab — какую вкладку подсветить внизу. Не передан (вход, вопросы теста) —
+   панель прячется, чтобы во время прохождения ничто не отвлекало. */
+function render(html, { title = 'Компас', progress = 0, action = null, tab = null } = {}) {
   barTitle.textContent = title;
   // без правого действия заголовок центрируется — так в макете
   barTitle.parentElement.classList.toggle('split', !!action);
@@ -83,6 +116,10 @@ function render(html, { title = 'Компас', progress = 0, action = null } = 
     barAction.textContent = action.label;
     barAction.onclick = action.onClick;
   }
+  tabsBar.classList.toggle('hidden', !tab);
+  tabsBar.querySelectorAll('[data-tab]').forEach((el) => {
+    el.classList.toggle('on', el.dataset.tab === tab);
+  });
   view.innerHTML = html;
   view.scrollTop = 0;
   questionShownAt = Date.now();
@@ -95,63 +132,565 @@ const subjectQuestions = (code) => Q.block_b_subjects.filter((q) => q.subject ==
 const answeredCount = () => Object.keys(S.answers).length;
 const totalCount = () => blockA().length + Q.block_b_subjects.length + blockC().length;
 const isAnswered = (id) => S.answers[id] !== undefined;
+// названия предметов приходят с бэкенда вместе с банком вопросов
+const subjectTitle = (code) => Q?.subject_titles?.[code] || code;
 // Бэкенд считает профиль и по части ответов, поэтому предварительный результат
 // можно показать сразу после блока A — не заставляя пройти все 74 вопроса.
 const canPreview = () => blockA().every((q) => isAnswered(q.id));
 
-/* ---------- экран: онбординг ---------- */
+/* ---------- экраны входа ---------- */
 
-function screenOnboarding() {
-  const done = answeredCount();
-  const total = totalCount();
+const LOGO_TILE = `
+  <div style="width:64px;height:64px;border-radius:20px;background:var(--grad-blue);display:flex;align-items:center;justify-content:center">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
+  </div>`;
 
-  if (done > 0 && done < total) {
-    render(`
-      <div class="h2">Продолжим?</div>
-      <div class="card pad" style="gap:14px">
-        <div style="display:flex;align-items:baseline;justify-content:space-between">
-          <div class="label">Прогресс теста</div>
-          <div style="font-size:15px;font-weight:600;color:var(--accent)">${done} / ${total}</div>
-        </div>
-        <div class="prog"><i style="width:${(done / total) * 100}%"></i></div>
-        <div class="t3">Ответы сохранены на этом устройстве — можно продолжить с того же места.</div>
-      </div>
-      <div class="btn" data-go="next">Продолжить</div>
-      ${canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
-      <div class="list">
-        <div class="row" data-go="restart"><div style="font-size:16px;flex:1">Начать заново</div></div>
-        <div class="sep"></div>
-        <div class="row" data-go="history"><div style="font-size:16px;flex:1">История прохождений</div></div>
-      </div>
-    `, { progress: done / total });
-    return;
-  }
-
+/* Приветствие: регистрация, вход или прохождение без аккаунта. */
+function screenWelcome() {
   render(`
     <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
-      <div style="width:64px;height:64px;border-radius:20px;background:var(--grad-blue);display:flex;align-items:center;justify-content:center">
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
-      </div>
-      <div class="h1">Разберёмся, что тебе<br>реально интересно</div>
-      <div style="font-size:16px;line-height:22px;color:var(--t3)">74 вопроса про интересы, школьные предметы и то, как ты работаешь с людьми. В конце — пять профессий с объяснением, почему именно они.</div>
+      ${LOGO_TILE}
+      <div class="h1">Открой «Компас»<br>в Telegram</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">Приложение работает внутри мессенджера: так вход происходит сам, без почты и пароля, а прогресс из чата с ботом и из приложения остаётся общим.</div>
     </div>
-    <div class="list" style="gap:2px;overflow:hidden">
-      ${[['A', `Интересы · ${blockA().length} вопросов`, '3 мин'],
-         ['B', `Предметы · ${Q.block_b_subjects.length} вопроса`, 'по частям'],
-         ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
-        ${i ? '<div class="sep inset"></div>' : ''}
-        <div class="row">
-          <div style="width:28px;height:28px;border-radius:9px;background:rgb(0 122 255 / .16);color:var(--accent);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">${letter}</div>
-          <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
-          <div class="t4s">${time}</div>
-        </div>`).join('')}
+    <div class="card pad" style="gap:12px">
+      <div class="label">Что делать</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">${BOT_USERNAME
+        ? `Найди бота <b>@${esc(BOT_USERNAME)}</b> в Telegram и нажми «Запустить».`
+        : 'Открой бота «Компаса» в Telegram и нажми «Запустить».'} Приложение откроется прямо в чате.</div>
     </div>
-    <div style="font-size:13px;line-height:18px;color:var(--t4)">Прогресс сохраняется — можно закрыть и вернуться позже.</div>
     <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
-      <div class="btn" data-go="next">Начать тест</div>
+      ${BOT_USERNAME
+        ? `<a class="btn" href="https://t.me/${encodeURIComponent(BOT_USERNAME)}" target="_blank" rel="noopener" style="text-decoration:none">Открыть бота в Telegram</a>`
+        : ''}
       <div class="link" style="text-align:center" data-go="teacher">Я педагог</div>
     </div>
   `, { progress: 0 });
+}
+
+/* Общая обвязка формы: собирает значения полей, шлёт запрос, показывает ошибку. */
+function formScreen({ title, subtitle, fields, submitLabel, footer, onSubmit }) {
+  render(`
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
+      ${LOGO_TILE}
+      <div class="h1">${title}</div>
+      ${subtitle ? `<div style="font-size:16px;line-height:22px;color:var(--t3)">${subtitle}</div>` : ''}
+    </div>
+    <div class="card pad" style="gap:12px">
+      ${fields.map((f) => `<input id="f-${f.name}" class="field" placeholder="${esc(f.placeholder)}"
+        type="${f.type || 'text'}" maxlength="${f.maxlength || 255}"
+        autocomplete="${f.autocomplete || 'off'}" style="${f.style || ''}">`).join('')}
+      <div id="form-status" class="t3" style="min-height:18px"></div>
+    </div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="form-submit">${submitLabel}</div>
+      ${footer || ''}
+    </div>
+  `, { progress: 0 });
+
+  const status = view.querySelector('#form-status');
+  const submit = view.querySelector('#form-submit');
+  const inputs = fields.map((f) => view.querySelector(`#f-${f.name}`));
+  inputs[0]?.focus();
+
+  const run = async () => {
+    const values = Object.fromEntries(fields.map((f, i) => [f.name, inputs[i].value.trim()]));
+    const missing = fields.find((f) => !f.optional && !values[f.name]);
+    if (missing) {
+      status.style.color = 'var(--orange)';
+      status.textContent = `Заполни поле «${missing.placeholder}».`;
+      return;
+    }
+    const label = submit.textContent;
+    submit.textContent = 'Секунду…';
+    status.textContent = '';
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      submit.textContent = label;
+      status.style.color = 'var(--orange)';
+      status.textContent = error.message || 'Что-то пошло не так — попробуй ещё раз.';
+    }
+  };
+
+  submit.onclick = run;
+  // именно addEventListener, а не el.onkeydown = ...: обработчик-стрелка вернул бы
+  // false на любой клавише кроме Enter, а false из onkeydown отменяет ввод символа —
+  // поле выглядело бы «залипшим»: курсор мигает, но ничего не печатается и не вставляется
+  inputs.forEach((el) => {
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  });
+}
+
+function screenJoinClass() {
+  formScreen({
+    title: 'Код класса',
+    subtitle: 'Код даёт учитель — 6 символов. С ним ты попадёшь в сводку своего класса.',
+    submitLabel: 'Вступить',
+    footer: '<div class="link" style="text-align:center" data-go="home">Позже</div>',
+    fields: [
+      { name: 'join_code', placeholder: 'Например: AB12CD', maxlength: 8,
+        style: 'text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:4px;font-weight:600' },
+    ],
+    onSubmit: async (v) => {
+      const data = await api('/api/classes/join', {
+        method: 'POST',
+        body: JSON.stringify({ join_code: v.join_code.toUpperCase() }),
+      });
+      S.classId = data.class_id;
+      S.schoolClass = data.class_name;
+      save();
+      screenOnboarding();
+    },
+  });
+}
+
+/* ---------- экран: онбординг ---------- */
+
+/* Карточка уровня и серии — визитка прогресса, как на главном экране AI-Atlas. */
+function xpCard(p) {
+  if (!p) return '';
+  return `
+    <div class="xp-card">
+      <div class="xp-head">
+        <div class="level-ring">${p.level}</div>
+        <div style="flex:1">
+          <div class="h5">Уровень ${p.level}</div>
+          <div class="t3">${p.xp} XP · до следующего ${p.xp_to_next}</div>
+        </div>
+        ${p.streak_days ? `<div class="streak">${ICON_STREAK} ${p.streak_days} ${plural(p.streak_days, 'день', 'дня', 'дней')}</div>` : ''}
+      </div>
+      <div class="prog"><i style="width:${(p.xp_in_level / p.xp_per_level) * 100}%"></i></div>
+      ${p.total_tasks ? `<div class="t3">Решено задач: ${p.total_tasks} · точность ${Math.round(p.accuracy * 100)}%</div>` : ''}
+    </div>`;
+}
+
+/* Вкладка «Главная» — одно понятное действие на текущий момент. */
+async function screenOnboarding() {
+  const done = answeredCount();
+  const total = totalCount();
+  const testDone = done >= total;
+  const started = done > 0;
+
+  // главное действие зависит от того, где ученик остановился
+  const [actionLabel, actionGo, statusText] = !started
+    ? ['Пройти тест', 'next', 'Тест из 74 вопросов покажет подходящие профессии и предметы, которые стоит подтянуть.']
+    : testDone
+      ? ['Тренироваться', 'practice', 'Тест пройден. Теперь подтягивай предметы, которых не хватает твоим профессиям.']
+      : ['Продолжить тест', 'next', 'Ответы сохранены — можно продолжить с того же места.'];
+
+  // прогресс необязателен: без него главная просто покажется без карточки уровня
+  let progress = null;
+  if (S.token) {
+    try { progress = await api('/api/practice/progress'); } catch { /* не критично */ }
+  }
+
+  render(`
+    <div class="h2">${S.fullName ? `Привет, ${esc(S.fullName.split(' ')[0])}` : 'Привет'}</div>
+
+    ${progress && progress.total_tasks ? xpCard(progress) : ''}
+
+    <div class="card pad" style="gap:14px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <div class="label">Тест «Компас»</div>
+        <div style="font-size:15px;font-weight:600;color:${testDone ? 'var(--green)' : 'var(--accent)'}">${done} / ${total}</div>
+      </div>
+      <div class="prog"><i style="width:${(done / total) * 100}%;${testDone ? 'background:var(--green)' : ''}"></i></div>
+      <div class="t3">${statusText}</div>
+      <div class="btn" data-go="${actionGo}">${actionLabel}</div>
+      ${!testDone && canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Посмотреть предварительный результат</div>' : ''}
+    </div>
+
+    ${testDone ? `
+      <div class="list">
+        <div class="row" data-go="careers"><div class="grow"><div class="h5">Мои профессии</div><div class="t3">Кто тебе подходит и почему</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="practice"><div class="grow"><div class="h5">Тренажёр</div><div class="t3">Задачи по предметам, которые нужно подтянуть</div></div></div>
+      </div>` : `
+      <div class="list" style="gap:2px;overflow:hidden">
+        ${[['A', `Интересы · ${blockA().length} вопросов`, '3 мин'],
+           ['B', `Предметы · ${Q.block_b_subjects.length} вопроса`, 'по частям'],
+           ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
+          ${i ? '<div class="sep inset"></div>' : ''}
+          <div class="row">
+            <div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--fill);color:var(--t2);font-family:var(--mono);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">${letter}</div>
+            <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
+            <div class="t4s">${time}</div>
+          </div>`).join('')}
+      </div>`}
+
+    ${!S.token ? '<div class="hint"><i style="background:var(--orange)"></i><p>Ты без аккаунта — прогресс хранится только в этом браузере. Создай аккаунт во вкладке «Профиль», чтобы он не потерялся.</p></div>' : ''}
+  `, { progress: done / total, tab: 'home' });
+}
+
+/* ---------- вкладка: тренажёр задач ---------- */
+
+let pack = { tasks: [], index: 0, correct: 0, reason: '' };
+
+/* Стартовый экран вкладки: задания от учителя + свободная тренировка. */
+async function screenPractice() {
+  if (!S.token) return screenNeedAccount('тренажёр');
+
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем…</div></div>',
+    { title: 'Задачи', tab: 'practice' });
+
+  let assignments = [];
+  if (S.classId) {
+    try { assignments = await api('/api/classes/my-assignments'); } catch { /* необязательно */ }
+  }
+
+  render(`
+    ${assignments.length ? `
+      <div class="list">
+        <div class="section-label">Задания от учителя</div>
+        ${assignments.map((a, i) => `
+          ${i ? '<div class="sep"></div>' : ''}
+          <div class="row" data-assignment="${a.id}" style="align-items:flex-start">
+            <div class="grow">
+              <div class="h5">${esc(a.title)}</div>
+              <div class="t3">${a.size} ${plural(a.size, 'задача', 'задачи', 'задач')}${a.difficulty ? ` · ${esc(a.difficulty)}` : ''}${a.due_date ? ` · до ${new Date(a.due_date).toLocaleDateString('ru-RU')}` : ''}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    <div class="card pad" style="gap:12px">
+      <div class="h4">Свободная тренировка</div>
+      <div class="t3">Пять задач по предметам, которые нужны твоим профессиям.</div>
+      <div class="btn" id="free-pack">Начать</div>
+    </div>
+  `, { title: 'Задачи', tab: 'practice' });
+
+  view.querySelector('#free-pack').onclick = () => startPack('/api/practice/pack?size=5');
+  view.querySelectorAll('[data-assignment]').forEach((row) => {
+    const a = assignments.find((x) => x.id === row.dataset.assignment);
+    row.onclick = () => {
+      const params = new URLSearchParams({ size: a.size });
+      if (a.subjects.length === 1) params.set('subject', a.subjects[0]);
+      if (a.difficulty) params.set('difficulty', a.difficulty);
+      startPack(`/api/practice/pack?${params}`, a.title);
+    };
+  });
+}
+
+async function startPack(url, title = '') {
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Собираем задачи…</div></div>',
+    { title: 'Задачи', tab: 'practice' });
+  try {
+    const data = await api(url);
+    pack = { tasks: data.tasks, index: 0, correct: 0, reason: title || data.reason };
+  } catch (error) {
+    return screenError(error, screenPractice);
+  }
+  screenTask();
+}
+
+function screenTask() {
+  const task = pack.tasks[pack.index];
+  if (!task) return screenPackDone();
+
+  render(`
+    <div style="display:flex;align-items:baseline;justify-content:space-between">
+      <div class="label">${esc(subjectTitle(task.subject))} · ${esc(task.topic)}</div>
+      <div class="t3">${pack.index + 1} из ${pack.tasks.length}</div>
+    </div>
+    <div class="prog xs"><i style="width:${(pack.index / pack.tasks.length) * 100}%"></i></div>
+
+    <div class="card pad" style="gap:16px">
+      <div class="task-q">${esc(task.question)}</div>
+      <input id="answer" class="field" placeholder="Твой ответ" autocomplete="off">
+      ${task.hint ? `<div class="link" id="hint-toggle">Показать подсказку</div>
+        <div class="t3 hidden" id="hint">${esc(task.hint)}</div>` : ''}
+    </div>
+
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="check">Проверить</div>
+      <div class="link" style="text-align:center" id="skip">Пропустить</div>
+    </div>
+  `, { title: 'Задачи', tab: 'practice' });
+
+  const input = view.querySelector('#answer');
+  const check = view.querySelector('#check');
+  input.focus();
+
+  const submit = async () => {
+    const answer = input.value.trim();
+    if (!answer) { input.focus(); return; }
+    check.textContent = 'Проверяем…';
+    try {
+      const verdict = await api('/api/practice/answer', {
+        method: 'POST',
+        body: JSON.stringify({ task_id: task.id, answer }),
+      });
+      if (verdict.is_correct) pack.correct += 1;
+      screenVerdict(task, answer, verdict);
+    } catch (error) {
+      check.textContent = 'Проверить';
+      screenError(error, screenTask);
+    }
+  };
+
+  check.onclick = submit;
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  view.querySelector('#skip').onclick = () => { pack.index += 1; screenTask(); };
+  const toggle = view.querySelector('#hint-toggle');
+  if (toggle) toggle.onclick = () => view.querySelector('#hint').classList.toggle('hidden');
+}
+
+/* Разбор ответа: верно/ошибка, тип ошибки и объяснение от ИИ. */
+function screenVerdict(task, answer, verdict) {
+  const ok = verdict.is_correct;
+  render(`
+    <div class="verdict ${ok ? 'ok' : 'err'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div class="head">${ok ? 'Верно!' : esc(verdict.error_label)}</div>
+        ${verdict.xp_earned ? `<div class="streak">+${verdict.xp_earned} XP</div>` : ''}
+      </div>
+      ${ok ? '' : `<div class="body-text">Твой ответ: <b>${esc(answer)}</b> · правильный: <b>${esc(verdict.correct_answer)}</b></div>`}
+      <div class="body-text">${esc(verdict.recommendation)}</div>
+    </div>
+
+    ${verdict.level_up ? `
+      <div class="card pad center" style="gap:6px">
+        <div class="level-ring" style="width:56px;height:56px;border-radius:28px">${verdict.level}</div>
+        <div class="h4">Новый уровень!</div>
+        <div class="t3">Ты добрался до ${verdict.level} уровня — так держать.</div>
+      </div>` : ''}
+
+    ${verdict.new_achievements?.length ? `
+      <div class="card pad">
+        <div class="h4">${verdict.new_achievements.length > 1 ? 'Новые достижения' : 'Новое достижение'}</div>
+        <div class="badges">
+          ${verdict.new_achievements.map((a) => `
+            <div class="badge"><div class="ico">${a.icon}</div><div class="nm">${esc(a.title)}</div></div>`).join('')}
+        </div>
+      </div>` : ''}
+
+    ${verdict.ai_explanation ? `
+      <div class="card pad" style="gap:8px">
+        <div class="label">Разбор от ИИ</div>
+        <div class="body-text">${esc(verdict.ai_explanation)}</div>
+      </div>` : ''}
+
+    ${!ok && verdict.explanation ? `
+      <div class="card pad" style="gap:8px">
+        <div class="label">Как решать</div>
+        <div class="body-text">${esc(verdict.explanation)}</div>
+      </div>` : ''}
+
+    <div class="bottom"><div class="btn" id="next-task">
+      ${pack.index + 1 < pack.tasks.length ? 'Следующая задача' : 'Завершить'}
+    </div></div>
+  `, { title: 'Разбор', tab: 'practice' });
+
+  view.querySelector('#next-task').onclick = () => { pack.index += 1; screenTask(); };
+}
+
+async function screenPackDone() {
+  const total = pack.tasks.length;
+  let stats = null;
+  try { stats = await api('/api/practice/stats'); } catch { /* статистика необязательна */ }
+
+  render(`
+    <div class="card pad center" style="gap:10px;padding:24px 16px">
+      <div class="h1" style="color:var(--accent)">${pack.correct} из ${total}</div>
+      <div class="t3">${pack.correct === total ? 'Отличная работа — весь пак без ошибок!' : 'Ошибки разобраны — в следующий раз будет легче.'}</div>
+    </div>
+
+    ${stats && stats.by_subject.length ? `
+      <div class="card pad">
+        <div class="h4">Точность по предметам</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${bars(stats.by_subject.map((s) => [subjectTitle(s.subject), s.accuracy * 5]), 5,
+            (v) => `${Math.round((v / 5) * 100)}%`)}
+        </div>
+        <div class="t4s">Всего решено задач: ${stats.total_answered}</div>
+      </div>` : ''}
+
+    ${stats && Object.keys(stats.error_breakdown).length ? `
+      <div class="card pad">
+        <div class="h4">Типичные ошибки</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${Object.entries(stats.error_breakdown).map(([type, count]) =>
+            `<div class="tag">${esc(ERROR_TITLES[type] || type)} · ${count}</div>`).join('')}
+        </div>
+      </div>` : ''}
+
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" data-go="practice">Ещё пак задач</div>
+      <div class="btn sec" data-go="home">На главную</div>
+    </div>
+  `, { title: 'Итог', tab: 'practice' });
+}
+
+/* ---------- вкладка: профессии ---------- */
+
+async function screenCareers() {
+  if (!S.token) return screenNeedAccount('профессии');
+
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем результаты…</div></div>',
+    { title: 'Профессии', tab: 'careers' });
+
+  let data;
+  try {
+    data = await api(`/api/users/${encodeURIComponent(S.userId)}/history`);
+  } catch (error) {
+    if (error.status !== 404) return screenError(error, screenCareers);
+    data = { attempts: 0, history: [] };
+  }
+
+  const last = data.history[0];
+  if (!last || !last.professions.length) {
+    return render(`
+      <div class="card pad" style="gap:12px">
+        <div class="h4">Профессий пока нет</div>
+        <div class="t3">Пройди тест — и здесь появятся пять профессий с объяснением, почему они тебе подходят.</div>
+        <div class="btn" data-go="next">Пройти тест</div>
+      </div>
+    `, { title: 'Профессии', tab: 'careers' });
+  }
+
+  const [top, ...rest] = last.professions;
+  render(`
+    <div class="hero">
+      <div class="hero-top" style="background:${CATEGORY_GRADIENTS[top.category] || 'var(--grad-blue)'}">
+        <div class="label">Лучшее совпадение · ${esc(top.category)}</div>
+        <div class="h1">${esc(top.name)}</div>
+      </div>
+      <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div class="body-text">${esc(top.reasoning)}</div>
+        ${top.subjects_to_improve?.length ? `
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="label" style="letter-spacing:.5px">Стоит подтянуть</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${top.subjects_to_improve.map((s) => `<div class="tag">${esc(s)}</div>`).join('')}</div>
+          </div>` : ''}
+        <div class="btn" data-go="practice">Тренироваться по этим предметам</div>
+      </div>
+    </div>
+
+    ${rest.length ? `
+      <div class="list">
+        <div class="section-label">Ещё подходят</div>
+        ${rest.map((p, i) => `
+          ${i ? '<div class="sep" style="margin-left:36px"></div>' : ''}
+          <div class="row" style="padding:12px 16px;align-items:flex-start" data-profession="${i}">
+            <div class="bar-strip" style="background:${CATEGORY_GRADIENTS[p.category] || 'var(--grad-violet)'}"></div>
+            <div class="grow">
+              <div class="h5">${esc(p.name)}</div>
+              <div class="t3">${esc(p.category)}</div>
+              <div class="body-text hidden" style="padding-top:6px" data-reasoning>${esc(p.reasoning)}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    ${data.attempts > 1 ? '<div class="link" style="text-align:center" data-go="history">История прохождений</div>' : ''}
+  `, { title: 'Профессии', tab: 'careers' });
+
+  view.querySelectorAll('[data-profession]').forEach((row) => {
+    row.onclick = () => row.querySelector('[data-reasoning]').classList.toggle('hidden');
+  });
+}
+
+/* ---------- вкладка: профиль ---------- */
+
+async function screenProfile() {
+  let progress = null;
+  if (S.token) {
+    try { progress = await api('/api/practice/progress'); } catch { /* не критично */ }
+  }
+
+  render(`
+    ${S.token ? `
+      <div class="card pad" style="gap:6px">
+        <div class="h4">${esc(S.fullName || 'Без имени')}</div>
+        <div class="t3">${S.classId ? `Класс ${esc(S.schoolClass)}` : 'Класс не указан'}</div>
+      </div>
+
+      ${progress ? xpCard(progress) : ''}
+
+      ${progress ? `
+        <div class="card pad">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <div class="h4">Достижения</div>
+            <div class="t3">${progress.earned_count} из ${progress.total_achievements}</div>
+          </div>
+          <div class="badges" data-badges>
+            ${badgeTiles(progress.achievements, false)}
+          </div>
+          ${progress.achievements.length > BADGES_SHOWN
+            ? `<div class="link" style="text-align:center" data-badges-toggle>Показать все ${progress.achievements.length}</div>`
+            : ''}
+        </div>` : ''}
+      <div class="list">
+        ${S.classId ? '' : '<div class="row" data-go="join-class"><div class="grow"><div class="h5">Ввести код класса</div><div class="t3">Чтобы попасть в сводку учителя</div></div></div><div class="sep"></div>'}
+        <div class="row" data-go="link-bot"><div class="grow"><div class="h5">Привязать бота</div><div class="t3">Решать задачи прямо в чате</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="history"><div class="grow"><div class="h5">История прохождений</div><div class="t3">Как менялись результаты</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
+      </div>
+      <div class="btn sec" data-go="logout">Выйти из аккаунта</div>
+    ` : `
+      <div class="card pad" style="gap:12px">
+        <div class="h4">Ты без аккаунта</div>
+        <div class="t3">Прогресс сохранён только в этом браузере. Создай аккаунт — ответы перенесутся, а учитель увидит тебя в классе.</div>
+        <div class="btn" data-go="register">Создать аккаунт</div>
+        <div class="btn sec" data-go="login">Войти</div>
+      </div>
+      <div class="list">
+        <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
+      </div>
+    `}
+    <div class="link" style="text-align:center" data-go="teacher">Я педагог — открыть кабинет</div>
+  `, { title: 'Профиль', tab: 'profile' });
+
+  const toggle = view.querySelector('[data-badges-toggle]');
+  if (toggle && progress) {
+    let showAll = false;
+    toggle.onclick = () => {
+      showAll = !showAll;
+      view.querySelector('[data-badges]').innerHTML = badgeTiles(progress.achievements, showAll);
+      toggle.textContent = showAll ? 'Свернуть' : `Показать все ${progress.achievements.length}`;
+    };
+  }
+}
+
+/* Привязка чат-бота: код присылает бот, ученик вводит его здесь. */
+function screenLinkBot() {
+  formScreen({
+    title: 'Привязать бота',
+    subtitle: 'Напиши боту в чате — он пришлёт код. Введи его сюда, и бот сможет давать задачи и показывать прогресс.',
+    submitLabel: 'Привязать',
+    footer: '<div class="link" style="text-align:center" data-go="profile">Назад</div>',
+    fields: [
+      { name: 'code', placeholder: 'Код из чата', maxlength: 8,
+        style: 'text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:4px;font-weight:600' },
+    ],
+    onSubmit: async (v) => {
+      await api('/api/bot/link', {
+        method: 'POST',
+        body: JSON.stringify({ code: v.code.toUpperCase() }),
+      });
+      render(`
+        <div class="card pad center" style="gap:10px;padding:24px 16px">
+          <div class="h4">Бот привязан</div>
+          <div class="t3">Возвращайся в чат — теперь можно решать задачи прямо там.</div>
+        </div>
+        <div class="bottom"><div class="btn" data-go="profile">Готово</div></div>
+      `, { title: 'Бот', tab: 'profile' });
+    },
+  });
+}
+
+/* Заглушка для вкладок, которым нужен аккаунт. */
+function screenNeedAccount(what) {
+  render(`
+    <div class="card pad" style="gap:12px">
+      <div class="h4">Нужен аккаунт</div>
+      <div class="t3">Чтобы ${esc(what)} сохранялся между заходами, создай аккаунт — это займёт полминуты.</div>
+      <div class="btn" data-go="register">Создать аккаунт</div>
+      <div class="btn sec" data-go="login">У меня уже есть аккаунт</div>
+    </div>
+  `, { title: 'Аккаунт', tab: 'practice' });
 }
 
 /* ---------- экран: шкала 1–5 (блоки A и C) ---------- */
@@ -242,7 +781,7 @@ function screenSubjects() {
             ? `<div style="width:28px;height:28px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5L5 9.5L13 1.5" stroke="rgb(23 24 28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>`
             : s.done
               ? `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px;font-weight:600;color:var(--accent)">${s.done}</div>`
-              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid rgb(255 255 255 / .12);flex:0 0 auto"></div>`}
+              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--stroke);flex:0 0 auto"></div>`}
           <div class="grow">
             <div class="h5">${esc(s.title)}</div>
             ${s.done === s.total
@@ -251,7 +790,7 @@ function screenSubjects() {
                 ? `<div class="prog xs" style="margin-top:6px"><i style="width:${(s.done / s.total) * 100}%"></i></div>`
                 : `<div class="t3">${s.total} вопроса · 2 мин</div>`}
           </div>
-          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgb(255 255 255 / .28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
+          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
         </div>`).join('')}
     </div>
     <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
@@ -340,7 +879,7 @@ function screenSubject(code) {
         <div class="ans" data-index="${i}">
           <div class="key">${'АБВГ'[i] || i + 1}</div>
           <div class="txt">${esc(option)}</div>
-          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="rgb(0 122 255)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="var(--north)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>`).join('')}
     </div>
     <div class="link" style="align-self:flex-start" data-skip>Не знаю — пропустить</div>
@@ -395,6 +934,7 @@ async function screenSubmit() {
       body: JSON.stringify({
         max_user_id: S.userId,
         answers: S.answers,
+        full_name: S.fullName || null,
         school_class: S.schoolClass || null,
       }),
     });
@@ -421,22 +961,22 @@ function radarSVG(interests) {
   const labels = RADAR_ORDER.map((key, i) => {
     const [x, y] = point(i, 1.22);
     const percent = Math.round(((interests[key] ?? 0) / 5) * 100);
-    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(255 255 255 / .8)">${HOLLAND_TITLES[key]}</text>
-            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="rgb(255 255 255 / .44)">${percent}</text>`;
+    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--t2)">${HOLLAND_TITLES[key]}</text>
+            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="var(--t4)" font-family="ui-monospace,monospace">${percent}</text>`;
   }).join('');
 
   return `<svg width="280" height="280" viewBox="0 0 280 280" role="img" aria-label="Профиль интересов">
-    <polygon points="${ring(1)}" fill="rgb(255 255 255 / .04)" stroke="rgb(255 255 255 / .12)"></polygon>
-    <polygon points="${ring(0.66)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
-    <polygon points="${ring(0.33)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
+    <polygon points="${ring(1)}" fill="var(--fill2)" stroke="var(--stroke)"></polygon>
+    <polygon points="${ring(0.66)}" fill="none" stroke="var(--line)"></polygon>
+    <polygon points="${ring(0.33)}" fill="none" stroke="var(--line)"></polygon>
     ${RADAR_ORDER.map((_, i) => {
       const [x, y] = point(i, 1);
-      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgb(255 255 255 / .06)"></line>`;
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"></line>`;
     }).join('')}
-    <polygon points="${shape}" fill="rgb(0 122 255 / .28)" stroke="rgb(0 122 255)" stroke-width="2" stroke-linejoin="round"></polygon>
+    <polygon points="${shape}" fill="var(--water)" fill-opacity="0.2" stroke="var(--water)" stroke-width="2" stroke-linejoin="round"></polygon>
     ${values.map((v, i) => {
       const [x, y] = point(i, v);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="rgb(0 122 255)"></circle>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="var(--north)"></circle>`;
     }).join('')}
     ${labels}
   </svg>`;
@@ -520,7 +1060,7 @@ function screenResults(professions, scores, fallback, progress = null) {
 
 async function screenHistory() {
   render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем историю…</div></div>',
-    { title: 'История', progress: 1 });
+    { title: 'История', progress: 1, tab: 'profile' });
   let data;
   try {
     data = await api(`/api/users/${encodeURIComponent(S.userId)}/history`);
@@ -546,8 +1086,8 @@ async function screenHistory() {
             </div>
           </div>`).join('')}
       </div>`}
-    <div class="btn bottom" data-go="home">На главный экран</div>
-  `, { title: 'История', progress: 1 });
+    <div class="btn bottom sec" data-go="profile">Назад в профиль</div>
+  `, { title: 'История', progress: 1, tab: 'profile' });
 }
 
 /* ---------- экран: ошибка ---------- */
@@ -588,8 +1128,22 @@ view.addEventListener('click', (event) => {
     next,
     preview: screenSubmit,
     home: screenOnboarding,
+    practice: screenPractice,
+    careers: screenCareers,
+    profile: screenProfile,
     history: screenHistory,
     teacher: () => { window.location.href = '/static/teacher.html'; },
+    'join-class': screenJoinClass,
+    'link-bot': screenLinkBot,
+    logout: () => {
+      if (!confirm('Выйти из аккаунта? Ответы на этом устройстве останутся.')) return;
+      S.token = null;
+      S.fullName = '';
+      S.classId = null;
+      S.schoolClass = '';
+      save();
+      screenWelcome();
+    },
     restart: () => {
       if (!confirm('Все ответы будут удалены. Начать заново?')) return;
       S.answers = {};
@@ -600,13 +1154,75 @@ view.addEventListener('click', (event) => {
   actions[target.dataset.go]?.();
 });
 
+// нижние вкладки — тот же набор переходов, что и data-go на экранах
+tabsBar.addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-tab]');
+  if (!tab) return;
+  ({ home: screenOnboarding, practice: screenPractice,
+     careers: screenCareers, profile: screenProfile })[tab.dataset.tab]?.();
+});
+
 /* ---------- старт ---------- */
 
+/* Мост мессенджера, если приложение открыто внутри него. */
+function messengerBridge() {
+  const tg = window.Telegram?.WebApp;
+  if (tg?.initData) return { platform: 'telegram', initData: tg.initData, api: tg };
+  const max = window.WebApp;
+  if (max?.initData) return { platform: 'max', initData: max.initData, api: max };
+  return null;
+}
+
+/* Вход без пароля: подпись мессенджера подтверждает, кто открыл приложение. */
+async function loginFromMessenger(bridge) {
+  const data = await api('/api/auth/miniapp', {
+    method: 'POST',
+    body: JSON.stringify({ init_data: bridge.initData, platform: bridge.platform }),
+  });
+  S.token = data.access_token;
+  applyProfile(data.user);
+}
+
 (async function start() {
+  const bridge = messengerBridge();
+  if (bridge) {
+    // разворачиваем окно на всю высоту — иначе мини-приложение открывается «шторкой»
+    try { bridge.api.ready?.(); bridge.api.expand?.(); } catch { /* необязательно */ }
+  }
+
+  try {
+    const config = await api('/api/public-config').catch(() => ({}));
+    BOT_USERNAME = (config.telegram_bot_username || '').replace('@', '');
+  } catch { /* без имени бота экран входа просто останется без кнопки */ }
+
   try {
     Q = await api('/api/tests/questions');
   } catch (error) {
     return screenError(error, start);
   }
+
+  // токен мог протухнуть за месяц — сверяем его с сервером до показа экранов
+  if (S.token) {
+    try {
+      applyProfile(await api('/api/auth/me'));
+    } catch (error) {
+      if (error.status === 401) {
+        S.token = null;
+        save();
+      }
+    }
+  }
+
+  // внутри мессенджера регистрация не нужна: входим по его подписи
+  if (!S.token && bridge) {
+    try {
+      await loginFromMessenger(bridge);
+    } catch (error) {
+      console.warn('Вход через мессенджер не удался:', error.message);
+    }
+  }
+
+  // без подписи мессенджера входить нечем — показываем, как открыть бота
+  if (!S.token) return screenWelcome();
   screenOnboarding();
 })();
