@@ -30,6 +30,20 @@ from app.database import Base, engine  # noqa: E402
 from app.main import app  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _чистый_счётчик_лимитов():
+    """Счётчик частоты живёт в памяти процесса — между тестами его надо обнулять.
+
+    Иначе тест, отправивший десяток запросов, оставляет соседям исчерпанный
+    лимит, и падает не он, а следующий за ним.
+    """
+    from app.services import rate_limit
+
+    rate_limit.reset()
+    yield
+    rate_limit.reset()
+
+
 @pytest.fixture
 async def client() -> AsyncClient:
     async with engine.begin() as connection:
