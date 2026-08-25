@@ -18,7 +18,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Uuid, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -40,6 +40,11 @@ class Consent(Base):
     # Кто дал согласие: сам ученик или законный представитель. Для детей до 14
     # согласие даёт родитель, и это должно быть видно в реестре.
     granted_by: Mapped[str] = mapped_column(String(16), default="self")
+
+    # Возраст на момент согласия — то, чем обоснован выбор «сам» или «родитель».
+    # Возраст назван самим учеником и ничем не подтверждён; храним именно
+    # возраст, а не дату рождения: для проверки достаточно, а данных меньше.
+    age_at_consent: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # NULL — согласие действует. Дата — отозвано, обработка прекращена.

@@ -1233,10 +1233,12 @@ function screenConsent() {
       <div style="font-size:15px;line-height:21px;color:var(--t2)">Согласие можно отозвать на вкладке «Профиль». Тогда ответы и результаты удаляются.</div>
     </div>
     <div class="card pad" style="gap:8px">
-      <div class="label">Кто даёт согласие</div>
+      <div class="label">Сколько тебе лет</div>
+      <input class="field" id="consent-age" type="number" inputmode="numeric" min="5" max="100" placeholder="Например, 14">
+      <div class="label" style="padding-top:6px">Кто даёт согласие</div>
       <div class="link" data-who="self" id="who-self">Я сам</div>
       <div class="link" data-who="parent" id="who-parent">Мой родитель рядом и согласен</div>
-      <div id="who-hint" class="t3" style="font-size:13px;line-height:18px">Если тебе меньше 14 лет, согласие должен дать родитель.</div>
+      <div id="who-hint" class="t3" style="font-size:13px;line-height:18px">С 14 лет ты вправе решать сам. До 14 согласие даёт родитель.</div>
     </div>
     <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
       <div class="btn" id="consent-go">Согласен, начать тест</div>
@@ -1244,21 +1246,41 @@ function screenConsent() {
     </div>
   `, { title: 'Согласие', progress: 0 });
 
+  const ВОЗРАСТ_САМОСТОЯТЕЛЬНОСТИ = 14;
   let ктоДаёт = 'self';
+  const поле = view.querySelector('#consent-age');
+  const возраст = () => (поле.value ? Number(поле.value) : null);
+  const малолетний = () => возраст() !== null && возраст() < ВОЗРАСТ_САМОСТОЯТЕЛЬНОСТИ;
+
   const подсветить = () => {
-    view.querySelector('#who-self').style.fontWeight = ктоДаёт === 'self' ? '700' : '400';
+    // до 14 выбор «сам» недоступен, а не просто не рекомендован
+    if (малолетний()) ктоДаёт = 'parent';
+    const сам = view.querySelector('#who-self');
+    сам.style.opacity = малолетний() ? '0.4' : '1';
+    сам.style.fontWeight = ктоДаёт === 'self' ? '700' : '400';
     view.querySelector('#who-parent').style.fontWeight = ктоДаёт === 'parent' ? '700' : '400';
+    view.querySelector('#who-hint').textContent = малолетний()
+      ? `В ${возраст()} лет согласие может дать только родитель или другой законный представитель.`
+      : 'С 14 лет ты вправе решать сам. До 14 согласие даёт родитель.';
   };
   подсветить();
+  поле.oninput = подсветить;
   view.querySelectorAll('[data-who]').forEach((el) => {
-    el.onclick = () => { ктоДаёт = el.dataset.who; подсветить(); };
+    el.onclick = () => {
+      if (el.dataset.who === 'self' && малолетний()) return;
+      ктоДаёт = el.dataset.who;
+      подсветить();
+    };
   });
 
   const кнопка = view.querySelector('#consent-go');
   кнопка.onclick = async () => {
     кнопка.textContent = 'Секунду…';
     try {
-      await api('/api/consent', { method: 'POST', body: JSON.stringify({ granted_by: ктоДаёт }) });
+      await api('/api/consent', {
+        method: 'POST',
+        body: JSON.stringify({ granted_by: ктоДаёт, age: возраст() }),
+      });
       S.consentGranted = true;
       save();
       next();

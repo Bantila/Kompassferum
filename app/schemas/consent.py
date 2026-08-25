@@ -11,6 +11,9 @@ from pydantic import BaseModel, Field
 class ConsentGrantRequest(BaseModel):
     # до 14 лет согласие даёт законный представитель — в реестре это видно
     granted_by: Literal["self", "parent"] = "self"
+    # Возраст ученика. Границы широкие намеренно: сервис для 12–16 лет, но
+    # отказывать во входе из-за нетипичного возраста — не дело формы согласия.
+    age: int | None = Field(default=None, ge=5, le=100)
 
 
 class ConsentStatusOut(BaseModel):
@@ -29,6 +32,7 @@ class ConsentRecordOut(BaseModel):
 
     document_version: str
     granted_by: str
+    age_at_consent: int | None = None
     granted_at: datetime
     revoked_at: datetime | None = None
 

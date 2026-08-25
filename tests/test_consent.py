@@ -272,3 +272,88 @@ async def test_journal_shows_only_own_records(client, monkeypatch) -> None:
     записи = (await client.get("/api/consent/journal", headers=свои)).json()["records"]
 
     assert записи == []
+
+
+# --- Возраст при согласии ----------------------------------------------------
+#
+# До 14 лет согласие даёт законный представитель. Сервис для 12–16 лет, то есть
+# граница проходит прямо посреди аудитории — молча считать всех «самостоятельными»
+# нельзя. Возраст называет сам ученик и подтвердить его нечем, но раз он назван,
+# противоречить ему согласие не должно.
+
+
+async def test_child_cannot_consent_for_themselves(client, monkeypatch) -> None:
+    заголовки = await войти(client, monkeypatch, user_id=920)
+
+    ответ = await client.post(
+        "/api/consent", json={"granted_by": "self", "age": 12}, headers=заголовки
+    )
+
+    assert ответ.status_code == 422
+    assert "родитель" in ответ.json()["detail"]
+
+
+async def test_parent_can_consent_for_a_child(client, monkeypatch, full_answers) -> None:
+    заголовки = await войти(client, monkeypatch, user_id=921)
+
+    ответ = await client.post(
+        "/api/consent", json={"granted_by": "parent", "age": 12}, headers=заголовки
+    )
+
+    assert ответ.status_code == 201
+    assert (await _сдать(client, "telegram_921", full_answers)).status_code == 201
+
+
+async def test_fourteen_may_consent_alone(client, monkeypatch) -> None:
+    """Граница включающая: в 14 подросток распоряжается данными сам."""
+    заголовки = await войти(client, monkeypatch, user_id=922)
+
+    ответ = await client.post(
+        "/api/consent", json={"granted_by": "self", "age": 14}, headers=заголовки
+    )
+
+    assert ответ.status_code == 201
+
+
+async def test_age_is_recorded_in_the_journal(client, monkeypatch) -> None:
+    """Возраст — то, чем обоснован выбор «сам» или «родитель»: без него запись неполна."""
+    заголовки = await войти(client, monkeypatch, user_id=923)
+    await client.post("/api/consent", json={"granted_by": "parent", "age": 13}, headers=заголовки)
+
+    записи = (await client.get("/api/consent/journal", headers=заголовки)).json()["records"]
+
+    assert записи[0]["age_at_consent"] == 13
+    assert записи[0]["granted_by"] == "parent"
+
+
+async def test_consent_without_age_still_works(client, monkeypatch) -> None:
+    """Согласия, данные до этой правки, возраста не имеют — они не должны ломаться."""
+    заголовки = await войти(client, monkeypatch, user_id=924)
+
+    ответ = await client.post("/api/consent", json={}, headers=заголовки)
+
+    assert ответ.status_code == 201
+    assert (await client.get("/api/consent", headers=заголовки)).json()["granted"] is True
+
+
+async def test_absurd_age_is_rejected_by_schema(client, monkeypatch) -> None:
+    заголовки = await войти(client, monkeypatch, user_id=925)
+
+    for возраст in (0, -3, 500):
+        ответ = await client.post(
+            "/api/consent", json={"granted_by": "parent", "age": возраст}, headers=заголовки
+        )
+        assert ответ.status_code == 422, f"возраст {возраст} не должен приниматься"
+
+
+async def test_changing_age_writes_a_new_record(client, monkeypatch) -> None:
+    """Согласие «мне 13, даёт родитель» и «мне 15, даю сам» — разные основания."""
+    заголовки = await войти(client, monkeypatch, user_id=926)
+    await client.post("/api/consent", json={"granted_by": "parent", "age": 13}, headers=заголовки)
+
+    await client.post("/api/consent", json={"granted_by": "self", "age": 15}, headers=заголовки)
+
+    записи = (await client.get("/api/consent/journal", headers=заголовки)).json()["records"]
+    assert len(записи) == 2
+    assert записи[0]["age_at_consent"] == 15 and записи[0]["revoked_at"] is None
+    assert записи[1]["age_at_consent"] == 13 and записи[1]["revoked_at"] is not None

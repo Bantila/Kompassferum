@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -60,6 +60,7 @@ async def consent_journal(
             ConsentRecordOut(
                 document_version=з.document_version,
                 granted_by=з.granted_by,
+                age_at_consent=з.age_at_consent,
                 granted_at=з.granted_at,
                 revoked_at=з.revoked_at,
             )
@@ -75,9 +76,16 @@ async def grant_consent(
     session: AsyncSession = Depends(get_session),
 ) -> ConsentStatusOut:
     """Дать согласие. Повторный вызов обновляет редакцию и снимает прежний отзыв."""
-    согласие = await service.grant(
-        session, user.id, version=service.CURRENT_VERSION, granted_by=payload.granted_by
-    )
+    try:
+        согласие = await service.grant(
+            session,
+            user.id,
+            version=service.CURRENT_VERSION,
+            granted_by=payload.granted_by,
+            age=payload.age,
+        )
+    except service.ConsentError as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
     await session.commit()
     logger.info("Согласие получено: пользователь %s, кем дано %s", user.id, согласие.granted_by)
     return ConsentStatusOut(
