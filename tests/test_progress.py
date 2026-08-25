@@ -121,6 +121,8 @@ async def test_reset_clears_progress(client, monkeypatch) -> None:
 async def test_submit_clears_progress(client, monkeypatch) -> None:
     """После сдачи теста приложение не должно предлагать «продолжить»."""
     заголовки = await войти(client, monkeypatch, user_id=701)
+    # согласие даём настоящим эндпоинтом — так же, как это делает приложение
+    await client.post("/api/consent", json={}, headers=заголовки)
     await client.put("/api/tests/progress", json={"answers": ОТВЕТЫ}, headers=заголовки)
 
     submit = await client.post(

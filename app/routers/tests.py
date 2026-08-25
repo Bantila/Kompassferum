@@ -24,6 +24,7 @@ from app.schemas.test import (
     TestSubmitResponse,
 )
 from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
+from app.services import consent as consent_service
 from app.services.integrity import check as check_answers
 from app.services.test_planner import plan_subjects, questions_for_plan
 from app.services.test_scoring import (
@@ -208,6 +209,14 @@ async def submit_test(
             user.full_name = payload.full_name
         if payload.school_class:
             user.school_class = payload.school_class
+
+    # Без записанного согласия прохождение не сохраняем: это данные ребёнка.
+    # Проверка стоит после создания пользователя — согласие привязано к нему.
+    if await consent_service.active_for(session, user.id) is None:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Нужно согласие на обработку данных — без него результат не сохраняется",
+        )
 
     integrity = check_answers(payload.answers)
     test_result = TestResult(

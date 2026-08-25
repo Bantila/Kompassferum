@@ -338,7 +338,7 @@ async function screenOnboarding() {
 
   // главное действие зависит от того, где ученик остановился
   const [actionLabel, actionGo, statusText] = !started
-    ? ['Пройти тест', 'next', 'Тест из 74 вопросов покажет подходящие профессии и предметы, которые стоит подтянуть.']
+    ? ['Пройти тест', 'next', 'Тест покажет подходящие профессии и предметы, которые стоит подтянуть.']
     : testDone
       ? ['Тренироваться', 'practice', 'Тест пройден. Теперь подтягивай предметы, которых не хватает твоим профессиям.']
       : ['Продолжить тест', 'next', 'Ответы сохранены — можно продолжить с того же места.'];
@@ -691,6 +691,8 @@ async function screenProfile() {
         <div class="row" data-go="history"><div class="grow"><div class="h5">История прохождений</div><div class="t3">Как менялись результаты</div></div></div>
         <div class="sep"></div>
         <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="revoke-consent"><div class="grow"><div class="h5">Отозвать согласие</div><div class="t3">Ответы и результаты будут удалены</div></div></div>
       </div>
       <div class="btn sec" data-go="logout">Выйти из аккаунта</div>
     ` : `
@@ -1214,9 +1216,69 @@ function screenError(error, retry) {
   view.querySelector('[data-retry]').onclick = retry;
 }
 
+/* Согласие на обработку данных. Спрашиваем один раз перед тестом: результаты —
+   персональные данные ребёнка, и хранить их без записанного согласия нельзя. */
+function screenConsent() {
+  render(`
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
+      <div class="h1">Прежде чем начать</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">Чтобы показать подходящие профессии, «Компас» сохранит твои ответы и результат теста. Это персональные данные, поэтому нужно согласие.</div>
+    </div>
+    <div class="card pad" style="gap:10px">
+      <div class="label">Что сохраняется</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Ответы на вопросы, баллы по предметам и подобранные профессии. Имя и класс — только если ты их укажешь.</div>
+      <div class="label" style="padding-top:6px">Кто это видит</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Ты сам. Педагог видит сводку по классу без имён и без отдельных результатов — она вообще не строится, пока тест не прошли хотя бы трое.</div>
+      <div class="label" style="padding-top:6px">Если передумаешь</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Согласие можно отозвать на вкладке «Профиль». Тогда ответы и результаты удаляются.</div>
+    </div>
+    <div class="card pad" style="gap:8px">
+      <div class="label">Кто даёт согласие</div>
+      <div class="link" data-who="self" id="who-self">Я сам</div>
+      <div class="link" data-who="parent" id="who-parent">Мой родитель рядом и согласен</div>
+      <div id="who-hint" class="t3" style="font-size:13px;line-height:18px">Если тебе меньше 14 лет, согласие должен дать родитель.</div>
+    </div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="consent-go">Согласен, начать тест</div>
+      <div id="consent-status" class="t3" style="min-height:18px;text-align:center"></div>
+    </div>
+  `, { title: 'Согласие', progress: 0 });
+
+  let ктоДаёт = 'self';
+  const подсветить = () => {
+    view.querySelector('#who-self').style.fontWeight = ктоДаёт === 'self' ? '700' : '400';
+    view.querySelector('#who-parent').style.fontWeight = ктоДаёт === 'parent' ? '700' : '400';
+  };
+  подсветить();
+  view.querySelectorAll('[data-who]').forEach((el) => {
+    el.onclick = () => { ктоДаёт = el.dataset.who; подсветить(); };
+  });
+
+  const кнопка = view.querySelector('#consent-go');
+  кнопка.onclick = async () => {
+    кнопка.textContent = 'Секунду…';
+    try {
+      await api('/api/consent', { method: 'POST', body: JSON.stringify({ granted_by: ктоДаёт }) });
+      S.consentGranted = true;
+      save();
+      next();
+    } catch (error) {
+      кнопка.textContent = 'Согласен, начать тест';
+      view.querySelector('#consent-status').textContent = error.message || 'Не получилось сохранить согласие.';
+    }
+  };
+}
+
 /* ---------- переходы ---------- */
 
 async function next() {
+  // Без согласия результат не сохранится — спрашиваем до теста, а не после,
+  // чтобы ученик не отвечал на 37 вопросов впустую.
+  if (S.token && !S.consentGranted) {
+    const состояние = await api('/api/consent').catch(() => null);
+    if (состояние?.granted && !состояние.outdated) S.consentGranted = true;
+    else return screenConsent();
+  }
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
   if (!S.plan) return screenPlanning();
   if (blockBQuestions().some((q) => !isAnswered(q.id))) return screenSubjects();
@@ -1271,6 +1333,23 @@ view.addEventListener('click', (event) => {
       S.schoolClass = '';
       save();
       screenWelcome();
+    },
+    'revoke-consent': async () => {
+      if (!confirm('Согласие будет отозвано, а все твои ответы и результаты удалены без возможности восстановить. Продолжить?')) return;
+      try {
+        await api('/api/consent', { method: 'DELETE' });
+      } catch (error) {
+        return alert(error.message || 'Не получилось отозвать согласие.');
+      }
+      // локальную копию тоже чистим: иначе приложение покажет удалённые ответы
+      S.answers = {};
+      S.plan = null;
+      S.extraSubjects = [];
+      S.lastResultId = null;
+      S.consentGranted = false;
+      save();
+      alert('Согласие отозвано, данные удалены.');
+      screenOnboarding();
     },
     restart: async () => {
       if (!confirm('Все ответы будут удалены. Начать заново?')) return;

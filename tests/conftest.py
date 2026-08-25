@@ -42,6 +42,30 @@ async def client() -> AsyncClient:
 
 
 @pytest.fixture
+def согласившийся(client):
+    """Фабрика: ученик с записанным согласием на обработку данных.
+
+    Без согласия /submit отвечает 403 — это данные ребёнка. В жизни ученик
+    входит через мессенджер и принимает документ до теста; тесты сдают его
+    напрямую, поэтому пользователя и согласие заводим заранее.
+    """
+    from app.database import SessionLocal
+    from app.models import User, UserRole
+    from app.services import consent
+
+    async def создать(max_user_id: str, **поля):
+        async with SessionLocal() as session:
+            user = User(max_user_id=max_user_id, role=UserRole.student, **поля)
+            session.add(user)
+            await session.flush()
+            await consent.grant(session, user.id)
+            await session.commit()
+            return user.id
+
+    return создать
+
+
+@pytest.fixture
 def full_answers() -> dict:
     """Ответы на весь тест: сильный «исследователь» с хорошей математикой."""
     from app.services.test_scoring import load_questions
