@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models import Recommendation, TestResult, User
 from app.schemas.recommendation import RecommendationOut
+from app.services.test_planner import asked_difficulties
 from app.schemas.user import HistoryItem, UserHistoryResponse, UserOut
 from app.services.ai_recommender import FALLBACK_MODEL_NAME
 
@@ -74,6 +75,7 @@ async def get_user_history(
             completed_at=result.completed_at,
             top_interests=_top_interests(result.computed_scores),
             professions=result.recommendation.professions if result.recommendation else [],
+            difficulties=asked_difficulties(result.raw_answers),
             fallback=bool(
                 result.recommendation
                 and result.recommendation.model_used == FALLBACK_MODEL_NAME

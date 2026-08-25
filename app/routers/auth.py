@@ -70,6 +70,23 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    authorization: str | None = Header(default=None),
+    session: AsyncSession = Depends(get_session),
+) -> User | None:
+    """Пользователь, если он вошёл, иначе None.
+
+    Для эндпоинтов, которые обязаны работать и анонимно: демо-страница и первый
+    заход в мини-приложение идут без токена, и падать там нельзя.
+    """
+    if not authorization:
+        return None
+    try:
+        return await get_current_user(authorization=authorization, session=session)
+    except HTTPException:
+        return None
+
+
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     payload: RegisterRequest, session: AsyncSession = Depends(get_session)
