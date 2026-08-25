@@ -151,6 +151,19 @@ def test_fallback_survives_empty_profile() -> None:
     assert result["fallback"] is True
 
 
+async def _токен(max_user_id: str) -> dict:
+    """Заголовок владельца данных: история и рекомендации отдаются только ему."""
+    from sqlalchemy import select
+
+    from app.database import SessionLocal
+    from app.models import User
+    from app.services.security import create_access_token
+
+    async with SessionLocal() as session:
+        user = await session.scalar(select(User).where(User.max_user_id == max_user_id))
+        return {"Authorization": f"Bearer {create_access_token(user.id)}"}
+
+
 async def test_submit_stores_and_returns_recommendations(
     client, monkeypatch: pytest.MonkeyPatch, full_answers: dict, согласившийся
 ) -> None:
@@ -169,20 +182,28 @@ async def test_submit_stores_and_returns_recommendations(
     assert data["computed_scores"]["subjects"]["mathematics"]["knowledge_score"] == 5.0
     assert len(data["recommendations"]) == 5
 
-    saved = await client.get(f"/api/recommendations/{data['test_result_id']}")
+    свои = await _токен("max_42")
+    saved = await client.get(f"/api/recommendations/{data['test_result_id']}", headers=свои)
     assert saved.status_code == 200
     assert [p["name"] for p in saved.json()["professions"]] == [
         p["name"] for p in data["recommendations"]
     ]
 
-    history = await client.get("/api/users/max_42/history")
+    history = await client.get("/api/users/max_42/history", headers=свои)
     assert history.status_code == 200
     assert history.json()["attempts"] == 1
     assert history.json()["history"][0]["top_interests"][0] == "investigative"
 
 
-async def test_unknown_recommendation_returns_404(client) -> None:
-    response = await client.get("/api/recommendations/00000000-0000-0000-0000-000000000000")
+async def test_unknown_recommendation_returns_404(client, full_answers, согласившийся) -> None:
+    await согласившийся("kto_to")
+    await client.post("/api/tests/submit", json={"max_user_id": "kto_to", "answers": full_answers})
+    свои = await _токен("kto_to")
+
+    response = await client.get(
+        "/api/recommendations/00000000-0000-0000-0000-000000000000", headers=свои
+    )
+
     assert response.status_code == 404
 
 

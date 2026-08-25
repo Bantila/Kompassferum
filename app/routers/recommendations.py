@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models import Recommendation, TestResult, User
 from app.schemas.recommendation import RecommendationOut
+from app.routers.auth import get_current_user
 from app.services.test_planner import asked_difficulties
 from app.schemas.user import HistoryItem, UserHistoryResponse, UserOut
 from app.services.ai_recommender import FALLBACK_MODEL_NAME
@@ -28,8 +29,15 @@ def _top_interests(scores: dict, limit: int = 3) -> list[str]:
 
 @router.get("/recommendations/{test_result_id}", response_model=RecommendationOut)
 async def get_recommendation(
-    test_result_id: uuid.UUID, session: AsyncSession = Depends(get_session)
+    test_result_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
 ) -> RecommendationOut:
+    """Подбор профессий по результату теста — только своему.
+
+    Индивидуальные рекомендации не видит и педагог: ему полагается
+    обезличенная сводка по классу, а не разбор конкретного ребёнка.
+    """
     recommendation = await session.scalar(
         select(Recommendation).where(Recommendation.test_result_id == test_result_id)
     )
@@ -39,6 +47,13 @@ async def get_recommendation(
             f"Рекомендации для результата {test_result_id} не найдены",
         )
     test_result = await session.get(TestResult, test_result_id)
+    # Тот же 404, что и при отсутствии записи: разные ответы позволили бы
+    # перебором выяснять, какие результаты существуют.
+    if test_result is None or test_result.user_id != user.id:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            f"Рекомендации для результата {test_result_id} не найдены",
+        )
     return RecommendationOut(
         id=recommendation.id,
         test_result_id=recommendation.test_result_id,
@@ -52,11 +67,20 @@ async def get_recommendation(
 
 @router.get("/users/{max_user_id}/history", response_model=UserHistoryResponse)
 async def get_user_history(
-    max_user_id: str, session: AsyncSession = Depends(get_session)
+    max_user_id: str,
+    requester: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
 ) -> UserHistoryResponse:
-    """История прохождений — по ней видно, как меняются интересы со временем."""
+    """История прохождений — по ней видно, как меняются интересы со временем.
+
+    Только своя. max_user_id — это id пользователя в мессенджере, его несложно
+    подобрать перебором, и без проверки история любого ребёнка читалась бы по
+    одному угаданному числу.
+    """
     user = await session.scalar(select(User).where(User.max_user_id == max_user_id))
-    if user is None:
+    if user is None or user.id != requester.id:
+        # одинаковый ответ на «нет такого» и «не ваш»: иначе перебором
+        # выясняется, кто вообще пользуется сервисом
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, f"Пользователь {max_user_id!r} не найден"
         )

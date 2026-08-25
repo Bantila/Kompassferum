@@ -306,12 +306,15 @@ async def test_submit_reports_difficulties(client, full_answers, согласи�
 
 async def test_history_shows_difficulties(client, full_answers, согласившийся) -> None:
     """Ради этого всё и делалось: сравнивая прохождения, видно, чем они мерились."""
-    await согласившийся("diff_2")
+    айди = await согласившийся("diff_2")
     await client.post(
         "/api/tests/submit", json={"max_user_id": "diff_2", "answers": full_answers}
     )
 
-    история = await client.get("/api/users/diff_2/history")
+    from app.services.security import create_access_token
+
+    свои = {"Authorization": f"Bearer {create_access_token(айди)}"}
+    история = await client.get("/api/users/diff_2/history", headers=свои)
 
     assert история.status_code == 200
     assert история.json()["history"][0]["difficulties"] == ["easy", "medium", "hard"]

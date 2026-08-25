@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -18,6 +19,9 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6, max_length=128)
     full_name: str = Field(min_length=1, max_length=255)
+    # Код приглашения от того, кто уже работает в школе. Без него роль teacher
+    # назначал себе сам заявитель, а она открывает сводку по классу.
+    invite_code: str = Field(min_length=4, max_length=32)
 
 
 class LoginRequest(BaseModel):
@@ -47,3 +51,16 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: ProfileOut
+
+
+class InviteCreateRequest(BaseModel):
+    """Кому выписывается код — подпись для списка, не проверяется."""
+
+    note: str = Field(default="", max_length=120)
+
+
+class InviteOut(BaseModel):
+    code: str
+    note: str
+    expires_at: datetime
+    used_at: datetime | None = None

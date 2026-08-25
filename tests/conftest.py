@@ -80,6 +80,22 @@ def согласившийся(client):
 
 
 @pytest.fixture
+async def invite_code(client) -> str:
+    """Загрузочный код приглашения — такой же выдаёт `python -m app.invite`.
+
+    Зависит от client: тот пересоздаёт таблицы, и код, выписанный раньше,
+    исчез бы вместе с ними.
+    """
+    from app.database import SessionLocal
+    from app.services import invites
+
+    async with SessionLocal() as session:
+        invite = await invites.create(session)
+        await session.commit()
+        return invite.code
+
+
+@pytest.fixture
 def full_answers() -> dict:
     """Ответы на весь тест: сильный «исследователь» с хорошей математикой."""
     from app.services.test_scoring import load_questions
