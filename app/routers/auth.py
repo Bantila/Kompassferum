@@ -20,12 +20,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models import BotAccount, User, UserRole
 from app.schemas.auth import (
+    InviteCreateRequest,
+    InviteOut,
     LoginRequest,
     MiniAppLoginRequest,
     ProfileOut,
     RegisterRequest,
     TokenResponse,
 )
+from app.services import invites
 from app.services.miniapp_auth import full_name_from, verify_max, verify_telegram
 from app.services.security import (
     create_access_token,
@@ -91,11 +94,42 @@ async def register(
         is_active=True,
     )
     session.add(user)
+    await session.flush()
+
+    # Код гасим уже за созданным пользователем. Не подошёл — исключение
+    # откатывает транзакцию целиком, недорегистрированный аккаунт не остаётся.
+    if not await invites.redeem(session, payload.invite_code, user.id):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Код приглашения недействителен, истёк или уже использован",
+        )
 
     await session.commit()
     await session.refresh(user)
     logger.info("Регистрация педагога: %s", email)
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
+
+
+@router.post("/invites", response_model=InviteOut, status_code=status.HTTP_201_CREATED)
+async def create_invite(
+    payload: InviteCreateRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> InviteOut:
+    """Выписать код приглашения коллеге.
+
+    Приглашать может только тот, кто сам уже подтверждён: иначе цепочка доверия
+    рвётся на первом же звене и код перестаёт что-либо значить.
+    """
+    if user.role is not UserRole.teacher:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Приглашать коллег может только педагог")
+
+    invite = await invites.create(session, created_by=user, note=payload.note)
+    await session.commit()
+    logger.info("Код приглашения выписан педагогом %s", user.email)
+    return InviteOut(
+        code=invite.code, note=invite.note, expires_at=invite.expires_at, used_at=None
+    )
 
 
 @router.post("/login", response_model=TokenResponse)

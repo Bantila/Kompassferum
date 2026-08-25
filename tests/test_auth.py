@@ -38,24 +38,27 @@ def telegram_init_data(user_id: int, token: str, first_name: str = "Артём")
     return urlencode(payload)
 
 
-async def test_registration_always_creates_teacher(client) -> None:
+async def test_registration_always_creates_teacher(client, invite_code) -> None:
     """Роль из запроса не принимается — иначе ученика снова заводили бы в обход бота."""
-    response = await client.post("/api/auth/register", json={**TEACHER, "role": "student"})
+    response = await client.post(
+        "/api/auth/register", json={**TEACHER, "role": "student", "invite_code": invite_code}
+    )
 
     assert response.status_code == 201
     assert response.json()["user"]["role"] == "teacher"
 
 
-async def test_registration_rejects_duplicate_email(client) -> None:
-    assert (await client.post("/api/auth/register", json=TEACHER)).status_code == 201
+async def test_registration_rejects_duplicate_email(client, invite_code) -> None:
+    первая = {**TEACHER, "invite_code": invite_code}
+    assert (await client.post("/api/auth/register", json=первая)).status_code == 201
 
-    second = await client.post("/api/auth/register", json=TEACHER)
+    second = await client.post("/api/auth/register", json=первая)
 
-    assert second.status_code == 409
+    assert second.status_code == 409, "занятая почта проверяется раньше кода"
 
 
-async def test_teacher_can_log_in_by_email(client) -> None:
-    await client.post("/api/auth/register", json=TEACHER)
+async def test_teacher_can_log_in_by_email(client, invite_code) -> None:
+    await client.post("/api/auth/register", json={**TEACHER, "invite_code": invite_code})
 
     response = await client.post(
         "/api/auth/login", json={"email": TEACHER["email"], "password": TEACHER["password"]}

@@ -26,6 +26,7 @@
     <input class="field" id="auth-name" placeholder="Имя и фамилия" autocomplete="name" style="display:none">
     <input class="field" id="auth-email" placeholder="Почта" type="email" autocomplete="email">
     <input class="field" id="auth-password" placeholder="Пароль" type="password" autocomplete="current-password">
+    <input class="field" id="auth-invite" placeholder="Код приглашения" autocomplete="off" spellcheck="false" style="display:none;text-transform:uppercase">
     <div id="auth-status" class="t3" style="min-height:18px"></div>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="btn md" id="auth-submit" style="flex:0 0 auto">Войти</div>
@@ -399,12 +400,14 @@ const workspace = document.getElementById('workspace');
 const authStatus = document.getElementById('auth-status');
 const authSubmit = document.getElementById('auth-submit');
 const nameField = document.getElementById('auth-name');
+const inviteField = document.getElementById('auth-invite');
 let registerMode = false;
 
 function setMode(toRegister) {
   registerMode = toRegister;
   document.getElementById('auth-title').textContent = toRegister ? 'Регистрация педагога' : 'Вход для педагога';
   nameField.style.display = toRegister ? '' : 'none';
+  inviteField.style.display = toRegister ? '' : 'none';
   authSubmit.textContent = toRegister ? 'Зарегистрироваться' : 'Войти';
   document.getElementById('auth-toggle').textContent = toRegister ? 'У меня уже есть аккаунт' : 'Создать аккаунт педагога';
   authStatus.textContent = '';
@@ -433,9 +436,12 @@ async function submitAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const fullName = nameField.value.trim();
-  if (!email || !password || (registerMode && !fullName)) {
+  const inviteCode = inviteField.value.trim().toUpperCase();
+  if (!email || !password || (registerMode && (!fullName || !inviteCode))) {
     authStatus.style.color = 'var(--orange)';
-    authStatus.textContent = 'Заполните все поля.';
+    authStatus.textContent = registerMode
+      ? 'Заполните все поля. Код приглашения выдаёт коллега, который уже работает в системе.'
+      : 'Заполните все поля.';
     return;
   }
 
@@ -445,7 +451,7 @@ async function submitAuth() {
   try {
     const body = registerMode
       // роль не передаём: регистрация по почте и так заводит только педагога
-      ? { email, password, full_name: fullName }
+      ? { email, password, full_name: fullName, invite_code: inviteCode }
       : { email, password };
     const data = await apiFetch(`/api/auth/${registerMode ? 'register' : 'login'}`,
       { method: 'POST', body: JSON.stringify(body) });
@@ -470,7 +476,7 @@ document.getElementById('new-class-name').addEventListener('keydown', (e) => { i
 authSubmit.onclick = submitAuth;
 document.getElementById('logout').onclick = logout;
 document.getElementById('auth-toggle').onclick = () => setMode(!registerMode);
-['auth-email', 'auth-password', 'auth-name'].forEach((id) => {
+['auth-email', 'auth-password', 'auth-name', 'auth-invite'].forEach((id) => {
   document.getElementById(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
 });
 document.getElementById('view-tabs').addEventListener('click', (event) => {
