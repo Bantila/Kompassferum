@@ -10,7 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.models import User
 from app.routers.auth import get_current_user
-from app.schemas.consent import ConsentGrantRequest, ConsentRevokedOut, ConsentStatusOut
+from app.schemas.consent import (
+    ConsentGrantRequest,
+    ConsentJournalOut,
+    ConsentRecordOut,
+    ConsentRevokedOut,
+    ConsentStatusOut,
+)
 from app.services import consent as service
 
 logger = logging.getLogger(__name__)
@@ -35,6 +41,30 @@ async def consent_status(
         granted_at=согласие.granted_at,
         # текст мог смениться после того, как человек согласился
         outdated=согласие.document_version != service.CURRENT_VERSION,
+    )
+
+
+@router.get("/journal", response_model=ConsentJournalOut)
+async def consent_journal(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ConsentJournalOut:
+    """Все согласия и отзывы по человеку, свежие сверху.
+
+    При проверке спрашивают не «согласен ли сейчас», а «когда и на что
+    соглашался, когда отзывал» — текущее состояние на это не отвечает.
+    """
+    записи = await service.journal(session, user.id)
+    return ConsentJournalOut(
+        records=[
+            ConsentRecordOut(
+                document_version=з.document_version,
+                granted_by=з.granted_by,
+                granted_at=з.granted_at,
+                revoked_at=з.revoked_at,
+            )
+            for з in записи
+        ]
     )
 
 

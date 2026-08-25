@@ -31,12 +31,43 @@ CURRENT_VERSION = "2026-08-25"
 КТО_ДАЁТ = ("self", "parent")
 
 
+# Свежие записи сверху. Второй ключ обязателен: SQLite ставит одинаковый
+# granted_at записям, созданным в одну секунду, а сортировать по id нельзя —
+# это случайный UUID, и отозванная запись перевешивала бы только что данное
+# согласие. Действующая запись при равной дате считается более поздней.
+_ПОРЯДОК_ЖУРНАЛА = (Consent.granted_at.desc(), Consent.revoked_at.is_(None).desc())
+
+
 async def active_for(session: AsyncSession, user_id: uuid.UUID) -> Consent | None:
-    """Действующее согласие пользователя, либо None."""
-    согласие = await session.scalar(select(Consent).where(Consent.user_id == user_id))
-    if согласие is None or согласие.revoked_at is not None:
+    """Действующее согласие: последняя запись журнала, если она не отозвана."""
+    последняя = await _последняя(session, user_id)
+    if последняя is None or последняя.revoked_at is not None:
         return None
-    return согласие
+    return последняя
+
+
+async def _последняя(session: AsyncSession, user_id: uuid.UUID) -> Consent | None:
+    return await session.scalar(
+        select(Consent)
+        .where(Consent.user_id == user_id)
+        .order_by(*_ПОРЯДОК_ЖУРНАЛА)
+        .limit(1)
+    )
+
+
+async def journal(session: AsyncSession, user_id: uuid.UUID) -> list[Consent]:
+    """Все записи по человеку, свежие сверху.
+
+    При проверке спрашивают не «согласен ли сейчас», а «когда и на что
+    соглашался, когда отзывал» — на это и отвечает журнал.
+    """
+    return list(
+        await session.scalars(
+            select(Consent)
+            .where(Consent.user_id == user_id)
+            .order_by(*_ПОРЯДОК_ЖУРНАЛА)
+        )
+    )
 
 
 async def grant(
@@ -50,15 +81,23 @@ async def grant(
     if granted_by not in КТО_ДАЁТ:
         granted_by = "self"
 
-    согласие = await session.scalar(select(Consent).where(Consent.user_id == user_id))
-    if согласие is None:
-        согласие = Consent(user_id=user_id, document_version=version, granted_by=granted_by)
-        session.add(согласие)
-    else:
-        согласие.document_version = version
-        согласие.granted_by = granted_by
-        согласие.granted_at = datetime.now(timezone.utc)
-        согласие.revoked_at = None
+    # Новая запись, а не перезапись прежней: иначе история «дал, отозвал, дал
+    # снова» стирается, а с ней и доказательство законности обработки.
+    действующее = await active_for(session, user_id)
+    if действующее is not None:
+        if действующее.document_version == version and действующее.granted_by == granted_by:
+            # то же согласие на ту же редакцию — записывать нечего
+            return действующее
+        # согласие на новую редакцию закрывает предыдущее
+        действующее.revoked_at = datetime.now(timezone.utc)
+
+    согласие = Consent(
+        user_id=user_id,
+        document_version=version,
+        granted_by=granted_by,
+        granted_at=datetime.now(timezone.utc),
+    )
+    session.add(согласие)
     await session.flush()
     return согласие
 
@@ -89,17 +128,19 @@ async def revoke(session: AsyncSession, user_id: uuid.UUID) -> int:
             await session.execute(delete(таблица).where(таблица.user_id == user_id))
         ).rowcount or 0
 
-    согласие = await session.scalar(select(Consent).where(Consent.user_id == user_id))
-    if согласие is not None:
-        согласие.revoked_at = datetime.now(timezone.utc)
+    действующее = await active_for(session, user_id)
+    if действующее is not None:
+        действующее.revoked_at = datetime.now(timezone.utc)
     else:
-        # согласия не было, но отзыв всё равно фиксируем: иначе следующая сдача
-        # теста запишет данные как ни в чём не бывало
+        # действующего согласия не было, но отзыв всё равно фиксируем: иначе
+        # следующая сдача теста запишет данные как ни в чём не бывало
+        сейчас = datetime.now(timezone.utc)
         session.add(
             Consent(
                 user_id=user_id,
                 document_version=CURRENT_VERSION,
-                revoked_at=datetime.now(timezone.utc),
+                granted_at=сейчас,
+                revoked_at=сейчас,
             )
         )
 

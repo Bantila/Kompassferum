@@ -191,3 +191,84 @@ async def test_unknown_granter_is_rejected(client, monkeypatch) -> None:
     ответ = await client.post("/api/consent", json={"granted_by": "кот"}, headers=заголовки)
 
     assert ответ.status_code == 422
+
+
+# --- Журнал вместо текущего состояния ---------------------------------------
+#
+# Раньше строка была одна на человека и перезаписывалась при повторном
+# согласии. История «дал, отозвал, дал снова» стиралась, а вместе с ней и
+# доказательство, что данные обрабатывались законно.
+
+
+async def test_journal_keeps_every_step(client, monkeypatch) -> None:
+    заголовки = await войти(client, monkeypatch, user_id=910)
+
+    await client.post("/api/consent", json={}, headers=заголовки)
+    await client.delete("/api/consent", headers=заголовки)
+    await client.post("/api/consent", json={"granted_by": "parent"}, headers=заголовки)
+
+    записи = (await client.get("/api/consent/journal", headers=заголовки)).json()["records"]
+
+    assert len(записи) == 2, "повторное согласие не должно затирать прежнее"
+    assert записи[0]["granted_by"] == "parent" and записи[0]["revoked_at"] is None
+    assert записи[1]["revoked_at"] is not None, "прежнее согласие осталось с датой отзыва"
+
+
+async def test_repeated_identical_consent_does_not_pile_up(client, monkeypatch) -> None:
+    """Повторное нажатие той же кнопки не должно плодить записи."""
+    заголовки = await войти(client, monkeypatch, user_id=911)
+
+    for _ in range(3):
+        await client.post("/api/consent", json={}, headers=заголовки)
+
+    записи = (await client.get("/api/consent/journal", headers=заголовки)).json()["records"]
+
+    assert len(записи) == 1
+
+
+async def test_new_version_closes_the_previous_consent(client, monkeypatch) -> None:
+    """Согласие на новую редакцию не отменяет того, что старая была принята."""
+    заголовки = await войти(client, monkeypatch, user_id=912)
+    прежняя = service.CURRENT_VERSION
+    await client.post("/api/consent", json={}, headers=заголовки)
+
+    monkeypatch.setattr(service, "CURRENT_VERSION", "2027-01-01")
+    await client.post("/api/consent", json={}, headers=заголовки)
+
+    записи = (await client.get("/api/consent/journal", headers=заголовки)).json()["records"]
+
+    assert [з["document_version"] for з in записи] == ["2027-01-01", прежняя]
+    assert записи[1]["revoked_at"] is not None
+
+
+async def test_active_consent_wins_over_same_second_revocation(client, monkeypatch) -> None:
+    """Записи одной секунды: действующая должна считаться последней.
+
+    SQLite ставит одинаковый granted_at записям, созданным в одну секунду, а
+    сортировать по id нельзя — это случайный UUID. Без правильного порядка
+    только что данное согласие проигрывало бы отозванному.
+    """
+    заголовки = await войти(client, monkeypatch, user_id=913)
+
+    await client.post("/api/consent", json={}, headers=заголовки)
+    await client.delete("/api/consent", headers=заголовки)
+    await client.post("/api/consent", json={}, headers=заголовки)
+
+    состояние = (await client.get("/api/consent", headers=заголовки)).json()
+
+    assert состояние["granted"] is True
+
+
+async def test_journal_requires_login(client) -> None:
+    assert (await client.get("/api/consent/journal")).status_code == 401
+
+
+async def test_journal_shows_only_own_records(client, monkeypatch) -> None:
+    """Журнал — часть персональных данных, чужой видеть нельзя."""
+    чужие = await войти(client, monkeypatch, user_id=914)
+    await client.post("/api/consent", json={}, headers=чужие)
+    свои = await войти(client, monkeypatch, user_id=915)
+
+    записи = (await client.get("/api/consent/journal", headers=свои)).json()["records"]
+
+    assert записи == []

@@ -24,6 +24,20 @@ class ConsentStatusOut(BaseModel):
     outdated: bool = False
 
 
+class ConsentRecordOut(BaseModel):
+    """Одна запись журнала: когда согласие дано и когда закрыто."""
+
+    document_version: str
+    granted_by: str
+    granted_at: datetime
+    revoked_at: datetime | None = None
+
+
+class ConsentJournalOut(BaseModel):
+    # свежие записи сверху; действующая — та, у которой нет revoked_at
+    records: list[ConsentRecordOut]
+
+
 class ConsentRevokedOut(BaseModel):
     revoked: bool
     deleted_records: int = Field(description="Сколько записей удалено при отзыве")
