@@ -294,7 +294,8 @@ def test_difficulties_are_ordered_not_random() -> None:
     assert test_planner.asked_difficulties(все) == ["easy", "medium", "hard"]
 
 
-async def test_submit_reports_difficulties(client, full_answers) -> None:
+async def test_submit_reports_difficulties(client, full_answers, согласившийся) -> None:
+    await согласившийся("diff_1")
     ответ = await client.post(
         "/api/tests/submit", json={"max_user_id": "diff_1", "answers": full_answers}
     )
@@ -303,8 +304,9 @@ async def test_submit_reports_difficulties(client, full_answers) -> None:
     assert ответ.json()["difficulties"] == ["easy", "medium", "hard"]
 
 
-async def test_history_shows_difficulties(client, full_answers) -> None:
+async def test_history_shows_difficulties(client, full_answers, согласившийся) -> None:
     """Ради этого всё и делалось: сравнивая прохождения, видно, чем они мерились."""
+    await согласившийся("diff_2")
     await client.post(
         "/api/tests/submit", json={"max_user_id": "diff_2", "answers": full_answers}
     )

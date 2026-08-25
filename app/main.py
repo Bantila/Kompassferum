@@ -16,7 +16,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.database import engine
-from app.routers import auth, bot, classes, practice, recommendations, teacher, tests
+from app.routers import auth, bot, consent, classes, practice, recommendations, teacher, tests
 
 logging.basicConfig(
     level=get_settings().log_level,
@@ -81,6 +81,7 @@ async def index() -> FileResponse:
 
 
 app.include_router(auth.router)
+app.include_router(consent.router)
 app.include_router(tests.router)
 app.include_router(practice.router)
 app.include_router(recommendations.router)

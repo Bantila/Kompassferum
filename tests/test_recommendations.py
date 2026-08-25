@@ -152,9 +152,10 @@ def test_fallback_survives_empty_profile() -> None:
 
 
 async def test_submit_stores_and_returns_recommendations(
-    client, monkeypatch: pytest.MonkeyPatch, full_answers: dict
+    client, monkeypatch: pytest.MonkeyPatch, full_answers: dict, согласившийся
 ) -> None:
     """Сквозной путь: приём ответов → сохранение → выдача по id и в истории."""
+    await согласившийся("max_42")
     _mock_post(monkeypatch, content=json.dumps(LLM_PAYLOAD, ensure_ascii=False))
 
     response = await client.post(
