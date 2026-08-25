@@ -18,6 +18,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.services.rate_limit import limit
 from app.models import BotAccount, User, UserRole
 from app.schemas.auth import (
     LoginRequest,
@@ -87,7 +88,13 @@ async def get_current_user_optional(
         return None
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    # регистрация педагогов штучная: пять аккаунтов в час с адреса — с запасом
+    dependencies=[Depends(limit("register", times=5, seconds=3600))],
+)
 async def register(
     payload: RegisterRequest, session: AsyncSession = Depends(get_session)
 ) -> TokenResponse:
@@ -115,7 +122,12 @@ async def register(
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    # десять попыток в минуту: человек с забытым паролем уложится, перебор — нет
+    dependencies=[Depends(limit("login", times=10, seconds=60))],
+)
 async def login(payload: LoginRequest, session: AsyncSession = Depends(get_session)) -> TokenResponse:
     email = payload.email.strip().lower()
     user = await session.scalar(select(User).where(func.lower(User.email) == email))
@@ -130,7 +142,13 @@ async def login(payload: LoginRequest, session: AsyncSession = Depends(get_sessi
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 
-@router.post("/miniapp", response_model=TokenResponse)
+@router.post(
+    "/miniapp",
+    response_model=TokenResponse,
+    # Класс сидит за одним NAT и открывает приложение одновременно — лимит
+    # должен вмещать весь кабинет разом, иначе половина урока не войдёт.
+    dependencies=[Depends(limit("miniapp", times=60, seconds=60))],
+)
 async def miniapp_login(
     payload: MiniAppLoginRequest, session: AsyncSession = Depends(get_session)
 ) -> TokenResponse:

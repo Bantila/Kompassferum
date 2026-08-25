@@ -25,6 +25,7 @@ from app.schemas.test import (
 )
 from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
 from app.services.integrity import check as check_answers
+from app.services.rate_limit import limit
 from app.services.test_planner import (
     asked_difficulties,
     difficulties_for_attempt,
@@ -207,7 +208,14 @@ async def check_answer(payload: CheckAnswerRequest) -> CheckAnswerResponse:
     )
 
 
-@router.post("/submit", response_model=TestSubmitResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/submit",
+    response_model=TestSubmitResponse,
+    status_code=status.HTTP_201_CREATED,
+    # Класс из тридцати человек сдаёт тест за урок и укладывается; скрипт,
+    # генерирующий прохождения тысячами, упирается в потолок.
+    dependencies=[Depends(limit("submit", times=40, seconds=3600))],
+)
 async def submit_test(
     payload: TestSubmitRequest, session: AsyncSession = Depends(get_session)
 ) -> TestSubmitResponse:
