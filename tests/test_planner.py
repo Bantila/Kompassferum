@@ -12,6 +12,7 @@ import pytest
 
 from app.config import get_settings
 from app.services import test_planner
+from app.services.test_scoring import load_questions
 from app.services.test_planner import (
     SUBJECTS_IN_PLAN,
     SubjectChoice,
@@ -158,3 +159,103 @@ async def test_plan_endpoint_rejects_broken_answers(client) -> None:
     response = await client.post("/api/tests/plan", json={"answers": {"a1": 99}})
 
     assert response.status_code == 422
+
+
+# --- Ротация сложностей между попытками -------------------------------------
+#
+# До этого пара сложностей была прибита гвоздями к ("easy", "hard"): повторное
+# прохождение состояло из тех же задач, а 13 средних вопросов банка не
+# задавались никогда.
+
+
+def test_first_attempt_keeps_previous_difficulties() -> None:
+    """Первая попытка не должна измениться — для большинства учеников тест прежний."""
+    assert test_planner.difficulties_for_attempt(0) == ("easy", "hard")
+
+
+def test_repeat_attempts_get_different_tasks(без_модели) -> None:
+    """Второй заход не должен состоять из тех же задач, что первый."""
+    предметы = ["physics", "mathematics", "informatics", "biology", "chemistry"]
+
+    первая = {q["id"] for q in questions_for_plan(предметы, attempt=0)}
+    вторая = {q["id"] for q in questions_for_plan(предметы, attempt=1)}
+
+    assert первая != вторая, "повторное прохождение обязано отличаться"
+    assert первая & вторая, "полная смена задач — потеряется преемственность оценки"
+
+
+def test_medium_questions_are_actually_asked() -> None:
+    """Ради этого всё и затевалось: средние вопросы больше не мёртвый груз."""
+    предметы = ["physics", "mathematics", "informatics", "biology", "chemistry"]
+    банк = {q["id"]: q for q in load_questions()["block_b_subjects"]}
+
+    сложности = set()
+    for попытка in range(len(test_planner.DIFFICULTY_ROTATION)):
+        for q in questions_for_plan(предметы, attempt=попытка):
+            if q["type"] == "knowledge":
+                сложности.add(банк[q["id"]]["difficulty"])
+
+    assert сложности == {"easy", "medium", "hard"}
+
+
+def test_difficulty_is_uniform_within_one_attempt() -> None:
+    """Внутри прохождения пара одна на все предметы.
+
+    Балл предмета — доля верных ответов, сложность в него не входит. Разные
+    пары у разных предметов сделали бы предметы несравнимыми, а именно на их
+    сравнении строится совет, что подтягивать.
+    """
+    предметы = ["physics", "literature", "history", "biology", "chemistry"]
+    банк = {q["id"]: q for q in load_questions()["block_b_subjects"]}
+
+    for попытка in range(6):
+        по_предметам: dict[str, set[str]] = {}
+        for q in questions_for_plan(предметы, attempt=попытка):
+            if q["type"] == "knowledge":
+                по_предметам.setdefault(q["subject"], set()).add(банк[q["id"]]["difficulty"])
+        наборы = set(map(frozenset, по_предметам.values()))
+        assert len(наборы) == 1, f"попытка {попытка}: предметам достались разные сложности"
+
+
+def test_rotation_wraps_around_and_survives_junk() -> None:
+    """Номер попытки приходит из базы — он не должен ронять подбор."""
+    длина = len(test_planner.DIFFICULTY_ROTATION)
+
+    assert test_planner.difficulties_for_attempt(длина) == test_planner.difficulties_for_attempt(0)
+    assert test_planner.difficulties_for_attempt(-5) == test_planner.difficulties_for_attempt(0)
+
+
+def test_every_attempt_still_gives_fifteen_questions() -> None:
+    """Сокращение теста не должно ломаться ни на какой попытке."""
+    предметы = ["physics", "mathematics", "informatics", "biology", "chemistry"]
+
+    for попытка in range(6):
+        вопросы = questions_for_plan(предметы, attempt=попытка)
+        assert len(вопросы) == 15, f"попытка {попытка}"
+        assert not any("correct_index" in q for q in вопросы)
+
+
+async def test_plan_endpoint_works_without_login(client) -> None:
+    """Демо-страница ходит на /plan без токена — это не должно падать."""
+    ответы = {f"a{i}": 5 if i in (3, 4) else 2 for i in range(1, 13)}
+
+    response = await client.post("/api/tests/plan", json={"answers": ответы})
+
+    assert response.status_code == 200
+    данные = response.json()
+    assert данные["attempt"] == 0
+    assert данные["difficulties"] == ["easy", "hard"]
+
+
+async def test_plan_endpoint_ignores_broken_token(client) -> None:
+    """Протухший токен не должен закрывать вход в тест — просто первая попытка."""
+    ответы = {f"a{i}": 3 for i in range(1, 13)}
+
+    response = await client.post(
+        "/api/tests/plan",
+        json={"answers": ответы},
+        headers={"Authorization": "Bearer not-a-real-token"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["attempt"] == 0

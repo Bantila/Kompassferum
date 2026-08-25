@@ -5,12 +5,12 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import Recommendation, TestProgress, TestResult, User, UserRole
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, get_current_user_optional
 from app.schemas.test import (
     CheckAnswerRequest,
     CheckAnswerResponse,
@@ -25,7 +25,11 @@ from app.schemas.test import (
 )
 from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
 from app.services.integrity import check as check_answers
-from app.services.test_planner import plan_subjects, questions_for_plan
+from app.services.test_planner import (
+    difficulties_for_attempt,
+    plan_subjects,
+    questions_for_plan,
+)
 from app.services.test_scoring import (
     ScoringError,
     calculate_scores,
@@ -133,12 +137,20 @@ async def reset_progress(
 
 
 @router.post("/plan", response_model=PlanResponse)
-async def plan_test(payload: PlanRequest) -> PlanResponse:
+async def plan_test(
+    payload: PlanRequest,
+    user: User | None = Depends(get_current_user_optional),
+    session: AsyncSession = Depends(get_session),
+) -> PlanResponse:
     """Подобрать предметы для блока B по ответам блока A.
 
     Спрашивать все 13 предметов — 52 вопроса, до конца доходят не все. Модель
     смотрит профиль интересов и называет пять предметов, которые стоит
     проверить задачами: блок B сокращается до 15 вопросов, весь тест — до 37.
+
+    Вошедшему ученику задачи подбираются по номеру попытки: во второй раз тест
+    состоит из других задач, иначе замер повторяет первый по памяти. Без входа
+    (демо-страница) попытка считается первой.
 
     Правильные ответы, как и в /questions, сюда не попадают.
     """
@@ -147,14 +159,24 @@ async def plan_test(payload: PlanRequest) -> PlanResponse:
     except ScoringError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
 
+    attempt = 0
+    if user is not None:
+        attempt = await session.scalar(
+            select(func.count()).select_from(TestResult).where(TestResult.user_id == user.id)
+        ) or 0
+
     plan = await plan_subjects(scores.get("interests") or {})
     titles = load_questions()["subject_titles"]
+    сложности = difficulties_for_attempt(attempt)
 
-    logger.info("План теста: %s (%s)", ", ".join(plan["subjects"]), plan["source"])
+    logger.info(
+        "План теста: %s (%s), попытка %s, сложности %s",
+        ", ".join(plan["subjects"]), plan["source"], attempt + 1, "+".join(сложности),
+    )
 
     return PlanResponse(
         subjects=[PlannedSubject(subject=c, title=titles.get(c, c)) for c in plan["subjects"]],
-        questions=questions_for_plan(plan["subjects"]),
+        questions=questions_for_plan(plan["subjects"], attempt=attempt),
         source=plan["source"],
         planned_by_model=plan["planned_by_model"],
         optional_subjects=[
@@ -162,6 +184,8 @@ async def plan_test(payload: PlanRequest) -> PlanResponse:
             for code, title in titles.items()
             if code not in plan["subjects"]
         ],
+        attempt=attempt,
+        difficulties=list(сложности),
     )
 
 
