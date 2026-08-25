@@ -1233,7 +1233,7 @@ async function screenPlanning() {
       <div style="font-size:15px;color:var(--t2);flex:1">Подбираем предметы под твои ответы…</div>
     </div>
     <div class="hint"><i></i><p>Спрашивать все 13 предметов долго. Дальше будут только те, что связаны с подходящими тебе профессиями — 15 вопросов.</p></div>
-  `, { title: 'Тест', progress: answeredCount() / 74 });
+  `, { title: 'Тест', progress: answeredCount() / totalCount() });
 
   try {
     const plan = await api('/api/tests/plan', {
