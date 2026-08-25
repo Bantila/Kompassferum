@@ -222,3 +222,25 @@ def questions_for_plan(subjects: list[str], attempt: int = 0) -> list[dict[str, 
         отобранные.extend(q for q in вопросы if q["type"] == "interest")
 
     return [{k: v for k, v in q.items() if k != "correct_index"} for q in отобранные]
+
+
+def asked_difficulties(raw_answers: dict[str, Any]) -> list[str]:
+    """Какие сложности задач достались прохождению — по самим ответам.
+
+    Хранить это отдельным полем не нужно: сложность однозначно выводится из
+    того, на какие вопросы человек отвечал. Нужно оно ради честности истории —
+    балл считается как доля верных ответов, сложность в него не входит, и
+    падение результата между попытками может означать не «стал хуже», а
+    «достались задачи потруднее».
+    """
+    if not isinstance(raw_answers, dict):
+        return []
+
+    банк = {q["id"]: q for q in load_questions()["block_b_subjects"]}
+    найдено = {
+        банк[qid].get("difficulty")
+        for qid in raw_answers
+        if qid in банк and банк[qid]["type"] == "knowledge"
+    }
+    порядок = ("easy", "medium", "hard")
+    return [d for d in порядок if d in найдено]

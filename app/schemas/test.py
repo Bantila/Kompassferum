@@ -109,3 +109,5 @@ class TestSubmitResponse(BaseModel):
     recommendations: list[ProfessionOut]
     fallback: bool
     model_used: str
+    # какие сложности задач достались этому прохождению
+    difficulties: list[str] = []

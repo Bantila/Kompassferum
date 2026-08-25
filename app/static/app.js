@@ -1160,6 +1160,10 @@ function screenResults(professions, scores, fallback, progress = null) {
 
 /* ---------- экран: история ---------- */
 
+// Балл — доля верных ответов, сложность в него не входит. Поэтому сложность
+// показываем рядом с результатом: иначе падение читается как «стал хуже».
+const DIFFICULTY_TITLES = { easy: 'лёгкие', medium: 'средние', hard: 'сложные' };
+
 async function screenHistory() {
   render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем историю…</div></div>',
     { title: 'История', progress: 1, tab: 'profile' });
@@ -1174,6 +1178,9 @@ async function screenHistory() {
   render(`
     ${data.attempts === 0 ? '<div class="hint"><i></i><p>Пока нет ни одного завершённого прохождения.</p></div>' : `
       <div class="t3">Всего прохождений: ${data.attempts}. Видно, как меняются интересы со временем.</div>
+      ${data.history.some((h) => (h.difficulties || []).length) && data.attempts > 1
+        ? '<div class="hint"><i></i><p>Задачи в разных прохождениях разной сложности — балл считается как доля верных ответов, поэтому сравнивать результаты в лоб не стоит.</p></div>'
+        : ''}
       <div class="list">
         ${data.history.map((item, i) => `
           ${i ? '<div class="sep"></div>' : ''}
@@ -1184,6 +1191,7 @@ async function screenHistory() {
               <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:8px">
                 ${item.top_interests.map((key) => `<div class="tag">${HOLLAND_TITLES[key] || key}</div>`).join('')}
               </div>
+              ${(item.difficulties || []).length ? `<div class="t3" style="font-size:13px;padding-top:6px">Задачи: ${item.difficulties.map((d) => DIFFICULTY_TITLES[d] || d).join(' и ')}</div>` : ''}
               ${item.fallback ? '<div style="font-size:13px;color:var(--orange);padding-top:6px">упрощённый алгоритм</div>' : ''}
             </div>
           </div>`).join('')}

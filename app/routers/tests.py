@@ -26,6 +26,7 @@ from app.schemas.test import (
 from app.services.ai_recommender import FALLBACK_MODEL_NAME, recommend_professions
 from app.services.integrity import check as check_answers
 from app.services.test_planner import (
+    asked_difficulties,
     difficulties_for_attempt,
     plan_subjects,
     questions_for_plan,
@@ -278,4 +279,5 @@ async def submit_test(
         recommendations=ai_result["professions"],
         fallback=ai_result["model_used"] == FALLBACK_MODEL_NAME,
         model_used=ai_result["model_used"],
+        difficulties=asked_difficulties(payload.answers),
     )

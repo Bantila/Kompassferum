@@ -26,6 +26,10 @@ class HistoryItem(BaseModel):
     top_interests: list[str] = Field(default_factory=list)
     professions: list[ProfessionOut] = Field(default_factory=list)
     fallback: bool = False
+    # Сложности задач этого прохождения. Балл — доля верных ответов, сложность
+    # в него не входит, поэтому без этой пометки падение результата читается
+    # как «стал хуже», хотя задачи могли достаться потруднее.
+    difficulties: list[str] = Field(default_factory=list)
 
 
 class UserHistoryResponse(BaseModel):

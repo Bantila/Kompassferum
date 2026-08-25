@@ -259,3 +259,57 @@ async def test_plan_endpoint_ignores_broken_token(client) -> None:
 
     assert response.status_code == 200
     assert response.json()["attempt"] == 0
+
+
+# --- Сложность видна в результате ------------------------------------------
+#
+# Балл — доля верных ответов, сложность в него не входит. Значит падение между
+# попытками может означать не «стал хуже», а «достались задачи потруднее».
+# Формулу трогать нельзя: пример 2/3 -> 3.98 закреплён техзаданием. Поэтому
+# делаем сложность видимой.
+
+
+def test_asked_difficulties_reads_the_attempt() -> None:
+    предметы = ["physics", "mathematics", "informatics", "biology", "chemistry"]
+
+    было = [
+        test_planner.asked_difficulties({q["id"]: 0 for q in questions_for_plan(предметы, attempt=n)})
+        for n in range(3)
+    ]
+
+    assert было == [["easy", "hard"], ["medium", "hard"], ["easy", "medium"]]
+
+
+def test_asked_difficulties_ignores_junk() -> None:
+    """Ответы приходят из базы — там может лежать что угодно из прошлых версий."""
+    assert test_planner.asked_difficulties({}) == []
+    assert test_planner.asked_difficulties({"нет-такого": 3, "a1": 5}) == []
+    assert test_planner.asked_difficulties("не словарь") == []
+
+
+def test_difficulties_are_ordered_not_random() -> None:
+    """Порядок фиксирован: иначе подпись в истории скачет между открытиями."""
+    все = {q["id"]: 0 for q in load_questions()["block_b_subjects"] if q["type"] == "knowledge"}
+
+    assert test_planner.asked_difficulties(все) == ["easy", "medium", "hard"]
+
+
+async def test_submit_reports_difficulties(client, full_answers) -> None:
+    ответ = await client.post(
+        "/api/tests/submit", json={"max_user_id": "diff_1", "answers": full_answers}
+    )
+
+    assert ответ.status_code == 201
+    assert ответ.json()["difficulties"] == ["easy", "medium", "hard"]
+
+
+async def test_history_shows_difficulties(client, full_answers) -> None:
+    """Ради этого всё и делалось: сравнивая прохождения, видно, чем они мерились."""
+    await client.post(
+        "/api/tests/submit", json={"max_user_id": "diff_2", "answers": full_answers}
+    )
+
+    история = await client.get("/api/users/diff_2/history")
+
+    assert история.status_code == 200
+    assert история.json()["history"][0]["difficulties"] == ["easy", "medium", "hard"]
