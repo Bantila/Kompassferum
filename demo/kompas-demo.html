@@ -1,169 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Компас</title>
 <style>
 /* ---- дизайн-система приложения (app/static/styles.css) ---- */
+/* «Компас» — визуальный язык топографической карты.
 
-  /* Палитра — darkPalette из max-ui src/styles/variables/appearance.scss */
-  :root{
-    --page:rgb(16 17 20);
-    --bg:rgb(23 24 28);
-    --card:rgb(37 38 45);
-    --bar:rgb(30 31 36);
-    --sheet:rgb(23 23 24);
-    --overlay:rgb(13 13 13 / .64);
-    --t1:rgb(255 255 255 / .8);
-    --t2:rgb(255 255 255 / .74);
-    --t3:rgb(255 255 255 / .44);
-    --t4:rgb(255 255 255 / .28);
-    --accent:rgb(0 122 255);
-    --sec:rgb(67 68 85);
-    --green:rgb(43 198 68);
-    --red:rgb(206 66 87);
-    --orange:rgb(255 159 10);
-    --fill:rgb(255 255 255 / .09);
-    --fill2:rgb(255 255 255 / .06);
-    --line:rgb(255 255 255 / .06);
-    --grad-blue:linear-gradient(157deg,#08D7F3 6.38%,#5398FF 85%);
-    --grad-violet:linear-gradient(155deg,#BF97FF 6.6%,#526EFF 84.12%);
-    --grad-green:linear-gradient(158deg,#14E1D5 6.15%,#03C722 85.68%);
-    --grad-pink:linear-gradient(153deg,#FF48B6 .77%,#FF8A35 93.03%);
-    --grad-orange:linear-gradient(155deg,#FFC93D 6.6%,#FF832A 84.12%);
+   Продукт помогает подростку найти направление, поэтому интерфейс собран из
+   предметов навигации: бумага карты, изолинии рельефа, красная магнитная
+   стрелка, вода. Числа набраны моноширинным — как показания прибора.
+
+   Тем две: светлая «бумага» и тёмная «ночная карта». Все цвета живут в
+   токенах ниже, компоненты берут только их — поэтому ни один цвет не задан
+   внутри медиазапроса, и тема переключается целиком, а не наполовину. */
+
+:root{
+  /* бумага карты */
+  --paper:#EFF1EA;
+  --page:#E7EAE1;
+  --bg:#EFF1EA;
+  --card:#FFFFFF;
+  --card2:#F4F5EF;
+  --bar:#EFF1EA;
+  --sheet:#FFFFFF;
+  --overlay:rgb(20 33 30 / .48);
+
+  /* хвойные нейтрали: серый с зеленью читается как часть карты, а не как «серый по умолчанию» */
+  --ink:#14211E;
+  --t1:#14211E;
+  --t2:#3D4C47;
+  --t3:#68766F;
+  --t4:#95A099;
+  --stroke:#D5DAD0;
+  --line:#E2E6DC;
+  --fill:rgb(20 33 30 / .05);
+  --fill2:rgb(20 33 30 / .035);
+
+  /* магнитная стрелка — единственный по-настоящему громкий цвет */
+  --north:#D4442A;
+  --north-soft:#F2E3DE;
+  --north-deep:#A83420;
+  --accent:var(--north);
+  --accent-light:var(--north-deep);
+  --accent-glow:rgb(212 68 42 / .22);
+
+  /* вода и рельеф — вторые голоса, приглушённые */
+  --water:#2E7D8F;
+  --water-soft:#DDEBEC;
+  --relief:#B99F6B;
+  --relief-soft:#F0E9DA;
+
+  --green:#3F7A4F;
+  --green-bg:#E3EEE5;
+  --red:#C0392B;
+  --red-bg:#F6E4E1;
+  --orange:#B5761E;
+  --sec:#F4F5EF;
+
+  /* Категории профессий — сплошные краски карты: вода, лес, рельеф, суша.
+     Цвет означает вид местности, а не просто «другой градиент».
+     Значения одинаковы в обеих темах: это заливка под белым текстом,
+     и светлеть в тёмной теме ей нельзя — подпись перестанет читаться. */
+  --grad-main:#C03D25;
+  --grad-blue:#22697A;
+  --grad-violet:#45566F;
+  --grad-green:#2F6B41;
+  --grad-pink:#9B4430;
+  --grad-orange:#8A6E3C;
+
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --radius:12px;
+  --radius-sm:8px;
+}
+
+/* Тёмная тема — ночная карта. Переопределяются только токены. */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#101A18;
+    --page:#0C1413;
+    --bg:#101A18;
+    --card:#17231F;
+    --card2:#1E2B27;
+    --bar:#0C1413;
+    --sheet:#17231F;
+    --overlay:rgb(6 10 9 / .7);
+
+    --ink:#EAEEE6;
+    --t1:#EAEEE6;
+    --t2:#B8C3BC;
+    --t3:#8A968F;
+    --t4:#5E6B65;
+    --stroke:#26332E;
+    --line:#1E2B27;
+    --fill:rgb(234 238 230 / .07);
+    --fill2:rgb(234 238 230 / .04);
+
+    --north:#F2664A;
+    --north-soft:#2E1F1B;
+    --north-deep:#FF8A70;
+    --accent-light:var(--north-deep);
+    --accent-glow:rgb(242 102 74 / .28);
+
+    --water:#5AAABB;
+    --water-soft:#16292C;
+    --relief:#C7AC75;
+    --relief-soft:#282315;
+
+    --green:#5FA872;
+    --green-bg:#16271B;
+    --red:#E4705F;
+    --red-bg:#2A1614;
+    --orange:#D89A3E;
+    --sec:#1E2B27;
+
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0;background:var(--page);color:var(--t1);
-    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Roboto","Helvetica Neue",sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  @keyframes shimmer{0%{opacity:.45}50%{opacity:.9}100%{opacity:.45}}
-  @keyframes spin{to{transform:rotate(360deg)}}
+}
 
-  /* --- каркас экрана --- */
-  .phone{background:var(--bg);border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgb(0 0 0 / .2),0 12px 32px rgb(0 0 0 / .3)}
-  /* Шапку с «Назад» рисует сам MAX — здесь только заголовок экрана. */
-  .bar{height:44px;display:flex;align-items:center;justify-content:center;background:var(--bar);font-size:17px;font-weight:600;letter-spacing:-.43px;color:var(--t1)}
-  .bar.split{justify-content:space-between;padding:0 16px}
-  .bar.tall{height:52px;padding:0 20px;justify-content:space-between}
-  .body{padding:20px 16px;display:flex;flex-direction:column;gap:16px;min-height:600px}
-  .thin{height:3px;background:var(--fill)}
-  .thin>i{display:block;height:3px;background:var(--accent)}
+:root[data-theme="dark"]{
+  --paper:#101A18;
+  --page:#0C1413;
+  --bg:#101A18;
+  --card:#17231F;
+  --card2:#1E2B27;
+  --bar:#0C1413;
+  --sheet:#17231F;
+  --overlay:rgb(6 10 9 / .7);
+  --ink:#EAEEE6;
+  --t1:#EAEEE6;
+  --t2:#B8C3BC;
+  --t3:#8A968F;
+  --t4:#5E6B65;
+  --stroke:#26332E;
+  --line:#1E2B27;
+  --fill:rgb(234 238 230 / .07);
+  --fill2:rgb(234 238 230 / .04);
+  --north:#F2664A;
+  --north-soft:#2E1F1B;
+  --north-deep:#FF8A70;
+  --accent-light:var(--north-deep);
+  --accent-glow:rgb(242 102 74 / .28);
+  --water:#5AAABB;
+  --water-soft:#16292C;
+  --relief:#C7AC75;
+  --relief-soft:#282315;
+  --green:#5FA872;
+  --green-bg:#16271B;
+  --red:#E4705F;
+  --red-bg:#2A1614;
+  --orange:#D89A3E;
+  --sec:#1E2B27;
+}
 
-  /* --- атомы --- */
-  .card{background:var(--card);border-radius:16px}
-  .card.pad{padding:16px;display:flex;flex-direction:column;gap:12px}
-  .list{background:var(--card);border-radius:16px;display:flex;flex-direction:column}
-  .row{padding:14px 16px;display:flex;align-items:center;gap:12px;min-height:44px}
-  .row .grow{flex:1;display:flex;flex-direction:column;gap:2px}
-  .sep{height:1px;background:var(--line);margin-left:16px}
-  .sep.inset{margin-left:56px}
-  .btn{min-height:48px;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
-  .btn.sec{background:var(--sec);color:var(--t1)}
-  .btn.sm{min-height:36px;padding:0 14px;border-radius:10px;font-size:14px}
-  .btn.md{min-height:44px;padding:0 20px;font-size:15px}
-  .bottom{margin-top:auto}
-  .prog{height:6px;border-radius:3px;background:var(--fill)}
-  .prog>i{display:block;height:100%;border-radius:3px;background:var(--accent)}
-  .prog.xs{height:4px;border-radius:2px}
-  .tag{font-size:13px;line-height:16px;color:var(--t2);background:var(--fill);border-radius:8px;padding:6px 10px}
-  .label{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--t4)}
-  .section-label{padding:12px 16px 8px;font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--t4)}
-  .hint{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:12px 14px}
-  .hint i{width:6px;height:6px;border-radius:3px;background:var(--accent);margin-top:6px;flex:0 0 auto}
-  .hint p{margin:0;font-size:13px;line-height:18px;color:var(--t3)}
-  .t3{font-size:13px;color:var(--t3)}
-  .t4s{font-size:13px;color:var(--t4)}
-  .h1{font-size:28px;line-height:32px;font-weight:600;letter-spacing:.02px;color:var(--t1)}
-  .h2{font-size:22px;line-height:26px;font-weight:600;letter-spacing:-.26px;color:var(--t1)}
-  .h3{font-size:20px;line-height:24px;font-weight:600;letter-spacing:-.28px;color:var(--t1)}
-  .h4{font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.43px;color:var(--t1)}
-  .h5{font-size:16px;line-height:20px;font-weight:600;color:var(--t1)}
-  .body-text{font-size:15px;line-height:21px;color:var(--t2)}
-  .q{font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.26px;color:var(--t1)}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--page);color:var(--t1);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+@keyframes shimmer{0%{opacity:.4}50%{opacity:.85}100%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
 
-  /* --- 2c: шкала согласия, 5 растущих сегментов --- */
-  .scale{display:flex;align-items:center;justify-content:space-between;gap:6px}
-  .seg{flex:1;min-height:64px;border-radius:14px;background:var(--fill);display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .seg:hover{background:rgb(231 231 231 / .15)}
-  .seg i{border-radius:50%;background:var(--t4)}
-  .seg:nth-child(1) i{width:14px;height:14px}
-  .seg:nth-child(2) i{width:20px;height:20px}
-  .seg:nth-child(3) i{width:26px;height:26px}
-  .seg:nth-child(4) i{width:32px;height:32px}
-  .seg:nth-child(5) i{width:38px;height:38px}
-  .seg.on,.seg.on:hover{background:var(--accent);box-shadow:0 0 0 2px rgb(0 122 255 / .3)}
-  .seg.on i{background:#fff}
-  .scale-value{align-self:center;font-size:15px;font-weight:600;color:var(--accent)}
-  .dots{display:flex;gap:4px;align-items:center;justify-content:center}
-  .dots i{width:20px;height:4px;border-radius:2px;background:rgb(255 255 255 / .12)}
-  .dots i.on{background:var(--accent)}
+/* --- каркас экрана --- */
+.phone{background:var(--bg);display:flex;flex-direction:column}
+.bar{height:48px;display:flex;align-items:center;justify-content:center;background:var(--bar);
+     font-size:16px;font-weight:600;letter-spacing:-.2px;color:var(--t1)}
+.bar.split{justify-content:space-between;padding:0 16px}
+.bar.tall{height:52px;padding:0 20px;justify-content:space-between}
+.body{padding:20px 16px;display:flex;flex-direction:column;gap:16px;min-height:600px}
+/* линия маршрута под шапкой: пройденная часть — сплошная, остаток — пунктир */
+.thin{height:2px;background:repeating-linear-gradient(90deg,var(--stroke) 0 4px,transparent 4px 8px)}
+.thin>i{display:block;height:2px;background:var(--north)}
 
-  /* --- 2e: варианты ответа --- */
-  .ans{min-height:56px;border-radius:14px;background:var(--card);border:2px solid transparent;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
-  .ans:hover{background:rgb(50 52 61)}
-  .ans .key{width:26px;height:26px;border-radius:8px;background:var(--fill);color:var(--t3);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-  .ans .txt{font-size:16px;line-height:21px;color:var(--t1);flex:1}
-  .ans .tick{display:none;flex:0 0 auto}
-  .ans.on,.ans.on:hover{background:rgb(0 122 255 / .16);border-color:var(--accent)}
-  .ans.on .key{background:var(--accent);color:#fff}
-  .ans.on .tick{display:block}
+/* --- атомы --- */
+.card{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius)}
+.card.pad{padding:16px;display:flex;flex-direction:column;gap:12px}
+.list{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);display:flex;flex-direction:column}
+.row{padding:14px 16px;display:flex;align-items:center;gap:12px;min-height:44px}
+.row .grow{flex:1;display:flex;flex-direction:column;gap:2px}
+.sep{height:1px;background:var(--line);margin-left:16px}
+.sep.inset{margin-left:56px}
 
-  /* --- 2f: шит паузы --- */
-  .modal{position:relative;height:646px;overflow:hidden}
-  .modal .dim{position:absolute;inset:0;background:var(--overlay)}
-  .modal .blurred{filter:blur(1.5px);opacity:.55}
-  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sheet);border-radius:20px 20px 0 0;padding:8px 16px 20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 -8px 32px rgb(0 0 0 / .3)}
-  .sheet .grabber{width:36px;height:4px;border-radius:2px;background:rgb(255 255 255 / .12);align-self:center}
-  .modal.closed .dim,.modal.closed .sheet{display:none}
-  .modal.closed .blurred{filter:none;opacity:1}
-  .switch{width:44px;height:26px;border-radius:13px;background:var(--accent);padding:2px;display:flex;justify-content:flex-end}
-  .switch i{width:22px;height:22px;border-radius:11px;background:#fff}
+/* Кнопка — плашка маршрута: плотная заливка, без градиента и без свечения. */
+.btn{min-height:48px;border-radius:var(--radius-sm);background:var(--north);color:#fff;
+     font-size:16px;font-weight:600;letter-spacing:-.1px;display:flex;align-items:center;
+     justify-content:center;cursor:pointer;user-select:none;border:1px solid var(--north);
+     padding:0 16px;text-align:center;transition:background .12s ease}
+.btn:hover{background:var(--north-deep);border-color:var(--north-deep)}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:transparent;border-color:var(--stroke);color:var(--t1)}
+.btn.sec:hover{background:var(--fill);border-color:var(--t4)}
+.btn.sm{min-height:36px;padding:0 14px;font-size:14px}
+.btn.md{min-height:44px;padding:0 20px;font-size:15px}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.bottom{margin-top:auto}
 
-  /* --- 2g: скелетоны стриминга --- */
-  .sk{height:12px;border-radius:6px;background:var(--fill)}
-  .sk.live{animation:shimmer 1.4s ease-in-out infinite}
-  .spinner{width:22px;height:22px;border-radius:11px;border:2px solid rgb(0 122 255 / .25);border-top-color:var(--accent);animation:spin 1s linear infinite}
-  .caret{display:inline-block;width:2px;height:16px;background:var(--accent);margin-left:2px;vertical-align:-3px;animation:shimmer .9s steps(2) infinite}
+.prog{height:6px;border-radius:3px;background:var(--fill)}
+.prog>i{display:block;height:100%;border-radius:3px;background:var(--north)}
+.prog.xs{height:4px;border-radius:2px}
 
-  /* --- 2h: карточка лучшего совпадения --- */
-  .hero{border-radius:20px;overflow:hidden;background:var(--card)}
-  .hero-top{background:var(--grad-blue);padding:20px 18px;display:flex;flex-direction:column;gap:8px}
-  .hero-top .label{color:var(--t1);letter-spacing:1px}
-  .hero-top .h1{color:#fff}
-  .bar-strip{width:8px;height:32px;border-radius:4px;flex:0 0 auto}
+/* Отметка на карте: подпись объекта, а не «чип с обводкой». */
+.tag{font-size:13px;line-height:16px;color:var(--t2);background:var(--fill2);
+     border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:5px 10px}
+.label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t4);
+       font-family:var(--mono)}
+.section-label{padding:12px 16px 8px;font-size:11px;font-weight:600;letter-spacing:1px;
+               text-transform:uppercase;color:var(--t4);font-family:var(--mono)}
+.hint{display:flex;gap:10px;align-items:flex-start;background:var(--fill2);
+      border-left:2px solid var(--water);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px}
+.hint i{width:0;height:0;flex:0 0 auto}
+.hint p{margin:0;font-size:13px;line-height:18px;color:var(--t3)}
+.t3{font-size:13px;color:var(--t3)}
+.t4s{font-size:13px;color:var(--t4)}
 
-  /* --- 2k: экран педагога --- */
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .stat{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
-  .stat .num{font-size:28px;line-height:30px;font-weight:600;color:var(--t1)}
-  .stat .num small{font-size:17px;color:var(--t4)}
-  .barline{display:flex;align-items:center;gap:12px}
-  .barline .name{flex:0 0 116px;font-size:14px;color:var(--t2);overflow-wrap:anywhere}
-  .barline .track{flex:1;height:22px;border-radius:6px;background:var(--fill2)}
-  .barline .track>i{display:block;height:100%;border-radius:6px;background:var(--accent)}
-  .barline .val{width:26px;text-align:right;font-size:14px;font-weight:600;color:var(--t1)}
-  .filter{min-height:36px;padding:0 14px;border-radius:10px;background:var(--card);color:var(--t2);font-size:14px;display:flex;align-items:center;gap:8px}
-  .filter.on{background:var(--accent);color:#fff;font-weight:600}
+/* Заголовки набраны плотно: карта подписывается сжато, без воздуха внутри слова. */
+.h1{font-size:30px;line-height:34px;font-weight:700;letter-spacing:-.8px;color:var(--t1);text-wrap:balance}
+.h2{font-size:23px;line-height:28px;font-weight:700;letter-spacing:-.5px;color:var(--t1);text-wrap:balance}
+.h3{font-size:20px;line-height:25px;font-weight:600;letter-spacing:-.4px;color:var(--t1)}
+.h4{font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.3px;color:var(--t1)}
+.h5{font-size:15px;line-height:20px;font-weight:600;letter-spacing:-.2px;color:var(--t1)}
+.body-text{font-size:15px;line-height:22px;color:var(--t2)}
+.q{font-size:22px;line-height:29px;font-weight:600;letter-spacing:-.45px;color:var(--t1);text-wrap:balance}
 
-  /* --- приложение: один экран на весь вьюпорт --- */
-  .phone{max-width:480px;margin:0 auto;min-height:100vh;border-radius:0;box-shadow:none;display:flex;flex-direction:column}
-  @media (min-width:520px){
-    body{padding:24px 0}
-    .phone{min-height:calc(100vh - 48px);border-radius:20px;box-shadow:0 12px 32px rgb(0 0 0 / .3)}
-  }
-  /* нижние кнопки не должны уезжать под системную полоску телефона */
-  .body{flex:1;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
-  .btn[disabled]{opacity:.4;pointer-events:none}
-  .hidden{display:none !important}
-  .link{font-size:15px;color:var(--accent);cursor:pointer;user-select:none}
-  .center{align-items:center;justify-content:center;text-align:center}
+/* --- шкала согласия: пять делений, как румбы на лимбе --- */
+.scale{display:flex;align-items:flex-end;justify-content:space-between;gap:6px}
+.seg{flex:1;min-height:64px;border-radius:var(--radius-sm);background:var(--fill2);
+     border:1px solid var(--stroke);display:flex;align-items:flex-end;justify-content:center;
+     padding-bottom:10px;cursor:pointer;transition:background .12s ease,border-color .12s ease}
+.seg:hover{background:var(--fill);border-color:var(--t4)}
+.seg i{border-radius:1px;background:var(--t4);width:3px;display:block}
+.seg:nth-child(1) i{height:12px}
+.seg:nth-child(2) i{height:20px}
+.seg:nth-child(3) i{height:28px}
+.seg:nth-child(4) i{height:36px}
+.seg:nth-child(5) i{height:44px}
+.seg.on,.seg.on:hover{background:var(--north-soft);border-color:var(--north)}
+.seg.on i{background:var(--north)}
+.scale-value{align-self:center;font-size:14px;font-weight:600;color:var(--north);
+             font-family:var(--mono);letter-spacing:-.2px}
+.dots{display:flex;gap:4px;align-items:center;justify-content:center}
+.dots i{width:18px;height:2px;border-radius:1px;background:var(--stroke)}
+.dots i.on{background:var(--north)}
 
-  /* экран педагога шире и без телефонной рамки */
-  .desk{max-width:960px;margin:0 auto;padding:20px}
-  .desk .stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-  .cols{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
-  .cols>*{flex:1 1 280px}
-  .panel{background:var(--card);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
-  input.field{min-height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--t1);font-size:16px;padding:0 14px;outline:none;width:100%}
-  input.field:focus{border-color:var(--accent)}
+/* --- варианты ответа --- */
+.ans{min-height:56px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--stroke);
+     padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;
+     transition:border-color .12s ease,background .12s ease}
+.ans:hover{border-color:var(--t4)}
+.ans .key{width:26px;height:26px;border-radius:var(--radius-sm);background:var(--fill);color:var(--t3);
+          font-size:12px;font-weight:600;font-family:var(--mono);display:flex;align-items:center;
+          justify-content:center;flex:0 0 auto}
+.ans .txt{font-size:16px;line-height:21px;color:var(--t1);flex:1}
+.ans .tick{display:none;flex:0 0 auto}
+.ans.on,.ans.on:hover{background:var(--north-soft);border-color:var(--north)}
+.ans.on .key{background:var(--north);color:#fff}
+.ans.on .tick{display:block}
+
+/* --- шит паузы --- */
+.modal{position:relative;height:646px;overflow:hidden}
+.modal .dim{position:absolute;inset:0;background:var(--overlay)}
+.modal .blurred{filter:blur(1.5px);opacity:.55}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sheet);border-radius:16px 16px 0 0;
+       padding:8px 16px 20px;display:flex;flex-direction:column;gap:16px;
+       box-shadow:0 -8px 32px rgb(20 33 30 / .18)}
+.sheet .grabber{width:36px;height:4px;border-radius:2px;background:var(--stroke);align-self:center}
+.modal.closed .dim,.modal.closed .sheet{display:none}
+.modal.closed .blurred{filter:none;opacity:1}
+.switch{width:44px;height:26px;border-radius:13px;background:var(--north);padding:2px;display:flex;justify-content:flex-end}
+.switch i{width:22px;height:22px;border-radius:11px;background:#fff}
+
+/* --- ожидание ответа модели --- */
+.sk{height:12px;border-radius:3px;background:var(--fill)}
+.sk.live{animation:shimmer 1.4s ease-in-out infinite}
+.spinner{width:22px;height:22px;border-radius:11px;border:2px solid var(--stroke);
+         border-top-color:var(--north);animation:spin 1s linear infinite}
+.caret{display:inline-block;width:2px;height:16px;background:var(--north);margin-left:2px;
+       vertical-align:-3px;animation:shimmer .9s steps(2) infinite}
+
+/* --- карточка лучшего совпадения ---
+   Signature: изолинии рельефа. Место, куда ведёт маршрут, показано как участок
+   карты, а не как градиентный баннер. */
+.hero{border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--stroke)}
+.hero-top{position:relative;background:var(--north);padding:22px 18px;display:flex;
+          flex-direction:column;gap:8px;overflow:hidden}
+.hero-top::before{
+  content:"";position:absolute;inset:-40% -10%;pointer-events:none;opacity:.5;
+  background:repeating-radial-gradient(circle at 78% 18%,
+    transparent 0 13px,rgb(255 255 255 / .3) 13px 14px);
+}
+.hero-top>*{position:relative}
+.hero-top .label{color:rgb(255 255 255 / .88);letter-spacing:1.2px}
+.hero-top .h1{color:#fff}
+.bar-strip{width:4px;height:34px;border-radius:2px;flex:0 0 auto}
+
+/* --- сводка педагога --- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);
+      padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.stat .num{font-size:28px;line-height:32px;font-weight:700;color:var(--t1);
+           font-family:var(--mono);letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.stat .num small{font-size:16px;color:var(--t4)}
+.barline{display:flex;align-items:center;gap:12px}
+.barline .name{flex:0 0 116px;font-size:14px;color:var(--t2);overflow-wrap:anywhere}
+.barline .track{flex:1;height:20px;border-radius:3px;background:var(--fill2);border:1px solid var(--line)}
+.barline .track>i{display:block;height:100%;border-radius:2px;background:var(--water)}
+.barline .val{width:30px;text-align:right;font-size:13px;font-weight:600;color:var(--t1);
+              font-family:var(--mono);font-variant-numeric:tabular-nums}
+.filter{min-height:36px;padding:0 14px;border-radius:var(--radius-sm);background:var(--card);
+        border:1px solid var(--stroke);color:var(--t2);font-size:14px;display:flex;align-items:center;gap:8px}
+.filter.on{background:var(--north);border-color:var(--north);color:#fff;font-weight:600}
+
+/* --- приложение: один экран на весь вьюпорт --- */
+.phone{max-width:480px;margin:0 auto;min-height:100vh}
+@media (min-width:520px){
+  body{padding:24px 0}
+  .phone{min-height:calc(100vh - 48px);border:1px solid var(--stroke);border-radius:var(--radius);
+         overflow:hidden;box-shadow:0 18px 40px rgb(20 33 30 / .12)}
+}
+
+/* Имя продукта в шапке — только на широком экране. В мессенджере приложение
+   подписано самим чатом, в браузере подписать его больше нечем. */
+.deskbrand{display:none}
+
+/* Приложение подстраивается под ширину СВОЕГО места, а не окна браузера:
+   внутри мессенджера и в рамке демо-страницы оно узкое, даже когда окно
+   широкое. Медиазапрос этого не различает и выдал бы там десктопный вид. */
+body{container-type:inline-size}
+
+/* --- широкий экран: лист карты вместо телефона ---------------------------
+   До 900px остаётся мобильная раскладка: она же работает внутри мессенджера.
+   Дальше вкладки снизу превращаются в боковую панель — так же, как список
+   классов в кабинете педагога, чтобы обе части продукта выглядели одним
+   продуктом. Колонка с содержимым при этом не растягивается: строка длиннее
+   примерно семидесяти знаков читается заметно хуже, а тут читают вопросы. */
+@container (min-width:900px){
+  body{padding:32px 0}
+
+  .phone{max-width:940px;min-height:calc(100vh - 64px);
+         display:grid;align-content:start;
+         grid-template-columns:216px minmax(0,1fr);
+         grid-template-areas:"head head" "line line" "nav  body"}
+
+  /* Экраны без вкладок — вход, тест, результаты — боковой панели не имеют,
+     и растягивать их на всю ширину незачем: там форма или один вопрос. */
+  .phone:has(.tabs.hidden){max-width:620px;
+         grid-template-columns:minmax(0,1fr);
+         grid-template-areas:"head" "line" "body"}
+
+  .bar{grid-area:head;height:56px;background:var(--card);
+       border-bottom:1px solid var(--stroke)}
+  .bar.split{justify-content:flex-start;gap:10px;padding:0 20px}
+  .bar.split #bar-action{margin-left:auto}
+  .deskbrand{display:flex;align-items:baseline;gap:8px}
+  .deskbrand b{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--t1)}
+  .deskbrand span{font-size:13px;color:var(--t4);font-family:var(--mono)}
+  /* заголовок экрана уходит вправо от имени продукта, отделённый точкой */
+  #bar-title{font-size:14px;font-weight:500;color:var(--t3)}
+  #bar-title::before{content:"·";margin-right:8px;color:var(--t4)}
+
+  .thin{grid-area:line}
+  .body{grid-area:body;padding:26px 28px 34px}
+
+  /* вкладки становятся легендой карты: вертикальный список слева */
+  .tabs{grid-area:nav;flex-direction:column;align-content:start;
+        background:var(--card);border-top:none;border-right:1px solid var(--stroke);
+        padding-bottom:0}
+  .tab{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;
+       padding:13px 16px;font-size:15px;line-height:20px;letter-spacing:0;
+       border-bottom:1px solid var(--line);color:var(--t2)}
+  .tab:last-child{border-bottom:none}
+  .tab:hover{background:var(--fill2)}
+  /* активный пункт помечен красной риской — как в кабинете педагога */
+  .tab.on{background:var(--north-soft);box-shadow:inset 3px 0 0 var(--north);
+          color:var(--north-deep);font-weight:600}
+  .tab svg{width:20px;height:20px}
+}
+.body{flex:1;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.hidden{display:none !important}
+.link{font-size:15px;color:var(--north);cursor:pointer;user-select:none;font-weight:500}
+.link:hover{color:var(--north-deep)}
+.center{align-items:center;justify-content:center;text-align:center}
+
+:where(.btn,.seg,.ans,.tab,.link,.pill,.filter,.side-item,.seg-tab):focus-visible{
+  outline:2px solid var(--north);outline-offset:2px;
+}
+
+/* --- нижние вкладки --- */
+.tabs{display:flex;background:var(--bar);border-top:1px solid var(--stroke);
+      padding-bottom:env(safe-area-inset-bottom)}
+.tabs.hidden{display:none !important}
+.tab{flex:1;padding:9px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:4px;
+     cursor:pointer;user-select:none;color:var(--t4);font-size:11px;line-height:13px;
+     letter-spacing:.2px}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;
+         stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--north)}
+
+/* --- геймификация: отметки пройденного пути --- */
+.xp-card{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);padding:16px;
+         display:flex;flex-direction:column;gap:12px}
+.xp-head{display:flex;align-items:center;gap:12px}
+/* лимб компаса: уровень в центре круга с делениями по краю */
+.level-ring{width:52px;height:52px;border-radius:26px;background:var(--card);flex:0 0 auto;
+            border:2px solid var(--north);display:flex;align-items:center;justify-content:center;
+            font-size:19px;font-weight:700;color:var(--north);font-family:var(--mono);
+            font-variant-numeric:tabular-nums}
+.streak{display:flex;align-items:center;gap:6px;background:var(--relief-soft);
+        border:1px solid var(--relief);border-radius:var(--radius-sm);padding:5px 10px;
+        font-size:13px;font-weight:600;color:var(--t2);font-family:var(--mono)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+/* Печать в дневнике: полученная — на бумаге с рамкой, будущая — пунктиром. */
+.badge{background:var(--card);border:1px solid var(--relief);border-radius:var(--radius-sm);
+       padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.badge.locked{background:transparent;border-style:dashed;border-color:var(--stroke)}
+.badge .ico{font-size:24px;line-height:28px;height:28px;display:flex;align-items:center;
+            justify-content:center;filter:saturate(.85)}
+.badge.locked .ico{color:var(--t4);filter:none}
+.streak svg{flex:0 0 auto}
+.badge .nm{font-size:11px;line-height:14px;color:var(--t2)}
+.badge.locked .nm{color:var(--t4)}
+
+/* --- тренажёр задач --- */
+.task-q{font-size:19px;line-height:26px;font-weight:600;color:var(--t1);letter-spacing:-.3px}
+.verdict{border-radius:var(--radius-sm);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.verdict.ok{background:var(--green-bg);border:1px solid var(--green)}
+.verdict.err{background:var(--red-bg);border:1px solid var(--red)}
+.verdict .head{font-size:16px;font-weight:600}
+.verdict.ok .head{color:var(--green)}
+.verdict.err .head{color:var(--red)}
+
+/* --- кабинет педагога: рабочий инструмент, плотнее ученического --- */
+.desk-head{display:flex;align-items:center;justify-content:space-between;gap:16px;
+           padding:14px 18px;background:var(--card);border:1px solid var(--stroke);
+           border-radius:var(--radius-sm);margin-bottom:14px}
+.desk-head .brand{display:flex;align-items:baseline;gap:10px}
+.desk-head .brand b{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.desk-head .brand span{font-size:13px;color:var(--t4);font-family:var(--mono)}
+
+.split-view{display:flex;gap:14px;align-items:flex-start}
+.side{flex:0 0 232px;background:var(--card);border:1px solid var(--stroke);
+      border-radius:var(--radius-sm);overflow:hidden}
+.side h6{margin:0;padding:11px 14px;font-size:11px;font-weight:600;letter-spacing:1px;
+         text-transform:uppercase;color:var(--t4);border-bottom:1px solid var(--line);font-family:var(--mono)}
+.side-item{padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+           display:flex;align-items:center;gap:10px}
+.side-item:last-child{border-bottom:none}
+.side-item:hover{background:var(--fill2)}
+.side-item.on{background:var(--north-soft);box-shadow:inset 3px 0 0 var(--north)}
+.side-item .nm{flex:1;font-size:15px;color:var(--t1)}
+.side-item .cnt{font-size:12px;color:var(--t4);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;
+         background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius-sm)}
+.toolbar .grow{flex:1;min-width:120px}
+.seg-tabs{display:flex;background:var(--fill2);border:1px solid var(--stroke);
+          border-radius:var(--radius-sm);padding:3px;gap:2px}
+.seg-tab{padding:7px 14px;border-radius:5px;font-size:14px;color:var(--t3);cursor:pointer;user-select:none}
+.seg-tab.on{background:var(--card);color:var(--t1);font-weight:600;box-shadow:0 1px 2px rgb(20 33 30 / .08)}
+
+.grid{width:100%;border-collapse:collapse;font-size:14px}
+.grid th{position:sticky;top:0;background:var(--card);text-align:left;font-size:11px;
+         font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t4);
+         padding:10px 12px;border-bottom:1px solid var(--stroke);white-space:nowrap;font-family:var(--mono)}
+.grid td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--t2)}
+.grid tbody tr:nth-child(even){background:var(--fill2)}
+.grid tbody tr:hover{background:var(--fill)}
+.grid td.num,.grid th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.grid td.name{color:var(--t1)}
+.grid .rank{width:34px;color:var(--t4);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.grid tr.top .rank{color:var(--north);font-weight:700}
+.table-wrap{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius-sm);
+            overflow:auto;max-height:70vh}
+.meter{height:5px;border-radius:3px;background:var(--fill);min-width:64px;overflow:hidden}
+.meter>i{display:block;height:100%;background:var(--water)}
+.muted-note{font-size:12px;color:var(--t4);padding:9px 12px;border-top:1px solid var(--line)}
+
+.pill{font-size:12px;color:var(--t3);background:var(--card);border:1px solid var(--stroke);
+      border-radius:5px;padding:4px 8px;cursor:pointer;user-select:none}
+.pill.on{border-color:var(--north);color:var(--north);background:var(--north-soft)}
+
+/* экран педагога шире и без телефонной рамки */
+.desk{max-width:960px;margin:0 auto;padding:20px}
+.desk .stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.cols{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.cols>*{flex:1 1 280px}
+.panel{background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);
+       padding:16px;display:flex;flex-direction:column;gap:14px}
+input.field,select.field{min-height:46px;border-radius:var(--radius-sm);background:var(--card);
+       border:1px solid var(--stroke);color:var(--t1);font-size:16px;padding:0 14px;outline:none;
+       width:100%;font-family:inherit}
+input.field::placeholder{color:var(--t4)}
+input.field:focus,select.field:focus{border-color:var(--north);box-shadow:0 0 0 3px var(--accent-glow)}
+.field.sm{min-height:38px;border-radius:6px;font-size:14px;padding:0 10px}
+select.field{appearance:none;cursor:pointer}
 
 
 /* ---- витрина вокруг приложения ---- */
@@ -224,7 +557,7 @@ a.chip:hover{background:rgb(0 122 255 / .22)}
 }
 
 /* «телефон» с живым приложением */
-.device{
+.device{container-type:inline-size;
   background:var(--bg);border-radius:24px;overflow:hidden;
   box-shadow:0 1px 2px rgb(0 0 0 / .2),0 18px 48px rgb(0 0 0 / .42);
   display:flex;flex-direction:column;height:760px;
@@ -302,14 +635,35 @@ a.chip:hover{background:rgb(0 122 255 / .22)}
   <!-- ученик -->
   <div class="stage" id="stage-student">
     <div class="device">
-      <div class="phone">
-        <div class="bar split">
-          <div class="h4" id="bar-title">Компас</div>
-          <div class="link hidden" id="bar-action"></div>
-        </div>
-        <div class="thin"><i id="bar-progress" style="width:0%"></i></div>
-        <div class="body" id="view"></div>
-      </div>
+<div class="phone">
+  <div class="bar split">
+    <!-- на широком экране в шапке появляется имя продукта: там нет ни адресной
+         строки мессенджера, ни иконки приложения, по которым его узнают -->
+    <div class="deskbrand"><b>Компас</b><span>навигатор по профессиям</span></div>
+    <div class="h4" id="bar-title">Компас</div>
+    <div class="link hidden" id="bar-action"></div>
+  </div>
+  <div class="thin"><i id="bar-progress" style="width:0%"></i></div>
+  <div class="body" id="view"></div>
+  <nav class="tabs hidden" id="tabs">
+    <div class="tab" data-tab="home">
+      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Главная
+    </div>
+    <div class="tab" data-tab="practice">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
+      Задачи
+    </div>
+    <div class="tab" data-tab="careers">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/></svg>
+      Профессии
+    </div>
+    <div class="tab" data-tab="profile">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/></svg>
+      Профиль
+    </div>
+  </nav>
+</div>
     </div>
 
     <aside class="aside">
@@ -627,7 +981,11 @@ document.querySelectorAll('.tab').forEach((tab) => {
 <script>
 /* Мини-приложение «Компас»: онбординг → тест → рекомендации.
    Ванильный JS без сборки — MVP крутится в вебвью MAX, лишний рантайм ни к чему.
-   Прогресс живёт в localStorage: тест из 74 вопросов проходится за несколько заходов. */
+
+   Прогресс теста хранится на сервере и привязан к аккаунту: очистил данные
+   браузера, открыл приложение на другом телефоне или зашёл из бота — ответы
+   на месте. localStorage остался кешем: он даёт мгновенный старт и переживает
+   обрыв связи, но источник правды — сервер. */
 
 const LS_KEY = 'kompas_state_v1';
 const SCALE_LABELS = [
@@ -641,6 +999,29 @@ const HOLLAND_TITLES = {
 };
 // порядок осей радара по часовой стрелке, начиная сверху
 const RADAR_ORDER = ['investigative', 'artistic', 'social', 'enterprising', 'conventional', 'realistic'];
+// Незакрытое достижение — не «замок», а ненанесённая отметка на карте:
+// эмодзи в каждой ОС выглядит по-своему и ломает набор.
+const ICON_PENDING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+  stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true">
+  <circle cx="12" cy="12" r="7.5" stroke-dasharray="3 3"></circle></svg>`;
+const ICON_STREAK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+  stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
+  <path d="M4 18 L9 11 L13 14 L20 6"></path><path d="M20 11 V6 H15"></path></svg>`;
+
+// Полученные отметки — впереди, из ненанесённых показываем только ближайшие:
+// восемнадцать одинаковых плиток занимают экран и ничего не сообщают.
+const BADGES_SHOWN = 6;
+
+function badgeTiles(achievements, showAll) {
+  const sorted = [...achievements].sort((a, b) => Number(b.earned) - Number(a.earned));
+  const visible = showAll ? sorted : sorted.filter((a, i) => a.earned || i < BADGES_SHOWN);
+  return visible.map((a) => `
+    <div class="badge ${a.earned ? '' : 'locked'}" title="${esc(a.hint)}">
+      <div class="ico">${a.earned ? a.icon : ICON_PENDING}</div>
+      <div class="nm">${esc(a.earned ? a.title : a.hint)}</div>
+    </div>`).join('');
+}
+
 const SOFTSKILL_TITLES = {
   teamwork: 'Работа в команде', leadership: 'Лидерство', creativity: 'Творческое мышление',
   analytical: 'Аналитика', resilience: 'Усидчивость',
@@ -650,6 +1031,11 @@ const CATEGORY_GRADIENTS = {
   'услуги': 'var(--grad-orange)', 'менеджмент': 'var(--grad-violet)',
   'медицина': 'var(--grad-green)', 'образование': 'var(--grad-violet)',
 };
+const ERROR_TITLES = {
+  calculation: 'Вычислительные', sign: 'Знак', unit: 'Единицы измерения',
+  attention: 'Невнимательность', conceptual: 'Понимание темы',
+  methodology: 'Порядок решения', incomplete: 'Неполный ответ',
+};
 // Пропуск знаниевого вопроса. Не «нет ответа», а заведомо неверный индекс:
 // иначе пропустивший сложные вопросы получил бы завышенный knowledge_score.
 const SKIPPED = -1;
@@ -658,6 +1044,7 @@ const view = document.getElementById('view');
 const barTitle = document.getElementById('bar-title');
 const barAction = document.getElementById('bar-action');
 const barProgress = document.getElementById('bar-progress');
+const tabsBar = document.getElementById('tabs');
 
 let Q = null;          // банк вопросов с бэкенда
 let S = loadState();   // состояние прохождения
@@ -675,25 +1062,80 @@ function loadState() {
     answers: {},
     lastResultId: null,
     schoolClass: '',
+    classId: null,
+    fullName: '',
+    token: null,
   };
 }
 
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify(S));
+  scheduleSync();
+}
+
+/* Отправка черновика на сервер. С задержкой, потому что save() зовётся на
+   каждый ответ, а слать запрос на каждый клик незачем: ответы уже в кеше,
+   и потеря последней секунды ничего не стоит. */
+let syncTimer = null;
+function scheduleSync() {
+  if (!S.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncProgress, 800);
+}
+
+async function syncProgress() {
+  if (!S.token) return;
+  try {
+    await api('/api/tests/progress', {
+      method: 'PUT',
+      body: JSON.stringify({ answers: S.answers, plan: S.plan ?? null }),
+    });
+  } catch (error) {
+    // связь пропала — ответы остались в кеше, отправим со следующим ответом
+    console.warn('Черновик не сохранён на сервере:', error.message);
+  }
+}
+
+/* Черновик с сервера. Берём его, если он полнее локального: на новом
+   устройстве кеш пустой, а после переустановки приложения — устарел.
+   Обратный случай (локально больше) бывает после ответов без связи. */
+async function loadServerProgress() {
+  if (!S.token) return;
+  try {
+    const draft = await api('/api/tests/progress');
+    if (draft.answered > Object.keys(S.answers).length) {
+      S.answers = draft.answers;
+      if (draft.plan) S.plan = draft.plan;
+      localStorage.setItem(LS_KEY, JSON.stringify(S));
+    } else if (Object.keys(S.answers).length > draft.answered) {
+      await syncProgress();
+    }
+  } catch (error) {
+    console.warn('Черновик с сервера не получен:', error.message);
+  }
 }
 
 /* ---------- утилиты ---------- */
 
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => (
-  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
-));
+// в автономном демо запросы обслуживает DEMO.handle, а не сеть
+const api = (path, options = {}) => DEMO.handle(path, options);
 
-async function api(path, options = {}) {
-  // в автономном демо запросы обслуживает DEMO.handle, а не сеть
-  return DEMO.handle(path, options);
+// заполняется на старте из /api/public-config
+let BOT_USERNAME = '';
+
+/* Профиль с сервера в локальное состояние. */
+function applyProfile(profile) {
+  S.userId = profile.max_user_id;
+  S.fullName = profile.full_name || '';
+  S.classId = profile.class_id || null;
+  S.schoolClass = profile.school_class || '';
+  S.role = profile.role;
+  save();
 }
 
-function render(html, { title = 'Компас', progress = 0, action = null } = {}) {
+/* tab — какую вкладку подсветить внизу. Не передан (вход, вопросы теста) —
+   панель прячется, чтобы во время прохождения ничто не отвлекало. */
+function render(html, { title = 'Компас', progress = 0, action = null, tab = null } = {}) {
   barTitle.textContent = title;
   // без правого действия заголовок центрируется — так в макете
   barTitle.parentElement.classList.toggle('split', !!action);
@@ -703,6 +1145,10 @@ function render(html, { title = 'Компас', progress = 0, action = null } = 
     barAction.textContent = action.label;
     barAction.onclick = action.onClick;
   }
+  tabsBar.classList.toggle('hidden', !tab);
+  tabsBar.querySelectorAll('[data-tab]').forEach((el) => {
+    el.classList.toggle('on', el.dataset.tab === tab);
+  });
   view.innerHTML = html;
   view.scrollTop = 0;
   questionShownAt = Date.now();
@@ -710,68 +1156,589 @@ function render(html, { title = 'Компас', progress = 0, action = null } = 
 
 const blockA = () => Q.block_a_interests;
 const blockC = () => Q.block_c_softskills;
-const subjectCodes = () => [...new Set(Q.block_b_subjects.map((q) => q.subject))];
-const subjectQuestions = (code) => Q.block_b_subjects.filter((q) => q.subject === code);
+
+/* Блок B спрашивается не целиком. После блока A сервер подбирает пять
+   предметов под склад ученика, и в тесте остаётся 15 вопросов вместо 52.
+   Остальные предметы можно добрать вручную — они попадают в S.extraSubjects. */
+const plannedSubjects = () => (S.plan ? S.plan.subjects.map((s) => s.subject) : null);
+
+/* На предмет — лёгкая задача, сложная и вопрос про интерес. Средняя почти
+   дублирует лёгкую, а время ученика стоит дороже третьего вопроса. */
+const subjectQuestions = (code) => Q.block_b_subjects.filter(
+  (q) => q.subject === code && (q.type === 'interest' || q.difficulty === 'easy' || q.difficulty === 'hard'),
+);
+
+const subjectCodes = () => {
+  const planned = plannedSubjects();
+  if (!planned) return [...new Set(Q.block_b_subjects.map((q) => q.subject))];
+  return [...planned, ...(S.extraSubjects || []).filter((c) => !planned.includes(c))];
+};
+
+const blockBQuestions = () => subjectCodes().flatMap(subjectQuestions);
 const answeredCount = () => Object.keys(S.answers).length;
-const totalCount = () => blockA().length + Q.block_b_subjects.length + blockC().length;
+const totalCount = () => blockA().length + blockBQuestions().length + blockC().length;
 const isAnswered = (id) => S.answers[id] !== undefined;
+// названия предметов приходят с бэкенда вместе с банком вопросов
+const subjectTitle = (code) => Q?.subject_titles?.[code] || code;
 // Бэкенд считает профиль и по части ответов, поэтому предварительный результат
 // можно показать сразу после блока A — не заставляя пройти все 74 вопроса.
 const canPreview = () => blockA().every((q) => isAnswered(q.id));
 
-/* ---------- экран: онбординг ---------- */
+/* ---------- экраны входа ---------- */
 
-function screenOnboarding() {
-  const done = answeredCount();
-  const total = totalCount();
+const LOGO_TILE = `
+  <div style="width:64px;height:64px;border-radius:20px;background:var(--grad-blue);display:flex;align-items:center;justify-content:center">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
+  </div>`;
 
-  if (done > 0 && done < total) {
-    render(`
-      <div class="h2">Продолжим?</div>
-      <div class="card pad" style="gap:14px">
-        <div style="display:flex;align-items:baseline;justify-content:space-between">
-          <div class="label">Прогресс теста</div>
-          <div style="font-size:15px;font-weight:600;color:var(--accent)">${done} / ${total}</div>
-        </div>
-        <div class="prog"><i style="width:${(done / total) * 100}%"></i></div>
-        <div class="t3">Ответы сохранены на этом устройстве — можно продолжить с того же места.</div>
-      </div>
-      <div class="btn" data-go="next">Продолжить</div>
-      ${canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
-      <div class="list">
-        <div class="row" data-go="restart"><div style="font-size:16px;flex:1">Начать заново</div></div>
-        <div class="sep"></div>
-        <div class="row" data-go="history"><div style="font-size:16px;flex:1">История прохождений</div></div>
-      </div>
-    `, { progress: done / total });
-    return;
-  }
-
+/* Приветствие: регистрация, вход или прохождение без аккаунта. */
+function screenWelcome() {
   render(`
     <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
-      <div style="width:64px;height:64px;border-radius:20px;background:var(--grad-blue);display:flex;align-items:center;justify-content:center">
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="12" stroke="#fff" stroke-width="2"></circle><path d="M19.5 10.5l-3 6-6 3 3-6 6-3z" fill="#fff"></path></svg>
-      </div>
-      <div class="h1">Разберёмся, что тебе<br>реально интересно</div>
-      <div style="font-size:16px;line-height:22px;color:var(--t3)">74 вопроса про интересы, школьные предметы и то, как ты работаешь с людьми. В конце — пять профессий с объяснением, почему именно они.</div>
+      ${LOGO_TILE}
+      <div class="h1">Открой «Компас»<br>в Telegram</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">Приложение работает внутри мессенджера: так вход происходит сам, без почты и пароля, а прогресс из чата с ботом и из приложения остаётся общим.</div>
     </div>
-    <div class="list" style="gap:2px;overflow:hidden">
-      ${[['A', `Интересы · ${blockA().length} вопросов`, '3 мин'],
-         ['B', `Предметы · ${Q.block_b_subjects.length} вопроса`, 'по частям'],
-         ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
-        ${i ? '<div class="sep inset"></div>' : ''}
-        <div class="row">
-          <div style="width:28px;height:28px;border-radius:9px;background:rgb(0 122 255 / .16);color:var(--accent);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">${letter}</div>
-          <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
-          <div class="t4s">${time}</div>
-        </div>`).join('')}
+    <div class="card pad" style="gap:12px">
+      <div class="label">Что делать</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">${BOT_USERNAME
+        ? `Найди бота <b>@${esc(BOT_USERNAME)}</b> в Telegram и нажми «Запустить».`
+        : 'Открой бота «Компаса» в Telegram и нажми «Запустить».'} Приложение откроется прямо в чате.</div>
     </div>
-    <div style="font-size:13px;line-height:18px;color:var(--t4)">Прогресс сохраняется — можно закрыть и вернуться позже.</div>
     <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
-      <div class="btn" data-go="next">Начать тест</div>
+      ${BOT_USERNAME
+        ? `<a class="btn" href="https://t.me/${encodeURIComponent(BOT_USERNAME)}" target="_blank" rel="noopener" style="text-decoration:none">Открыть бота в Telegram</a>`
+        : ''}
       <div class="link" style="text-align:center" data-go="teacher">Я педагог</div>
     </div>
   `, { progress: 0 });
+}
+
+/* Общая обвязка формы: собирает значения полей, шлёт запрос, показывает ошибку. */
+function formScreen({ title, subtitle, fields, submitLabel, footer, onSubmit }) {
+  render(`
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
+      ${LOGO_TILE}
+      <div class="h1">${title}</div>
+      ${subtitle ? `<div style="font-size:16px;line-height:22px;color:var(--t3)">${subtitle}</div>` : ''}
+    </div>
+    <div class="card pad" style="gap:12px">
+      ${fields.map((f) => `<input id="f-${f.name}" class="field" placeholder="${esc(f.placeholder)}"
+        type="${f.type || 'text'}" maxlength="${f.maxlength || 255}"
+        autocomplete="${f.autocomplete || 'off'}" style="${f.style || ''}">`).join('')}
+      <div id="form-status" class="t3" style="min-height:18px"></div>
+    </div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="form-submit">${submitLabel}</div>
+      ${footer || ''}
+    </div>
+  `, { progress: 0 });
+
+  const status = view.querySelector('#form-status');
+  const submit = view.querySelector('#form-submit');
+  const inputs = fields.map((f) => view.querySelector(`#f-${f.name}`));
+  inputs[0]?.focus();
+
+  const run = async () => {
+    const values = Object.fromEntries(fields.map((f, i) => [f.name, inputs[i].value.trim()]));
+    const missing = fields.find((f) => !f.optional && !values[f.name]);
+    if (missing) {
+      status.style.color = 'var(--orange)';
+      status.textContent = `Заполни поле «${missing.placeholder}».`;
+      return;
+    }
+    const label = submit.textContent;
+    submit.textContent = 'Секунду…';
+    status.textContent = '';
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      submit.textContent = label;
+      status.style.color = 'var(--orange)';
+      status.textContent = error.message || 'Что-то пошло не так — попробуй ещё раз.';
+    }
+  };
+
+  submit.onclick = run;
+  // именно addEventListener, а не el.onkeydown = ...: обработчик-стрелка вернул бы
+  // false на любой клавише кроме Enter, а false из onkeydown отменяет ввод символа —
+  // поле выглядело бы «залипшим»: курсор мигает, но ничего не печатается и не вставляется
+  inputs.forEach((el) => {
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  });
+}
+
+function screenJoinClass() {
+  formScreen({
+    title: 'Код класса',
+    subtitle: 'Код даёт учитель — 6 символов. С ним ты попадёшь в сводку своего класса.',
+    submitLabel: 'Вступить',
+    footer: '<div class="link" style="text-align:center" data-go="home">Позже</div>',
+    fields: [
+      { name: 'join_code', placeholder: 'Например: AB12CD', maxlength: 8,
+        style: 'text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:4px;font-weight:600' },
+    ],
+    onSubmit: async (v) => {
+      const data = await api('/api/classes/join', {
+        method: 'POST',
+        body: JSON.stringify({ join_code: v.join_code.toUpperCase() }),
+      });
+      S.classId = data.class_id;
+      S.schoolClass = data.class_name;
+      save();
+      screenOnboarding();
+    },
+  });
+}
+
+/* ---------- экран: онбординг ---------- */
+
+/* Карточка уровня и серии — визитка прогресса, как на главном экране AI-Atlas. */
+function xpCard(p) {
+  if (!p) return '';
+  return `
+    <div class="xp-card">
+      <div class="xp-head">
+        <div class="level-ring">${p.level}</div>
+        <div style="flex:1">
+          <div class="h5">Уровень ${p.level}</div>
+          <div class="t3">${p.xp} XP · до следующего ${p.xp_to_next}</div>
+        </div>
+        ${p.streak_days ? `<div class="streak">${ICON_STREAK} ${p.streak_days} ${plural(p.streak_days, 'день', 'дня', 'дней')}</div>` : ''}
+      </div>
+      <div class="prog"><i style="width:${(p.xp_in_level / p.xp_per_level) * 100}%"></i></div>
+      ${p.total_tasks ? `<div class="t3">Решено задач: ${p.total_tasks} · точность ${Math.round(p.accuracy * 100)}%</div>` : ''}
+    </div>`;
+}
+
+/* Вкладка «Главная» — одно понятное действие на текущий момент. */
+async function screenOnboarding() {
+  const done = answeredCount();
+  const total = totalCount();
+  const testDone = done >= total;
+  const started = done > 0;
+
+  // главное действие зависит от того, где ученик остановился
+  const [actionLabel, actionGo, statusText] = !started
+    ? ['Пройти тест', 'next', 'Тест покажет подходящие профессии и предметы, которые стоит подтянуть.']
+    : testDone
+      ? ['Тренироваться', 'practice', 'Тест пройден. Теперь подтягивай предметы, которых не хватает твоим профессиям.']
+      : ['Продолжить тест', 'next', 'Ответы сохранены — можно продолжить с того же места.'];
+
+  // прогресс необязателен: без него главная просто покажется без карточки уровня
+  let progress = null;
+  if (S.token) {
+    try { progress = await api('/api/practice/progress'); } catch { /* не критично */ }
+  }
+
+  render(`
+    <div class="h2">${S.fullName ? `Привет, ${esc(S.fullName.split(' ')[0])}` : 'Привет'}</div>
+
+    ${progress && progress.total_tasks ? xpCard(progress) : ''}
+
+    <div class="card pad" style="gap:14px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <div class="label">Тест «Компас»</div>
+        <div style="font-size:15px;font-weight:600;color:${testDone ? 'var(--green)' : 'var(--accent)'}">${done} / ${total}</div>
+      </div>
+      <div class="prog"><i style="width:${(done / total) * 100}%;${testDone ? 'background:var(--green)' : ''}"></i></div>
+      <div class="t3">${statusText}</div>
+      <div class="btn" data-go="${actionGo}">${actionLabel}</div>
+      ${!testDone && canPreview() ? '<div class="link" style="text-align:center" data-go="preview">Посмотреть предварительный результат</div>' : ''}
+    </div>
+
+    ${testDone ? `
+      <div class="list">
+        <div class="row" data-go="careers"><div class="grow"><div class="h5">Мои профессии</div><div class="t3">Кто тебе подходит и почему</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="practice"><div class="grow"><div class="h5">Тренажёр</div><div class="t3">Задачи по предметам, которые нужно подтянуть</div></div></div>
+      </div>` : `
+      <div class="list" style="gap:2px;overflow:hidden">
+        ${[['A', `Интересы · ${blockA().length} вопросов`, '3 мин'],
+           ['B', `Предметы · ${Q.block_b_subjects.length} вопроса`, 'по частям'],
+           ['C', `Как ты работаешь · ${blockC().length}`, '2 мин']].map(([letter, text, time], i) => `
+          ${i ? '<div class="sep inset"></div>' : ''}
+          <div class="row">
+            <div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--fill);color:var(--t2);font-family:var(--mono);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto">${letter}</div>
+            <div style="font-size:15px;line-height:20px;color:var(--t2);flex:1">${text}</div>
+            <div class="t4s">${time}</div>
+          </div>`).join('')}
+      </div>`}
+
+    ${!S.token ? '<div class="hint"><i style="background:var(--orange)"></i><p>Ты без аккаунта — прогресс хранится только в этом браузере. Создай аккаунт во вкладке «Профиль», чтобы он не потерялся.</p></div>' : ''}
+  `, { progress: done / total, tab: 'home' });
+}
+
+/* ---------- вкладка: тренажёр задач ---------- */
+
+let pack = { tasks: [], index: 0, correct: 0, reason: '' };
+
+/* Стартовый экран вкладки: задания от учителя + свободная тренировка. */
+async function screenPractice() {
+  if (!S.token) return screenNeedAccount('тренажёр');
+
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем…</div></div>',
+    { title: 'Задачи', tab: 'practice' });
+
+  let assignments = [];
+  if (S.classId) {
+    try { assignments = await api('/api/classes/my-assignments'); } catch { /* необязательно */ }
+  }
+
+  render(`
+    ${assignments.length ? `
+      <div class="list">
+        <div class="section-label">Задания от учителя</div>
+        ${assignments.map((a, i) => `
+          ${i ? '<div class="sep"></div>' : ''}
+          <div class="row" data-assignment="${a.id}" style="align-items:flex-start">
+            <div class="grow">
+              <div class="h5">${esc(a.title)}</div>
+              <div class="t3">${a.size} ${plural(a.size, 'задача', 'задачи', 'задач')}${a.difficulty ? ` · ${esc(a.difficulty)}` : ''}${a.due_date ? ` · до ${new Date(a.due_date).toLocaleDateString('ru-RU')}` : ''}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    <div class="card pad" style="gap:12px">
+      <div class="h4">Свободная тренировка</div>
+      <div class="t3">Пять задач по предметам, которые нужны твоим профессиям.</div>
+      <div class="btn" id="free-pack">Начать</div>
+    </div>
+  `, { title: 'Задачи', tab: 'practice' });
+
+  view.querySelector('#free-pack').onclick = () => startPack('/api/practice/pack?size=5');
+  view.querySelectorAll('[data-assignment]').forEach((row) => {
+    const a = assignments.find((x) => x.id === row.dataset.assignment);
+    row.onclick = () => {
+      const params = new URLSearchParams({ size: a.size });
+      if (a.subjects.length === 1) params.set('subject', a.subjects[0]);
+      if (a.difficulty) params.set('difficulty', a.difficulty);
+      startPack(`/api/practice/pack?${params}`, a.title);
+    };
+  });
+}
+
+async function startPack(url, title = '') {
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Собираем задачи…</div></div>',
+    { title: 'Задачи', tab: 'practice' });
+  try {
+    const data = await api(url);
+    pack = { tasks: data.tasks, index: 0, correct: 0, reason: title || data.reason };
+  } catch (error) {
+    return screenError(error, screenPractice);
+  }
+  screenTask();
+}
+
+function screenTask() {
+  const task = pack.tasks[pack.index];
+  if (!task) return screenPackDone();
+
+  render(`
+    <div style="display:flex;align-items:baseline;justify-content:space-between">
+      <div class="label">${esc(subjectTitle(task.subject))} · ${esc(task.topic)}</div>
+      <div class="t3">${pack.index + 1} из ${pack.tasks.length}</div>
+    </div>
+    <div class="prog xs"><i style="width:${(pack.index / pack.tasks.length) * 100}%"></i></div>
+
+    <div class="card pad" style="gap:16px">
+      <div class="task-q">${esc(task.question)}</div>
+      <input id="answer" class="field" placeholder="Твой ответ" autocomplete="off">
+      ${task.hint ? `<div class="link" id="hint-toggle">Показать подсказку</div>
+        <div class="t3 hidden" id="hint">${esc(task.hint)}</div>` : ''}
+    </div>
+
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="check">Проверить</div>
+      <div class="link" style="text-align:center" id="skip">Пропустить</div>
+    </div>
+  `, { title: 'Задачи', tab: 'practice' });
+
+  const input = view.querySelector('#answer');
+  const check = view.querySelector('#check');
+  input.focus();
+
+  const submit = async () => {
+    const answer = input.value.trim();
+    if (!answer) { input.focus(); return; }
+    check.textContent = 'Проверяем…';
+    try {
+      const verdict = await api('/api/practice/answer', {
+        method: 'POST',
+        body: JSON.stringify({ task_id: task.id, answer }),
+      });
+      if (verdict.is_correct) pack.correct += 1;
+      screenVerdict(task, answer, verdict);
+    } catch (error) {
+      check.textContent = 'Проверить';
+      screenError(error, screenTask);
+    }
+  };
+
+  check.onclick = submit;
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  view.querySelector('#skip').onclick = () => { pack.index += 1; screenTask(); };
+  const toggle = view.querySelector('#hint-toggle');
+  if (toggle) toggle.onclick = () => view.querySelector('#hint').classList.toggle('hidden');
+}
+
+/* Разбор ответа: верно/ошибка, тип ошибки и объяснение от ИИ. */
+function screenVerdict(task, answer, verdict) {
+  const ok = verdict.is_correct;
+  render(`
+    <div class="verdict ${ok ? 'ok' : 'err'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div class="head">${ok ? 'Верно!' : esc(verdict.error_label)}</div>
+        ${verdict.xp_earned ? `<div class="streak">+${verdict.xp_earned} XP</div>` : ''}
+      </div>
+      ${ok ? '' : `<div class="body-text">Твой ответ: <b>${esc(answer)}</b> · правильный: <b>${esc(verdict.correct_answer)}</b></div>`}
+      <div class="body-text">${esc(verdict.recommendation)}</div>
+    </div>
+
+    ${verdict.level_up ? `
+      <div class="card pad center" style="gap:6px">
+        <div class="level-ring" style="width:56px;height:56px;border-radius:28px">${verdict.level}</div>
+        <div class="h4">Новый уровень!</div>
+        <div class="t3">Ты добрался до ${verdict.level} уровня — так держать.</div>
+      </div>` : ''}
+
+    ${verdict.new_achievements?.length ? `
+      <div class="card pad">
+        <div class="h4">${verdict.new_achievements.length > 1 ? 'Новые достижения' : 'Новое достижение'}</div>
+        <div class="badges">
+          ${verdict.new_achievements.map((a) => `
+            <div class="badge"><div class="ico">${a.icon}</div><div class="nm">${esc(a.title)}</div></div>`).join('')}
+        </div>
+      </div>` : ''}
+
+    ${verdict.ai_explanation ? `
+      <div class="card pad" style="gap:8px">
+        <div class="label">Разбор от ИИ</div>
+        <div class="body-text">${esc(verdict.ai_explanation)}</div>
+      </div>` : ''}
+
+    ${!ok && verdict.explanation ? `
+      <div class="card pad" style="gap:8px">
+        <div class="label">Как решать</div>
+        <div class="body-text">${esc(verdict.explanation)}</div>
+      </div>` : ''}
+
+    <div class="bottom"><div class="btn" id="next-task">
+      ${pack.index + 1 < pack.tasks.length ? 'Следующая задача' : 'Завершить'}
+    </div></div>
+  `, { title: 'Разбор', tab: 'practice' });
+
+  view.querySelector('#next-task').onclick = () => { pack.index += 1; screenTask(); };
+}
+
+async function screenPackDone() {
+  const total = pack.tasks.length;
+  let stats = null;
+  try { stats = await api('/api/practice/stats'); } catch { /* статистика необязательна */ }
+
+  render(`
+    <div class="card pad center" style="gap:10px;padding:24px 16px">
+      <div class="h1" style="color:var(--accent)">${pack.correct} из ${total}</div>
+      <div class="t3">${pack.correct === total ? 'Отличная работа — весь пак без ошибок!' : 'Ошибки разобраны — в следующий раз будет легче.'}</div>
+    </div>
+
+    ${stats && stats.by_subject.length ? `
+      <div class="card pad">
+        <div class="h4">Точность по предметам</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${bars(stats.by_subject.map((s) => [subjectTitle(s.subject), s.accuracy * 5]), 5,
+            (v) => `${Math.round((v / 5) * 100)}%`)}
+        </div>
+        <div class="t4s">Всего решено задач: ${stats.total_answered}</div>
+      </div>` : ''}
+
+    ${stats && Object.keys(stats.error_breakdown).length ? `
+      <div class="card pad">
+        <div class="h4">Типичные ошибки</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${Object.entries(stats.error_breakdown).map(([type, count]) =>
+            `<div class="tag">${esc(ERROR_TITLES[type] || type)} · ${count}</div>`).join('')}
+        </div>
+      </div>` : ''}
+
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" data-go="practice">Ещё пак задач</div>
+      <div class="btn sec" data-go="home">На главную</div>
+    </div>
+  `, { title: 'Итог', tab: 'practice' });
+}
+
+/* ---------- вкладка: профессии ---------- */
+
+async function screenCareers() {
+  if (!S.token) return screenNeedAccount('профессии');
+
+  render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем результаты…</div></div>',
+    { title: 'Профессии', tab: 'careers' });
+
+  let data;
+  try {
+    data = await api(`/api/users/${encodeURIComponent(S.userId)}/history`);
+  } catch (error) {
+    if (error.status !== 404) return screenError(error, screenCareers);
+    data = { attempts: 0, history: [] };
+  }
+
+  const last = data.history[0];
+  if (!last || !last.professions.length) {
+    return render(`
+      <div class="card pad" style="gap:12px">
+        <div class="h4">Профессий пока нет</div>
+        <div class="t3">Пройди тест — и здесь появятся пять профессий с объяснением, почему они тебе подходят.</div>
+        <div class="btn" data-go="next">Пройти тест</div>
+      </div>
+    `, { title: 'Профессии', tab: 'careers' });
+  }
+
+  const [top, ...rest] = last.professions;
+  render(`
+    <div class="hero">
+      <div class="hero-top" style="background:${CATEGORY_GRADIENTS[top.category] || 'var(--grad-blue)'}">
+        <div class="label">Лучшее совпадение · ${esc(top.category)}</div>
+        <div class="h1">${esc(top.name)}</div>
+      </div>
+      <div style="padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div class="body-text">${esc(top.reasoning)}</div>
+        ${top.subjects_to_improve?.length ? `
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="label" style="letter-spacing:.5px">Стоит подтянуть</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${top.subjects_to_improve.map((s) => `<div class="tag">${esc(s)}</div>`).join('')}</div>
+          </div>` : ''}
+        <div class="btn" data-go="practice">Тренироваться по этим предметам</div>
+      </div>
+    </div>
+
+    ${rest.length ? `
+      <div class="list">
+        <div class="section-label">Ещё подходят</div>
+        ${rest.map((p, i) => `
+          ${i ? '<div class="sep" style="margin-left:36px"></div>' : ''}
+          <div class="row" style="padding:12px 16px;align-items:flex-start" data-profession="${i}">
+            <div class="bar-strip" style="background:${CATEGORY_GRADIENTS[p.category] || 'var(--grad-violet)'}"></div>
+            <div class="grow">
+              <div class="h5">${esc(p.name)}</div>
+              <div class="t3">${esc(p.category)}</div>
+              <div class="body-text hidden" style="padding-top:6px" data-reasoning>${esc(p.reasoning)}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+
+    ${data.attempts > 1 ? '<div class="link" style="text-align:center" data-go="history">История прохождений</div>' : ''}
+  `, { title: 'Профессии', tab: 'careers' });
+
+  view.querySelectorAll('[data-profession]').forEach((row) => {
+    row.onclick = () => row.querySelector('[data-reasoning]').classList.toggle('hidden');
+  });
+}
+
+/* ---------- вкладка: профиль ---------- */
+
+async function screenProfile() {
+  let progress = null;
+  if (S.token) {
+    try { progress = await api('/api/practice/progress'); } catch { /* не критично */ }
+  }
+
+  render(`
+    ${S.token ? `
+      <div class="card pad" style="gap:6px">
+        <div class="h4">${esc(S.fullName || 'Без имени')}</div>
+        <div class="t3">${S.classId ? `Класс ${esc(S.schoolClass)}` : 'Класс не указан'}</div>
+      </div>
+
+      ${progress ? xpCard(progress) : ''}
+
+      ${progress ? `
+        <div class="card pad">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <div class="h4">Достижения</div>
+            <div class="t3">${progress.earned_count} из ${progress.total_achievements}</div>
+          </div>
+          <div class="badges" data-badges>
+            ${badgeTiles(progress.achievements, false)}
+          </div>
+          ${progress.achievements.length > BADGES_SHOWN
+            ? `<div class="link" style="text-align:center" data-badges-toggle>Показать все ${progress.achievements.length}</div>`
+            : ''}
+        </div>` : ''}
+      <div class="list">
+        ${S.classId ? '' : '<div class="row" data-go="join-class"><div class="grow"><div class="h5">Ввести код класса</div><div class="t3">Чтобы попасть в сводку учителя</div></div></div><div class="sep"></div>'}
+        <div class="row" data-go="link-bot"><div class="grow"><div class="h5">Привязать бота</div><div class="t3">Решать задачи прямо в чате</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="history"><div class="grow"><div class="h5">История прохождений</div><div class="t3">Как менялись результаты</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
+        <div class="sep"></div>
+        <div class="row" data-go="revoke-consent"><div class="grow"><div class="h5">Отозвать согласие</div><div class="t3">Ответы и результаты будут удалены</div></div></div>
+      </div>
+      <div class="btn sec" data-go="logout">Выйти из аккаунта</div>
+    ` : `
+      <div class="card pad" style="gap:12px">
+        <div class="h4">Ты без аккаунта</div>
+        <div class="t3">Прогресс сохранён только в этом браузере. Создай аккаунт — ответы перенесутся, а учитель увидит тебя в классе.</div>
+        <div class="btn" data-go="register">Создать аккаунт</div>
+        <div class="btn sec" data-go="login">Войти</div>
+      </div>
+      <div class="list">
+        <div class="row" data-go="restart"><div class="grow"><div class="h5">Пройти тест заново</div><div class="t3">Ответы будут сброшены</div></div></div>
+      </div>
+    `}
+    <div class="link" style="text-align:center" data-go="teacher">Я педагог — открыть кабинет</div>
+  `, { title: 'Профиль', tab: 'profile' });
+
+  const toggle = view.querySelector('[data-badges-toggle]');
+  if (toggle && progress) {
+    let showAll = false;
+    toggle.onclick = () => {
+      showAll = !showAll;
+      view.querySelector('[data-badges]').innerHTML = badgeTiles(progress.achievements, showAll);
+      toggle.textContent = showAll ? 'Свернуть' : `Показать все ${progress.achievements.length}`;
+    };
+  }
+}
+
+/* Привязка чат-бота: код присылает бот, ученик вводит его здесь. */
+function screenLinkBot() {
+  formScreen({
+    title: 'Привязать бота',
+    subtitle: 'Напиши боту в чате — он пришлёт код. Введи его сюда, и бот сможет давать задачи и показывать прогресс.',
+    submitLabel: 'Привязать',
+    footer: '<div class="link" style="text-align:center" data-go="profile">Назад</div>',
+    fields: [
+      { name: 'code', placeholder: 'Код из чата', maxlength: 8,
+        style: 'text-transform:uppercase;font-size:22px;text-align:center;letter-spacing:4px;font-weight:600' },
+    ],
+    onSubmit: async (v) => {
+      await api('/api/bot/link', {
+        method: 'POST',
+        body: JSON.stringify({ code: v.code.toUpperCase() }),
+      });
+      render(`
+        <div class="card pad center" style="gap:10px;padding:24px 16px">
+          <div class="h4">Бот привязан</div>
+          <div class="t3">Возвращайся в чат — теперь можно решать задачи прямо там.</div>
+        </div>
+        <div class="bottom"><div class="btn" data-go="profile">Готово</div></div>
+      `, { title: 'Бот', tab: 'profile' });
+    },
+  });
+}
+
+/* Заглушка для вкладок, которым нужен аккаунт. */
+function screenNeedAccount(what) {
+  render(`
+    <div class="card pad" style="gap:12px">
+      <div class="h4">Нужен аккаунт</div>
+      <div class="t3">Чтобы ${esc(what)} сохранялся между заходами, создай аккаунт — это займёт полминуты.</div>
+      <div class="btn" data-go="register">Создать аккаунт</div>
+      <div class="btn sec" data-go="login">У меня уже есть аккаунт</div>
+    </div>
+  `, { title: 'Аккаунт', tab: 'practice' });
 }
 
 /* ---------- экран: шкала 1–5 (блоки A и C) ---------- */
@@ -862,7 +1829,7 @@ function screenSubjects() {
             ? `<div style="width:28px;height:28px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:0 0 auto"><svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5.5L5 9.5L13 1.5" stroke="rgb(23 24 28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>`
             : s.done
               ? `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px;font-weight:600;color:var(--accent)">${s.done}</div>`
-              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid rgb(255 255 255 / .12);flex:0 0 auto"></div>`}
+              : `<div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--stroke);flex:0 0 auto"></div>`}
           <div class="grow">
             <div class="h5">${esc(s.title)}</div>
             ${s.done === s.total
@@ -871,18 +1838,56 @@ function screenSubjects() {
                 ? `<div class="prog xs" style="margin-top:6px"><i style="width:${(s.done / s.total) * 100}%"></i></div>`
                 : `<div class="t3">${s.total} вопроса · 2 мин</div>`}
           </div>
-          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="rgb(255 255 255 / .28)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
+          ${s.done === s.total ? '' : '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'}
         </div>`).join('')}
     </div>
-    <div class="hint"><i></i><p>Правильные ответы не показываем во время теста — так результат честнее отражает уровень.</p></div>
+    ${S.plan ? `<div class="hint"><i></i><p>${S.plan.planned_by_model
+        ? 'Эти предметы подобраны по твоим ответам о интересах — остальные спрашивать не будем.'
+        : 'Предметы подобраны по твоим интересам. Модель была недоступна, поэтому выбор сделан по таблице соответствий.'}</p></div>` : ''}
     <div class="bottom" style="display:flex;flex-direction:column;gap:10px">
       <div class="btn" data-go="next">${remaining.length ? `Продолжить с предмета «${esc(remaining[0].title)}»` : 'Дальше'}</div>
+      ${S.plan && S.plan.optional_subjects.length
+        ? '<div class="link" style="text-align:center" data-go="more-subjects">Проверить ещё предметы</div>'
+        : ''}
       ${canPreview() && remaining.length ? '<div class="link" style="text-align:center" data-go="preview">Показать предварительный результат</div>' : ''}
     </div>
   `, { title: 'Предметы', progress: answeredCount() / totalCount() });
 
   view.querySelectorAll('[data-subject]').forEach((row) => {
     row.onclick = () => screenSubject(row.dataset.subject);
+  });
+}
+
+/* Предметы вне плана. Профиль по ним останется пустым, поэтому тем, кому важна
+   точность, даём добрать вручную — но по своей воле, а не по обязанности. */
+function screenExtraSubjects() {
+  const выбранные = subjectCodes();
+  const доступные = (S.plan?.optional_subjects || []).filter((s) => !выбранные.includes(s.subject));
+
+  render(`
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="h3">Проверить ещё предметы</div>
+      <div class="t3">По каждому — две задачи и вопрос про интерес. Чем больше предметов, тем точнее подбор профессий.</div>
+    </div>
+    ${доступные.length ? `<div class="list">
+      ${доступные.map((s, i) => `
+        ${i ? '<div class="sep inset"></div>' : ''}
+        <div class="row" data-add-subject="${s.subject}">
+          <div style="width:28px;height:28px;border-radius:14px;border:2px solid var(--stroke);flex:0 0 auto"></div>
+          <div class="grow"><div class="h5">${esc(s.title)}</div><div class="t3">3 вопроса · 1 мин</div></div>
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="var(--t4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>`).join('')}
+    </div>` : '<div class="hint"><i></i><p>Все предметы уже в тесте.</p></div>'}
+    <div class="btn sec bottom" data-go="next">Назад</div>
+  `, { title: 'Ещё предметы', progress: answeredCount() / totalCount() });
+
+  view.querySelectorAll('[data-add-subject]').forEach((row) => {
+    row.onclick = () => {
+      const код = row.dataset.addSubject;
+      S.extraSubjects = [...(S.extraSubjects || []), код];
+      save();
+      screenSubject(код);
+    };
   });
 }
 
@@ -960,7 +1965,7 @@ function screenSubject(code) {
         <div class="ans" data-index="${i}">
           <div class="key">${'АБВГ'[i] || i + 1}</div>
           <div class="txt">${esc(option)}</div>
-          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="rgb(0 122 255)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <svg class="tick" width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6l5 5 9-10" stroke="var(--north)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </div>`).join('')}
     </div>
     <div class="link" style="align-self:flex-start" data-skip>Не знаю — пропустить</div>
@@ -1015,6 +2020,7 @@ async function screenSubmit() {
       body: JSON.stringify({
         max_user_id: S.userId,
         answers: S.answers,
+        full_name: S.fullName || null,
         school_class: S.schoolClass || null,
       }),
     });
@@ -1041,22 +2047,22 @@ function radarSVG(interests) {
   const labels = RADAR_ORDER.map((key, i) => {
     const [x, y] = point(i, 1.22);
     const percent = Math.round(((interests[key] ?? 0) / 5) * 100);
-    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(255 255 255 / .8)">${HOLLAND_TITLES[key]}</text>
-            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="rgb(255 255 255 / .44)">${percent}</text>`;
+    return `<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--t2)">${HOLLAND_TITLES[key]}</text>
+            <text x="${x.toFixed(0)}" y="${(y + 12).toFixed(0)}" text-anchor="middle" font-size="11" fill="var(--t4)" font-family="ui-monospace,monospace">${percent}</text>`;
   }).join('');
 
   return `<svg width="280" height="280" viewBox="0 0 280 280" role="img" aria-label="Профиль интересов">
-    <polygon points="${ring(1)}" fill="rgb(255 255 255 / .04)" stroke="rgb(255 255 255 / .12)"></polygon>
-    <polygon points="${ring(0.66)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
-    <polygon points="${ring(0.33)}" fill="none" stroke="rgb(255 255 255 / .06)"></polygon>
+    <polygon points="${ring(1)}" fill="var(--fill2)" stroke="var(--stroke)"></polygon>
+    <polygon points="${ring(0.66)}" fill="none" stroke="var(--line)"></polygon>
+    <polygon points="${ring(0.33)}" fill="none" stroke="var(--line)"></polygon>
     ${RADAR_ORDER.map((_, i) => {
       const [x, y] = point(i, 1);
-      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgb(255 255 255 / .06)"></line>`;
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"></line>`;
     }).join('')}
-    <polygon points="${shape}" fill="rgb(0 122 255 / .28)" stroke="rgb(0 122 255)" stroke-width="2" stroke-linejoin="round"></polygon>
+    <polygon points="${shape}" fill="var(--water)" fill-opacity="0.2" stroke="var(--water)" stroke-width="2" stroke-linejoin="round"></polygon>
     ${values.map((v, i) => {
       const [x, y] = point(i, v);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="rgb(0 122 255)"></circle>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="var(--north)"></circle>`;
     }).join('')}
     ${labels}
   </svg>`;
@@ -1138,9 +2144,13 @@ function screenResults(professions, scores, fallback, progress = null) {
 
 /* ---------- экран: история ---------- */
 
+// Балл — доля верных ответов, сложность в него не входит. Поэтому сложность
+// показываем рядом с результатом: иначе падение читается как «стал хуже».
+const DIFFICULTY_TITLES = { easy: 'лёгкие', medium: 'средние', hard: 'сложные' };
+
 async function screenHistory() {
   render('<div style="display:flex;align-items:center;gap:10px"><div class="spinner"></div><div class="t3">Загружаем историю…</div></div>',
-    { title: 'История', progress: 1 });
+    { title: 'История', progress: 1, tab: 'profile' });
   let data;
   try {
     data = await api(`/api/users/${encodeURIComponent(S.userId)}/history`);
@@ -1152,6 +2162,9 @@ async function screenHistory() {
   render(`
     ${data.attempts === 0 ? '<div class="hint"><i></i><p>Пока нет ни одного завершённого прохождения.</p></div>' : `
       <div class="t3">Всего прохождений: ${data.attempts}. Видно, как меняются интересы со временем.</div>
+      ${data.history.some((h) => (h.difficulties || []).length) && data.attempts > 1
+        ? '<div class="hint"><i></i><p>Задачи в разных прохождениях разной сложности — балл считается как доля верных ответов, поэтому сравнивать результаты в лоб не стоит.</p></div>'
+        : ''}
       <div class="list">
         ${data.history.map((item, i) => `
           ${i ? '<div class="sep"></div>' : ''}
@@ -1162,12 +2175,13 @@ async function screenHistory() {
               <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:8px">
                 ${item.top_interests.map((key) => `<div class="tag">${HOLLAND_TITLES[key] || key}</div>`).join('')}
               </div>
+              ${(item.difficulties || []).length ? `<div class="t3" style="font-size:13px;padding-top:6px">Задачи: ${item.difficulties.map((d) => DIFFICULTY_TITLES[d] || d).join(' и ')}</div>` : ''}
               ${item.fallback ? '<div style="font-size:13px;color:var(--orange);padding-top:6px">упрощённый алгоритм</div>' : ''}
             </div>
           </div>`).join('')}
       </div>`}
-    <div class="btn bottom" data-go="home">На главный экран</div>
-  `, { title: 'История', progress: 1 });
+    <div class="btn bottom sec" data-go="profile">Назад в профиль</div>
+  `, { title: 'История', progress: 1, tab: 'profile' });
 }
 
 /* ---------- экран: ошибка ---------- */
@@ -1192,13 +2206,120 @@ function screenError(error, retry) {
   view.querySelector('[data-retry]').onclick = retry;
 }
 
+/* Согласие на обработку данных. Спрашиваем один раз перед тестом: результаты —
+   персональные данные ребёнка, и хранить их без записанного согласия нельзя. */
+function screenConsent() {
+  render(`
+    <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
+      <div class="h1">Прежде чем начать</div>
+      <div style="font-size:16px;line-height:22px;color:var(--t3)">Чтобы показать подходящие профессии, «Компас» сохранит твои ответы и результат теста. Это персональные данные, поэтому нужно согласие.</div>
+    </div>
+    <div class="card pad" style="gap:10px">
+      <div class="label">Что сохраняется</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Ответы на вопросы, баллы по предметам и подобранные профессии. Имя и класс — только если ты их укажешь.</div>
+      <div class="label" style="padding-top:6px">Кто это видит</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Ты сам. Педагог видит сводку по классу без имён и без отдельных результатов — она вообще не строится, пока тест не прошли хотя бы трое.</div>
+      <div class="label" style="padding-top:6px">Если передумаешь</div>
+      <div style="font-size:15px;line-height:21px;color:var(--t2)">Согласие можно отозвать на вкладке «Профиль». Тогда ответы и результаты удаляются.</div>
+    </div>
+    <div class="card pad" style="gap:8px">
+      <div class="label">Сколько тебе лет</div>
+      <input class="field" id="consent-age" type="number" inputmode="numeric" min="5" max="100" placeholder="Например, 14">
+      <div class="label" style="padding-top:6px">Кто даёт согласие</div>
+      <div class="link" data-who="self" id="who-self">Я сам</div>
+      <div class="link" data-who="parent" id="who-parent">Мой родитель рядом и согласен</div>
+      <div id="who-hint" class="t3" style="font-size:13px;line-height:18px">С 14 лет ты вправе решать сам. До 14 согласие даёт родитель.</div>
+    </div>
+    <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
+      <div class="btn" id="consent-go">Согласен, начать тест</div>
+      <div id="consent-status" class="t3" style="min-height:18px;text-align:center"></div>
+    </div>
+  `, { title: 'Согласие', progress: 0 });
+
+  const ВОЗРАСТ_САМОСТОЯТЕЛЬНОСТИ = 14;
+  let ктоДаёт = 'self';
+  const поле = view.querySelector('#consent-age');
+  const возраст = () => (поле.value ? Number(поле.value) : null);
+  const малолетний = () => возраст() !== null && возраст() < ВОЗРАСТ_САМОСТОЯТЕЛЬНОСТИ;
+
+  const подсветить = () => {
+    // до 14 выбор «сам» недоступен, а не просто не рекомендован
+    if (малолетний()) ктоДаёт = 'parent';
+    const сам = view.querySelector('#who-self');
+    сам.style.opacity = малолетний() ? '0.4' : '1';
+    сам.style.fontWeight = ктоДаёт === 'self' ? '700' : '400';
+    view.querySelector('#who-parent').style.fontWeight = ктоДаёт === 'parent' ? '700' : '400';
+    view.querySelector('#who-hint').textContent = малолетний()
+      ? `В ${возраст()} лет согласие может дать только родитель или другой законный представитель.`
+      : 'С 14 лет ты вправе решать сам. До 14 согласие даёт родитель.';
+  };
+  подсветить();
+  поле.oninput = подсветить;
+  view.querySelectorAll('[data-who]').forEach((el) => {
+    el.onclick = () => {
+      if (el.dataset.who === 'self' && малолетний()) return;
+      ктоДаёт = el.dataset.who;
+      подсветить();
+    };
+  });
+
+  const кнопка = view.querySelector('#consent-go');
+  кнопка.onclick = async () => {
+    кнопка.textContent = 'Секунду…';
+    try {
+      await api('/api/consent', {
+        method: 'POST',
+        body: JSON.stringify({ granted_by: ктоДаёт, age: возраст() }),
+      });
+      S.consentGranted = true;
+      save();
+      next();
+    } catch (error) {
+      кнопка.textContent = 'Согласен, начать тест';
+      view.querySelector('#consent-status').textContent = error.message || 'Не получилось сохранить согласие.';
+    }
+  };
+}
+
 /* ---------- переходы ---------- */
 
-function next() {
+async function next() {
+  // Без согласия результат не сохранится — спрашиваем до теста, а не после,
+  // чтобы ученик не отвечал на 37 вопросов впустую.
+  if (S.token && !S.consentGranted) {
+    const состояние = await api('/api/consent').catch(() => null);
+    if (состояние?.granted && !состояние.outdated) S.consentGranted = true;
+    else return screenConsent();
+  }
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
-  if (Q.block_b_subjects.some((q) => !isAnswered(q.id))) return screenSubjects();
+  if (!S.plan) return screenPlanning();
+  if (blockBQuestions().some((q) => !isAnswered(q.id))) return screenSubjects();
   if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
   return screenSubmit();
+}
+
+/* Подбор предметов: ответы блока A уходят на сервер, оттуда — пять предметов.
+   Экран нужен, потому что решение принимает модель и это занимает секунды. */
+async function screenPlanning() {
+  render(`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="spinner"></div>
+      <div style="font-size:15px;color:var(--t2);flex:1">Подбираем предметы под твои ответы…</div>
+    </div>
+    <div class="hint"><i></i><p>Спрашивать все 13 предметов долго. Дальше будут только те, что связаны с подходящими тебе профессиями — 15 вопросов.</p></div>
+  `, { title: 'Тест', progress: answeredCount() / totalCount() });
+
+  try {
+    const plan = await api('/api/tests/plan', {
+      method: 'POST',
+      body: JSON.stringify({ answers: S.answers }),
+    });
+    S.plan = plan;
+    save();
+    screenSubjects();
+  } catch (error) {
+    screenError(error, screenPlanning);
+  }
 }
 
 view.addEventListener('click', (event) => {
@@ -1207,27 +2328,128 @@ view.addEventListener('click', (event) => {
   const actions = {
     next,
     preview: screenSubmit,
+    'more-subjects': screenExtraSubjects,
     home: screenOnboarding,
+    practice: screenPractice,
+    careers: screenCareers,
+    profile: screenProfile,
     history: screenHistory,
     teacher: () => document.querySelector('[data-tab="teacher"]').click(),
-    restart: () => {
+    'join-class': screenJoinClass,
+    'link-bot': screenLinkBot,
+    logout: () => {
+      if (!confirm('Выйти из аккаунта? Ответы на этом устройстве останутся.')) return;
+      S.token = null;
+      S.fullName = '';
+      S.classId = null;
+      S.schoolClass = '';
+      save();
+      screenWelcome();
+    },
+    'revoke-consent': async () => {
+      if (!confirm('Согласие будет отозвано, а все твои ответы и результаты удалены без возможности восстановить. Продолжить?')) return;
+      try {
+        await api('/api/consent', { method: 'DELETE' });
+      } catch (error) {
+        return alert(error.message || 'Не получилось отозвать согласие.');
+      }
+      // локальную копию тоже чистим: иначе приложение покажет удалённые ответы
+      S.answers = {};
+      S.plan = null;
+      S.extraSubjects = [];
+      S.lastResultId = null;
+      S.consentGranted = false;
+      save();
+      alert('Согласие отозвано, данные удалены.');
+      screenOnboarding();
+    },
+    restart: async () => {
       if (!confirm('Все ответы будут удалены. Начать заново?')) return;
       S.answers = {};
+      // план подобран под прежние ответы — со сбросом теста он больше не годится
+      S.plan = null;
+      S.extraSubjects = [];
       save();
+      // черновик лежит и на сервере — без этого он вернётся при следующем входе
+      if (S.token) await api('/api/tests/progress', { method: 'DELETE' }).catch(() => {});
       screenOnboarding();
     },
   };
   actions[target.dataset.go]?.();
 });
 
+// нижние вкладки — тот же набор переходов, что и data-go на экранах
+tabsBar.addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-tab]');
+  if (!tab) return;
+  ({ home: screenOnboarding, practice: screenPractice,
+     careers: screenCareers, profile: screenProfile })[tab.dataset.tab]?.();
+});
+
 /* ---------- старт ---------- */
 
+/* Мост мессенджера, если приложение открыто внутри него. */
+function messengerBridge() {
+  const tg = window.Telegram?.WebApp;
+  if (tg?.initData) return { platform: 'telegram', initData: tg.initData, api: tg };
+  const max = window.WebApp;
+  if (max?.initData) return { platform: 'max', initData: max.initData, api: max };
+  return null;
+}
+
+/* Вход без пароля: подпись мессенджера подтверждает, кто открыл приложение. */
+async function loginFromMessenger(bridge) {
+  const data = await api('/api/auth/miniapp', {
+    method: 'POST',
+    body: JSON.stringify({ init_data: bridge.initData, platform: bridge.platform }),
+  });
+  S.token = data.access_token;
+  applyProfile(data.user);
+}
+
 (async function start() {
+  const bridge = messengerBridge();
+  if (bridge) {
+    // разворачиваем окно на всю высоту — иначе мини-приложение открывается «шторкой»
+    try { bridge.api.ready?.(); bridge.api.expand?.(); } catch { /* необязательно */ }
+  }
+
+  try {
+    const config = await api('/api/public-config').catch(() => ({}));
+    BOT_USERNAME = (config.telegram_bot_username || '').replace('@', '');
+  } catch { /* без имени бота экран входа просто останется без кнопки */ }
+
   try {
     Q = await api('/api/tests/questions');
   } catch (error) {
     return screenError(error, start);
   }
+
+  // токен мог протухнуть за месяц — сверяем его с сервером до показа экранов
+  if (S.token) {
+    try {
+      applyProfile(await api('/api/auth/me'));
+    } catch (error) {
+      if (error.status === 401) {
+        S.token = null;
+        save();
+      }
+    }
+  }
+
+  // внутри мессенджера регистрация не нужна: входим по его подписи
+  if (!S.token && bridge) {
+    try {
+      await loginFromMessenger(bridge);
+    } catch (error) {
+      console.warn('Вход через мессенджер не удался:', error.message);
+    }
+  }
+
+  // без подписи мессенджера входить нечем — показываем, как открыть бота
+  await loadServerProgress();
+
+  if (!S.token) return screenWelcome();
   screenOnboarding();
 })();
 

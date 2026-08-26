@@ -31,28 +31,34 @@ DEMO = ROOT / "demo"
 STATIC = ROOT / "app" / "static"
 
 
+
+def _phone_markup(index_html: Path) -> str:
+    """Блок <div class="phone">…</div> из index.html целиком."""
+    текст = index_html.read_text("utf-8")
+    начало = текст.index('<div class="phone">')
+    глубина, i = 0, начало
+    while i < len(текст):
+        if текст.startswith("<div", i):
+            глубина += 1
+        elif текст.startswith("</div>", i):
+            глубина -= 1
+            if глубина == 0:
+                return текст[начало:i + len("</div>")]
+        i += 1
+    raise SystemExit("Не удалось выделить разметку приложения из index.html")
+
 def build() -> Path:
     questions = json.loads((ROOT / "app" / "tests_data" / "questions.json").read_text("utf-8"))
     class_summary = json.loads((DEMO / "class_summary.json").read_text("utf-8"))
 
     app_js = (STATIC / "app.js").read_text("utf-8")
     # единственная правка фронтенда: HTTP-слой заменяется демо-двойником
+    # HTTP-слой переехал в shared.js (apiFetch), и подмена перестала находить
+    # свою цель — сборка молча ломалась. Ищем текущую форму вызова.
     app_js = app_js.replace(
-        """async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`${response.status}: ${body.slice(0, 300)}`);
-  }
-  return response.json();
-}""",
-        """async function api(path, options = {}) {
-  // в автономном демо запросы обслуживает DEMO.handle, а не сеть
-  return DEMO.handle(path, options);
-}""",
+        "const api = (path, options = {}) => apiFetch(path, options, S.token);",
+        """// в автономном демо запросы обслуживает DEMO.handle, а не сеть
+const api = (path, options = {}) => DEMO.handle(path, options);""",
     )
     app_js = app_js.replace(
         """    teacher: () => { window.location.href = '/static/teacher.html'; },""",
@@ -69,6 +75,10 @@ def build() -> Path:
     }
 
     html = (DEMO / "shell.html").read_text("utf-8")
+    # Разметку приложения берём из настоящего index.html, а не держим копию в
+    # шаблоне: копия уже разошлась — в неё не доехали вкладки, tabsBar оказался
+    # null, и демо не отрисовывалось вовсе.
+    html = html.replace("{{PHONE}}", _phone_markup(STATIC / "index.html"))
     html = html.replace("{{STYLES}}", (STATIC / "styles.css").read_text("utf-8"))
     html = html.replace("{{DATA}}", json.dumps(data, ensure_ascii=False))
     html = html.replace("{{DEMO_JS}}", (DEMO / "demo.js").read_text("utf-8"))
