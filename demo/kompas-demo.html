@@ -325,59 +325,7 @@ body{
    подписано самим чатом, в браузере подписать его больше нечем. */
 .deskbrand{display:none}
 
-/* Приложение подстраивается под ширину СВОЕГО места, а не окна браузера:
-   внутри мессенджера и в рамке демо-страницы оно узкое, даже когда окно
-   широкое. Медиазапрос этого не различает и выдал бы там десктопный вид. */
-body{container-type:inline-size}
 
-/* --- широкий экран: лист карты вместо телефона ---------------------------
-   До 900px остаётся мобильная раскладка: она же работает внутри мессенджера.
-   Дальше вкладки снизу превращаются в боковую панель — так же, как список
-   классов в кабинете педагога, чтобы обе части продукта выглядели одним
-   продуктом. Колонка с содержимым при этом не растягивается: строка длиннее
-   примерно семидесяти знаков читается заметно хуже, а тут читают вопросы. */
-@container (min-width:900px){
-  body{padding:32px 0}
-
-  .phone{max-width:940px;min-height:calc(100vh - 64px);
-         display:grid;align-content:start;
-         grid-template-columns:216px minmax(0,1fr);
-         grid-template-areas:"head head" "line line" "nav  body"}
-
-  /* Экраны без вкладок — вход, тест, результаты — боковой панели не имеют,
-     и растягивать их на всю ширину незачем: там форма или один вопрос. */
-  .phone:has(.tabs.hidden){max-width:620px;
-         grid-template-columns:minmax(0,1fr);
-         grid-template-areas:"head" "line" "body"}
-
-  .bar{grid-area:head;height:56px;background:var(--card);
-       border-bottom:1px solid var(--stroke)}
-  .bar.split{justify-content:flex-start;gap:10px;padding:0 20px}
-  .bar.split #bar-action{margin-left:auto}
-  .deskbrand{display:flex;align-items:baseline;gap:8px}
-  .deskbrand b{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--t1)}
-  .deskbrand span{font-size:13px;color:var(--t4);font-family:var(--mono)}
-  /* заголовок экрана уходит вправо от имени продукта, отделённый точкой */
-  #bar-title{font-size:14px;font-weight:500;color:var(--t3)}
-  #bar-title::before{content:"·";margin-right:8px;color:var(--t4)}
-
-  .thin{grid-area:line}
-  .body{grid-area:body;padding:26px 28px 34px}
-
-  /* вкладки становятся легендой карты: вертикальный список слева */
-  .tabs{grid-area:nav;flex-direction:column;align-content:start;
-        background:var(--card);border-top:none;border-right:1px solid var(--stroke);
-        padding-bottom:0}
-  .tab{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;
-       padding:13px 16px;font-size:15px;line-height:20px;letter-spacing:0;
-       border-bottom:1px solid var(--line);color:var(--t2)}
-  .tab:last-child{border-bottom:none}
-  .tab:hover{background:var(--fill2)}
-  /* активный пункт помечен красной риской — как в кабинете педагога */
-  .tab.on{background:var(--north-soft);box-shadow:inset 3px 0 0 var(--north);
-          color:var(--north-deep);font-weight:600}
-  .tab svg{width:20px;height:20px}
-}
 .body{flex:1;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 .hidden{display:none !important}
 .link{font-size:15px;color:var(--north);cursor:pointer;user-select:none;font-weight:500}
@@ -497,6 +445,62 @@ input.field::placeholder{color:var(--t4)}
 input.field:focus,select.field:focus{border-color:var(--north);box-shadow:0 0 0 3px var(--accent-glow)}
 .field.sm{min-height:38px;border-radius:6px;font-size:14px;padding:0 10px}
 select.field{appearance:none;cursor:pointer}
+
+/* Приложение подстраивается под ширину СВОЕГО места, а не окна браузера:
+   внутри мессенджера и в рамке демо-страницы оно узкое, даже когда окно
+   широкое. Медиазапрос этого не различает и выдал бы там десктопный вид. */
+body{container-type:inline-size}
+
+/* --- широкий экран: лист карты вместо телефона ---------------------------
+   До 900px остаётся мобильная раскладка: она же работает внутри мессенджера.
+   Дальше вкладки снизу превращаются в боковую панель — так же, как список
+   классов в кабинете педагога, чтобы обе части продукта выглядели одним
+   продуктом. Колонка с содержимым при этом не растягивается: строка длиннее
+   примерно семидесяти знаков читается заметно хуже, а тут читают вопросы. */
+@container (min-width:900px){
+  body{padding:32px 0}
+
+  .phone{max-width:880px;min-height:calc(100vh - 64px);
+         display:grid;align-content:start;
+         grid-template-columns:216px minmax(0,1fr);
+         grid-template-areas:"head head" "line line" "nav  body"}
+
+  /* Экраны без вкладок — вход, тест, результаты — боковой панели не имеют,
+     и растягивать их на всю ширину незачем: там форма или один вопрос. */
+  .phone:has(.tabs.hidden){max-width:620px;
+         grid-template-columns:minmax(0,1fr);
+         grid-template-areas:"head" "line" "body"}
+
+  /* Класс split скрипт снимает, когда в шапке нет действия, — поэтому
+     выравнивание задаётся самой панели, а не .bar.split. */
+  .bar{grid-area:head;height:56px;background:var(--card);
+       border-bottom:1px solid var(--stroke);
+       justify-content:flex-start;gap:10px;padding:0 20px}
+  .bar #bar-action{margin-left:auto}
+  .deskbrand{display:flex;align-items:baseline;gap:8px}
+  .deskbrand b{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--t1)}
+  .deskbrand span{font-size:13px;color:var(--t4);font-family:var(--mono)}
+  /* заголовок экрана уходит вправо от имени продукта, отделённый точкой */
+  #bar-title{font-size:14px;font-weight:500;color:var(--t3)}
+  #bar-title::before{content:"·";margin:0 8px;color:var(--t4)}
+
+  .thin{grid-area:line}
+  .body{grid-area:body;padding:26px 28px 34px}
+
+  /* вкладки становятся легендой карты: вертикальный список слева */
+  .tabs{grid-area:nav;flex-direction:column;align-content:start;
+        background:var(--card);border-top:none;border-right:1px solid var(--stroke);
+        padding-bottom:0}
+  .tab{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;
+       padding:13px 16px;font-size:15px;line-height:20px;letter-spacing:0;
+       border-bottom:1px solid var(--line);color:var(--t2)}
+  .tab:last-child{border-bottom:none}
+  .tab:hover{background:var(--fill2)}
+  /* активный пункт помечен красной риской — как в кабинете педагога */
+  .tab.on{background:var(--north-soft);box-shadow:inset 3px 0 0 var(--north);
+          color:var(--north-deep);font-weight:600}
+  .tab svg{width:20px;height:20px}
+}
 
 
 /* ---- витрина вокруг приложения ---- */
@@ -2293,7 +2297,16 @@ async function next() {
   }
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
   if (!S.plan) return screenPlanning();
-  if (blockBQuestions().some((q) => !isAnswered(q.id))) return screenSubjects();
+  if (blockBQuestions().some((q) => !isAnswered(q.id))) {
+    // Find first unanswered subject and go to it
+    const firstUnansweredSubject = subjectCodes().find(code =>
+      subjectQuestions(code).some(q => !isAnswered(q.id))
+    );
+    if (firstUnansweredSubject) {
+      return screenSubject(firstUnansweredSubject);
+    }
+    return screenSubjects(); // fallback
+  }
   if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
   return screenSubmit();
 }
