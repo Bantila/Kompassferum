@@ -1312,14 +1312,17 @@ async function next() {
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
   if (!S.plan) return screenPlanning();
   if (blockBQuestions().some((q) => !isAnswered(q.id))) {
-    // Find first unanswered subject and go to it
+    // Ведём сразу к вопросам первого предмета, где остались ответы. Список
+    // ученик только что видел — вернуть его туда же значит попросить самому
+    // вспомнить, на чём он остановился.
     const firstUnansweredSubject = subjectCodes().find(code =>
       subjectQuestions(code).some(q => !isAnswered(q.id))
     );
     if (firstUnansweredSubject) {
       return screenSubject(firstUnansweredSubject);
     }
-    return screenSubjects(); // fallback
+    // предмет не нашёлся — показываем список, как было раньше
+    return screenSubjects();
   }
   if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
   return screenSubmit();
