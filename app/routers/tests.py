@@ -125,7 +125,16 @@ async def save_progress(
     )
 
 
-@router.delete("/progress", status_code=status.HTTP_204_NO_CONTENT)
+# response_model=None обязателен: в файле стоит `from __future__ import
+# annotations`, из-за чего `-> None` приходит строкой и разворачивается в
+# NoneType — непустой объект. FastAPI 0.115.6 принимает его за схему ответа
+# и падает на старте: «Status code 204 must not have a response body».
+# На новых версиях этого не видно, поэтому ловится только на боевой сборке.
+@router.delete(
+    "/progress",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+)
 async def reset_progress(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
