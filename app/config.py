@@ -20,7 +20,9 @@ class Settings(BaseSettings):
     # на токен доступа; SDK делает это сам и обновляет токен по истечении.
     gigachat_credentials: str = ""
     gigachat_scope: str = "GIGACHAT_API_PERS"
-    gigachat_model: str = "GigaChat"
+    # Имя обязательно с версией: «GigaChat» без неё Сбер больше не обслуживает
+    # и отвечает 404 «No such model». Список доступных даёт get_models().
+    gigachat_model: str = "GigaChat-2"
     gigachat_base_url: str = "https://api.giga.chat/v1"
     # Сбер отдаёт TLS-цепочку, подписанную НУЦ Минцифры: в стандартном
     # наборе сертификатов её нет. Пока корневой сертификат не установлен
