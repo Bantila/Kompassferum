@@ -216,3 +216,47 @@ async def test_frontend_is_served(client) -> None:
     script = await client.get("/static/app.js")
     assert script.status_code == 200
     assert "kompas_state_v1" in script.text
+
+
+# --- Границы схемы ------------------------------------------------------------
+
+
+def test_schema_demands_subjects_to_improve() -> None:
+    """Пустой список предметов схема принимать не должна.
+
+    Без нижней границы GigaChat возвращает `subjects_to_improve: []` — проверено
+    на живой модели, пусто было во всех пяти профессиях. Ученик при этом теряет
+    ответ на второй вопрос продукта: что подтягивать. Границу держит схема, а не
+    промпт, потому что промпт модель вольна проигнорировать.
+    """
+    from pydantic import ValidationError
+
+    from app.services.ai_recommender import ProfessionSuggestion
+
+    рабочая = dict(
+        name="Инженер-конструктор",
+        reasoning="Математика 5.0 и интерес к технике 4.0 — прямая дорога.",
+        category="технологии",
+    )
+
+    ProfessionSuggestion(**рабочая, subjects_to_improve=["математика"])
+
+    with pytest.raises(ValidationError):
+        ProfessionSuggestion(**рабочая, subjects_to_improve=[])
+
+    with pytest.raises(ValidationError):
+        ProfessionSuggestion(**рабочая, subjects_to_improve=["а", "б", "в", "г"])
+
+
+def test_fallback_always_names_subjects() -> None:
+    """Запасной подбор обязан выполнять то же обещание, что и модель."""
+    from app.services.ai_recommender import FALLBACK_PROFESSIONS
+
+    пустые = [
+        p["name"]
+        for профессии in FALLBACK_PROFESSIONS.values()
+        for p in профессии
+        if not p.get("subjects_to_improve")
+    ]
+
+    assert not пустые, f"без предметов для улучшения: {пустые}"
