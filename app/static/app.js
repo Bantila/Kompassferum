@@ -1219,7 +1219,16 @@ function screenError(error, retry) {
 async function next() {
   if (blockA().some((q) => !isAnswered(q.id))) return screenScale('a');
   if (!S.plan) return screenPlanning();
-  if (blockBQuestions().some((q) => !isAnswered(q.id))) return screenSubjects();
+  if (blockBQuestions().some((q) => !isAnswered(q.id))) {
+    // Find first unanswered subject and go to it
+    const firstUnansweredSubject = subjectCodes().find(code =>
+      subjectQuestions(code).some(q => !isAnswered(q.id))
+    );
+    if (firstUnansweredSubject) {
+      return screenSubject(firstUnansweredSubject);
+    }
+    return screenSubjects(); // fallback
+  }
   if (blockC().some((q) => !isAnswered(q.id))) return screenScale('c');
   return screenSubmit();
 }
