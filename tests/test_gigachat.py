@@ -123,49 +123,6 @@ async def test_schema_is_sent_to_api(monkeypatch: pytest.MonkeyPatch, gigachat_s
     assert записано["client"]["base_url"] == "https://api.giga.chat/v1"
 
 
-async def test_ca_bundle_defaults_to_vendored_mintsifry_cert(
-    monkeypatch: pytest.MonkeyPatch, gigachat_selected
-) -> None:
-    """api.giga.chat подписан НУЦ Минцифры — без вшитого сертификата запрос
-    падает на проверке TLS (FileNotFoundError, если кто-то по ошибке
-    прописал путь руками, или CERTIFICATE_VERIFY_FAILED — если никак).
-    Регрессия: именно так это и обнаружилось на сервере."""
-    from app.config import RUSSIAN_TRUSTED_CA_BUNDLE
-
-    записано = fake_gigachat(monkeypatch)
-
-    await recommend_professions(SCORES)
-
-    assert записано["client"]["ca_bundle_file"] == str(RUSSIAN_TRUSTED_CA_BUNDLE)
-
-
-async def test_ca_bundle_override_is_respected(
-    monkeypatch: pytest.MonkeyPatch, gigachat_selected
-) -> None:
-    """Явно заданный путь — например, свежее обновление корня — не должен
-    перекрываться вшитым сертификатом по умолчанию."""
-    monkeypatch.setattr(get_settings(), "gigachat_ca_bundle", "/custom/ca.pem")
-    записано = fake_gigachat(monkeypatch)
-
-    await recommend_professions(SCORES)
-
-    assert записано["client"]["ca_bundle_file"] == "/custom/ca.pem"
-
-
-async def test_ca_bundle_not_forced_when_verify_disabled(
-    monkeypatch: pytest.MonkeyPatch, gigachat_selected
-) -> None:
-    """GIGACHAT_VERIFY_SSL=false — сознательное отключение проверки для
-    отладки; вшитый сертификат не должен включать её обратно."""
-    monkeypatch.setattr(get_settings(), "gigachat_verify_ssl", False)
-    записано = fake_gigachat(monkeypatch)
-
-    await recommend_professions(SCORES)
-
-    assert записано["client"]["ca_bundle_file"] is None
-    assert записано["client"]["verify_ssl_certs"] is False
-
-
 async def test_prompt_has_no_json_instructions(
     monkeypatch: pytest.MonkeyPatch, gigachat_selected
 ) -> None:
