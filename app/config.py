@@ -3,6 +3,7 @@
 import secrets
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -56,6 +57,15 @@ class Settings(BaseSettings):
 
     # адрес мини-приложения — бот присылает на него кнопку
     app_public_url: str = ""
+
+    @field_validator("max_bot_username", "telegram_bot_username")
+    @classmethod
+    def _strip_at(cls, value: str) -> str:
+        """Имя бота нужно без @ — в диплинке и в поле web_app кнопки open_app
+        символ @ ломает ссылку. Оператор часто копирует имя прямо из
+        мессенджера вместе с @, поэтому срезаем сами, а не полагаемся на то,
+        что .env заполнят правильно."""
+        return value.lstrip("@")
 
     # Аутентификация. Секрет обязан задаваться через окружение. Если его нет,
     # приложение поднимется (чтобы не ломать локальный запуск), но подставит
