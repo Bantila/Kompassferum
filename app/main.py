@@ -92,7 +92,7 @@ app.include_router(bot.router)
 @app.get("/api/public-config", tags=["service"])
 async def public_config() -> dict[str, str]:
     """Настройки, нужные приложению до входа. Секретов здесь нет."""
-    return {"telegram_bot_username": get_settings().telegram_bot_username}
+    return {"max_bot_username": get_settings().max_bot_username}
 
 
 @app.get("/health", tags=["service"])

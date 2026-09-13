@@ -39,6 +39,10 @@ class BotEvent:
     # нажатие кнопки: у Telegram callback_data, у MAX payload кнопки
     payload: str | None = None
     first_name: str = ""
+    # MAX ждёт подтверждение нажатия кнопки — POST /answers с этим id,
+    # иначе у пользователя крутится индикатор загрузки до таймаута.
+    # У Telegram такого шага нет, поле остаётся пустым.
+    callback_id: str | None = None
 
 
 @dataclass
