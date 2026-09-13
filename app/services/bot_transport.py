@@ -10,8 +10,11 @@ MAX — целевая платформа. Telegram остаётся отлад�
 from __future__ import annotations
 
 import logging
+import ssl
+from pathlib import Path
 from typing import Any
 
+import certifi
 import httpx
 
 from app.config import get_settings
@@ -21,6 +24,29 @@ logger = logging.getLogger(__name__)
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 TIMEOUT_SECONDS = 15.0
+
+# Вшитый сертификат НУЦ Минцифры — без него любой запрос к MAX падает на
+# проверке TLS (см. max_ca_bundle в app/config.py).
+DEFAULT_MAX_CA_BUNDLE = Path(__file__).resolve().parent.parent / "certs" / "russian_trusted_ca_bundle.pem"
+
+_max_ssl_context: ssl.SSLContext | bool | None = None
+
+
+def max_ssl_context() -> ssl.SSLContext | bool:
+    """SSL-контекст для запросов к MAX: обычный набор доверенных корней
+    (certifi) плюс НУЦ Минцифры, а не замена набора на один этот корень —
+    иначе тем же контекстом нельзя было бы сходить больше никуда."""
+    global _max_ssl_context
+    if _max_ssl_context is None:
+        settings = get_settings()
+        if not settings.max_verify_ssl:
+            _max_ssl_context = False
+        else:
+            context = ssl.create_default_context(cafile=certifi.where())
+            bundle = settings.max_ca_bundle or str(DEFAULT_MAX_CA_BUNDLE)
+            context.load_verify_locations(cafile=bundle)
+            _max_ssl_context = context
+    return _max_ssl_context
 
 
 # ─────────────────────────── Telegram ───────────────────────────
@@ -215,6 +241,7 @@ async def send_max(chat_id: str, reply: BotReply) -> bool:
         f"{settings.max_api_base}/messages?{query}",
         body,
         headers={"Authorization": settings.max_bot_token},
+        verify=max_ssl_context(),
     )
 
 
@@ -234,6 +261,7 @@ async def answer_max_callback(callback_id: str, notification: str | None = None)
         f"{settings.max_api_base}/answers?callback_id={callback_id}",
         body,
         headers={"Authorization": settings.max_bot_token},
+        verify=max_ssl_context(),
     )
 
 
@@ -243,7 +271,7 @@ async def get_max_bot_info() -> dict[str, Any] | None:
     if not settings.max_bot_token:
         return None
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS) as client:
+        async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS, verify=max_ssl_context()) as client:
             response = await client.get(
                 f"{settings.max_api_base}/me",
                 headers={"Authorization": settings.max_bot_token},
@@ -257,11 +285,16 @@ async def get_max_bot_info() -> dict[str, Any] | None:
 
 # ──────────────────────────── общее ─────────────────────────────
 
-async def _post(url: str, body: dict[str, Any], headers: dict[str, str] | None = None) -> bool:
+async def _post(
+    url: str,
+    body: dict[str, Any],
+    headers: dict[str, str] | None = None,
+    verify: ssl.SSLContext | bool = True,
+) -> bool:
     """Отправка с проглатыванием ошибок: сбой мессенджера не должен ронять вебхук —
     иначе платформа сочтёт доставку неуспешной и начнёт слать событие заново."""
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS) as client:
+        async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS, verify=verify) as client:
             response = await client.post(url, json=body, headers=headers)
             response.raise_for_status()
             return True

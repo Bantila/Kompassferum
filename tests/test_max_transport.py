@@ -121,10 +121,11 @@ def captured(monkeypatch: pytest.MonkeyPatch) -> dict:
     """Подменяет сетевой _post и запоминает, с чем его вызвали."""
     calls: dict = {}
 
-    async def fake_post(url, body, headers=None):
+    async def fake_post(url, body, headers=None, verify=True):
         calls["url"] = url
         calls["body"] = body
         calls["headers"] = headers
+        calls["verify"] = verify
         return True
 
     monkeypatch.setattr(bot_transport, "_post", fake_post)
@@ -206,3 +207,35 @@ async def test_answer_max_callback_posts_to_answers_endpoint(max_token, captured
 
     assert ok is True
     assert "/answers?callback_id=cb-1" in captured["url"]
+
+
+# ─────────────────────────── доверие TLS ───────────────────────────
+
+
+def test_max_ssl_context_trusts_mintsifry_root(max_token, monkeypatch: pytest.MonkeyPatch) -> None:
+    """MAX подписан НУЦ Минцифры, которого нет в certifi — без явной
+    проверки этот пробел легко unesли бы незамеченным снова (как уже
+    случилось при первом развёртывании: httpx падал с
+    CERTIFICATE_VERIFY_FAILED на живом сервере)."""
+    monkeypatch.setattr(bot_transport, "_max_ssl_context", None)
+
+    context = bot_transport.max_ssl_context()
+
+    assert context is not True  # не «доверяй всем» и не выключенная проверка
+    assert context is not False
+    values = [
+        value
+        for cert in context.get_ca_certs()
+        for rdn in cert["subject"]
+        for _, value in rdn
+    ]
+    assert any("Russian Trusted" in v for v in values)
+
+
+async def test_send_max_passes_ssl_context_not_bare_true(max_token, captured) -> None:
+    """Регрессия: если verify снова станет True/по умолчанию, запрос к
+    настоящему MAX упадёт на проверке сертификата — как это и произошло
+    при первом запуске на сервере."""
+    await bot_transport.send_max("555", BotReply(text="привет"))
+
+    assert captured["verify"] not in (True, False)
