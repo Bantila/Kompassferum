@@ -118,7 +118,7 @@ async def save_progress(
     )
 
 
-@router.delete("/progress", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/progress", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 async def reset_progress(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
