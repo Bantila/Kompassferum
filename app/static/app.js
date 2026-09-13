@@ -138,7 +138,8 @@ async function loadServerProgress() {
 
 const api = (path, options = {}) => apiFetch(path, options, S.token);
 
-// заполняется на старте из /api/public-config
+// заполняется на старте из /api/public-config: имя бота MAX для
+// диплинка max.ru/<имя>?startapp на экране входа
 let BOT_USERNAME = '';
 
 /* Профиль с сервера в локальное состояние. */
@@ -214,18 +215,18 @@ function screenWelcome() {
   render(`
     <div style="display:flex;flex-direction:column;gap:12px;padding-top:16px">
       ${LOGO_TILE}
-      <div class="h1">Открой «Компас»<br>в Telegram</div>
+      <div class="h1">Открой «Компас»<br>в MAX</div>
       <div style="font-size:16px;line-height:22px;color:var(--t3)">Приложение работает внутри мессенджера: так вход происходит сам, без почты и пароля, а прогресс из чата с ботом и из приложения остаётся общим.</div>
     </div>
     <div class="card pad" style="gap:12px">
       <div class="label">Что делать</div>
       <div style="font-size:15px;line-height:21px;color:var(--t2)">${BOT_USERNAME
-        ? `Найди бота <b>@${esc(BOT_USERNAME)}</b> в Telegram и нажми «Запустить».`
-        : 'Открой бота «Компаса» в Telegram и нажми «Запустить».'} Приложение откроется прямо в чате.</div>
+        ? `Найди бота <b>@${esc(BOT_USERNAME)}</b> в MAX и нажми «Начать».`
+        : 'Открой бота «Компаса» в MAX и нажми «Начать».'} Приложение откроется прямо в чате.</div>
     </div>
     <div class="bottom" style="display:flex;flex-direction:column;gap:8px">
       ${BOT_USERNAME
-        ? `<a class="btn" href="https://t.me/${encodeURIComponent(BOT_USERNAME)}" target="_blank" rel="noopener" style="text-decoration:none">Открыть бота в Telegram</a>`
+        ? `<a class="btn" href="https://max.ru/${encodeURIComponent(BOT_USERNAME)}?startapp" target="_blank" rel="noopener" style="text-decoration:none">Открыть бота в MAX</a>`
         : ''}
       <div class="link" style="text-align:center" data-go="teacher">Я педагог</div>
     </div>
@@ -1306,12 +1307,13 @@ tabsBar.addEventListener('click', (event) => {
 
 /* ---------- старт ---------- */
 
-/* Мост мессенджера, если приложение открыто внутри него. */
+/* Мост мессенджера, если приложение открыто внутри него.
+   MAX — целевая платформа, проверяем первым; Telegram остаётся для отладки. */
 function messengerBridge() {
-  const tg = window.Telegram?.WebApp;
-  if (tg?.initData) return { platform: 'telegram', initData: tg.initData, api: tg };
   const max = window.WebApp;
   if (max?.initData) return { platform: 'max', initData: max.initData, api: max };
+  const tg = window.Telegram?.WebApp;
+  if (tg?.initData) return { platform: 'telegram', initData: tg.initData, api: tg };
   return null;
 }
 
@@ -1334,7 +1336,7 @@ async function loginFromMessenger(bridge) {
 
   try {
     const config = await api('/api/public-config').catch(() => ({}));
-    BOT_USERNAME = (config.telegram_bot_username || '').replace('@', '');
+    BOT_USERNAME = (config.max_bot_username || '').replace('@', '');
   } catch { /* без имени бота экран входа просто останется без кнопки */ }
 
   try {

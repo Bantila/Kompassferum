@@ -38,11 +38,16 @@ class Settings(BaseSettings):
     openrouter_url: str = "https://openrouter.ai/api/v1/chat/completions"
     openrouter_timeout_seconds: float = 30.0
 
-    # Вебхук MAX
+    # MAX — целевая платформа
     max_webhook_secret: str = ""
     max_bot_token: str = ""
+    # https://platform-api2.max.ru по документации; botapi.max.ru — рабочий legacy-алиас
+    max_api_base: str = "https://platform-api2.max.ru"
+    # имя бота без @ — нужно для диплинка (max.ru/<username>) и кнопки open_app
+    max_bot_username: str = ""
 
-    # Telegram — площадка для отладки бота, пока нет доступа к платформе MAX
+    # Telegram — необязательный отладочный адаптер, включается только если задан токен.
+    # Основная платформа — MAX; ядро сценариев (bot_core) от выбора не зависит.
     telegram_bot_token: str = ""
     # имя бота без @ — нужно приложению, чтобы дать ссылку на вход
     telegram_bot_username: str = ""

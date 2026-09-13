@@ -104,7 +104,11 @@ async def max_webhook(
     if event is None or not event.external_id:
         logger.info("Вебхук MAX: событие не распознано: %s", str(update)[:300])
         return OK
-    return await _process(session, event, bot_transport.send_max)
+    result = await _process(session, event, bot_transport.send_max)
+    if event.callback_id:
+        # без этого у нажавшего кнопку крутится индикатор загрузки до таймаута
+        await bot_transport.answer_max_callback(event.callback_id)
+    return result
 
 
 @router.post("/link", response_model=LinkBotResponse)

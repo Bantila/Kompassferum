@@ -101,12 +101,12 @@ async def test_forged_init_data_is_rejected(client, monkeypatch) -> None:
 
 
 async def test_public_config_exposes_only_bot_username(client, monkeypatch) -> None:
-    """Экрану входа нужно имя бота — и ничего кроме него."""
+    """Экрану входа нужно имя бота MAX — и ничего кроме него."""
     from app.config import get_settings
 
-    monkeypatch.setattr(get_settings(), "telegram_bot_username", "kompas_test_bot")
+    monkeypatch.setattr(get_settings(), "max_bot_username", "kompas_test_bot")
 
     response = await client.get("/api/public-config")
 
     assert response.status_code == 200
-    assert response.json() == {"telegram_bot_username": "kompas_test_bot"}
+    assert response.json() == {"max_bot_username": "kompas_test_bot"}
