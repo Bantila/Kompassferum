@@ -1,0 +1,61 @@
+# Единственная точка входа снаружи. Статику и API обслуживает FastAPI.
+(backend) {
+	reverse_proxy backend:8000 {
+		# rate_limit.py доверяет этому заголовку: всегда перезаписываем его.
+		header_up X-Real-IP {remote_host}
+		# Host сохраняется, X-Forwarded-* Caddy выставляет сам.
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 35s
+			read_timeout 35s
+			write_timeout 35s
+		}
+	}
+}
+
+(access_log) {
+	output stdout
+	format filter {
+		wrap json
+		fields {
+			request>headers>X-Max-Bot-Api-Secret delete
+			request>headers>X-Telegram-Bot-Api-Secret-Token delete
+		}
+	}
+}
+
+# Базовый compose передаёт :80, HTTPS-оверлей — DOMAIN.
+{$CADDY_SITE_ADDRESS::80} {
+	log {
+		import access_log
+	}
+	log webhook {
+		no_hostname
+		import access_log
+	}
+	log_skip /health*
+
+	# Реальный маршрут MAX и прежний путь из nginx.conf, без переписывания URI.
+	@webhook path /api/bot/max /api/bot/max/* /api/webhook/max*
+	@regular not path /api/bot/max /api/bot/max/* /api/webhook/max*
+	log_name @webhook webhook
+	request_body @webhook {
+		max_size 5MiB
+	}
+	request_body @regular {
+		max_size 1MiB
+	}
+	import backend
+}
+
+# Только внутри контейнера: проверяет Caddy -> backend -> БД без зависимости
+# от DNS и выпуска сертификата. Этот порт не публикуется в Compose.
+http://127.0.0.1:8080 {
+	bind 127.0.0.1
+	handle /health {
+		import backend
+	}
+	handle {
+		respond 404
+	}
+}

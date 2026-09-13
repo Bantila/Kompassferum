@@ -30,6 +30,20 @@ from app.database import Base, engine  # noqa: E402
 from app.main import app  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _чистый_счётчик_лимитов():
+    """Счётчик частоты живёт в памяти процесса — между тестами его надо обнулять.
+
+    Иначе тест, отправивший десяток запросов, оставляет соседям исчерпанный
+    лимит, и падает не он, а следующий за ним.
+    """
+    from app.services import rate_limit
+
+    rate_limit.reset()
+    yield
+    rate_limit.reset()
+
+
 @pytest.fixture
 async def client() -> AsyncClient:
     async with engine.begin() as connection:
@@ -39,6 +53,46 @@ async def client() -> AsyncClient:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
+
+
+@pytest.fixture
+def согласившийся(client):
+    """Фабрика: ученик с записанным согласием на обработку данных.
+
+    Без согласия /submit отвечает 403 — это данные ребёнка. В жизни ученик
+    входит через мессенджер и принимает документ до теста; тесты сдают его
+    напрямую, поэтому пользователя и согласие заводим заранее.
+    """
+    from app.database import SessionLocal
+    from app.models import User, UserRole
+    from app.services import consent
+
+    async def создать(max_user_id: str, **поля):
+        async with SessionLocal() as session:
+            user = User(max_user_id=max_user_id, role=UserRole.student, **поля)
+            session.add(user)
+            await session.flush()
+            await consent.grant(session, user.id)
+            await session.commit()
+            return user.id
+
+    return создать
+
+
+@pytest.fixture
+async def invite_code(client) -> str:
+    """Загрузочный код приглашения — такой же выдаёт `python -m app.invite`.
+
+    Зависит от client: тот пересоздаёт таблицы, и код, выписанный раньше,
+    исчез бы вместе с ними.
+    """
+    from app.database import SessionLocal
+    from app.services import invites
+
+    async with SessionLocal() as session:
+        invite = await invites.create(session)
+        await session.commit()
+        return invite.code
 
 
 @pytest.fixture

@@ -18,14 +18,18 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.services.rate_limit import limit
 from app.models import BotAccount, User, UserRole
 from app.schemas.auth import (
+    InviteCreateRequest,
+    InviteOut,
     LoginRequest,
     MiniAppLoginRequest,
     ProfileOut,
     RegisterRequest,
     TokenResponse,
 )
+from app.services import invites
 from app.services.miniapp_auth import full_name_from, verify_max, verify_telegram
 from app.services.security import (
     create_access_token,
@@ -70,7 +74,30 @@ async def get_current_user(
     return user
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+async def get_current_user_optional(
+    authorization: str | None = Header(default=None),
+    session: AsyncSession = Depends(get_session),
+) -> User | None:
+    """Пользователь, если он вошёл, иначе None.
+
+    Для эндпоинтов, которые обязаны работать и анонимно: демо-страница и первый
+    заход в мини-приложение идут без токена, и падать там нельзя.
+    """
+    if not authorization:
+        return None
+    try:
+        return await get_current_user(authorization=authorization, session=session)
+    except HTTPException:
+        return None
+
+
+@router.post(
+    "/register",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    # регистрация педагогов штучная: пять аккаунтов в час с адреса — с запасом
+    dependencies=[Depends(limit("register", times=5, seconds=3600))],
+)
 async def register(
     payload: RegisterRequest, session: AsyncSession = Depends(get_session)
 ) -> TokenResponse:
@@ -91,6 +118,15 @@ async def register(
         is_active=True,
     )
     session.add(user)
+    await session.flush()
+
+    # Код гасим уже за созданным пользователем. Не подошёл — исключение
+    # откатывает транзакцию целиком, недорегистрированный аккаунт не остаётся.
+    if not await invites.redeem(session, payload.invite_code, user.id):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Код приглашения недействителен, истёк или уже использован",
+        )
 
     await session.commit()
     await session.refresh(user)
@@ -98,7 +134,34 @@ async def register(
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/invites", response_model=InviteOut, status_code=status.HTTP_201_CREATED)
+async def create_invite(
+    payload: InviteCreateRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> InviteOut:
+    """Выписать код приглашения коллеге.
+
+    Приглашать может только тот, кто сам уже подтверждён: иначе цепочка доверия
+    рвётся на первом же звене и код перестаёт что-либо значить.
+    """
+    if user.role is not UserRole.teacher:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Приглашать коллег может только педагог")
+
+    invite = await invites.create(session, created_by=user, note=payload.note)
+    await session.commit()
+    logger.info("Код приглашения выписан педагогом %s", user.email)
+    return InviteOut(
+        code=invite.code, note=invite.note, expires_at=invite.expires_at, used_at=None
+    )
+
+
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    # десять попыток в минуту: человек с забытым паролем уложится, перебор — нет
+    dependencies=[Depends(limit("login", times=10, seconds=60))],
+)
 async def login(payload: LoginRequest, session: AsyncSession = Depends(get_session)) -> TokenResponse:
     email = payload.email.strip().lower()
     user = await session.scalar(select(User).where(func.lower(User.email) == email))
@@ -113,7 +176,13 @@ async def login(payload: LoginRequest, session: AsyncSession = Depends(get_sessi
     return TokenResponse(access_token=create_access_token(user.id), user=_profile(user))
 
 
-@router.post("/miniapp", response_model=TokenResponse)
+@router.post(
+    "/miniapp",
+    response_model=TokenResponse,
+    # Класс сидит за одним NAT и открывает приложение одновременно — лимит
+    # должен вмещать весь кабинет разом, иначе половина урока не войдёт.
+    dependencies=[Depends(limit("miniapp", times=60, seconds=60))],
+)
 async def miniapp_login(
     payload: MiniAppLoginRequest, session: AsyncSession = Depends(get_session)
 ) -> TokenResponse:

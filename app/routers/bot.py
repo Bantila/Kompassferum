@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.database import get_session
+from app.services.rate_limit import limit
 from app.models import BotAccount, User
 from app.routers.auth import get_current_user
 from app.schemas.bot import LinkBotRequest, LinkBotResponse
@@ -50,7 +51,13 @@ async def _process(session: AsyncSession, event, sender) -> dict[str, Any]:
     return OK
 
 
-@router.post("/telegram")
+@router.post(
+    "/telegram",
+    # Вебхук зовёт платформа, а не пользователь: лимит здесь только против
+    # потока с чужого адреса. Ставим высоко — потерянное событие бота
+    # обходится дороже, чем лишний обработанный запрос.
+    dependencies=[Depends(limit("webhook", times=600, seconds=60))],
+)
 async def telegram_webhook(
     request: Request,
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
@@ -75,7 +82,13 @@ async def telegram_webhook(
     return await _process(session, event, bot_transport.send_telegram)
 
 
-@router.post("/max")
+@router.post(
+    "/max",
+    # Вебхук зовёт платформа, а не пользователь: лимит здесь только против
+    # потока с чужого адреса. Ставим высоко — потерянное событие бота
+    # обходится дороже, чем лишний обработанный запрос.
+    dependencies=[Depends(limit("webhook", times=600, seconds=60))],
+)
 async def max_webhook(
     request: Request,
     x_max_bot_api_secret: str | None = Header(default=None),

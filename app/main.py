@@ -16,7 +16,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.database import engine
-from app.routers import auth, bot, classes, practice, recommendations, teacher, tests
+from app.routers import auth, bot, consent, classes, practice, recommendations, teacher, tests
 
 logging.basicConfig(
     level=get_settings().log_level,
@@ -28,7 +28,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    logger.info("«Компас» запускается, модель: %s", settings.openrouter_model)
+    # Печатаем модель того провайдера, который выбран. Раньше здесь всегда стоял
+    # openrouter_model — а у него есть значение по умолчанию, поэтому лог
+    # показывал «moonshotai/kimi-k2» даже при включённом GigaChat и заставлял
+    # думать, что настройки не применились.
+    провайдер = settings.ai_provider.strip().lower()
+    модель = {
+        "gigachat": settings.gigachat_model,
+        "openrouter": settings.openrouter_model,
+    }.get(провайдер, "запасной алгоритм без модели")
+    logger.info("«Компас» запускается, подбор профессий: %s (%s)", провайдер, модель)
     if not os.getenv("JWT_SECRET"):
         logger.warning(
             "JWT_SECRET не задан — подставлен случайный на время работы процесса. "
@@ -81,6 +90,7 @@ async def index() -> FileResponse:
 
 
 app.include_router(auth.router)
+app.include_router(consent.router)
 app.include_router(tests.router)
 app.include_router(practice.router)
 app.include_router(recommendations.router)

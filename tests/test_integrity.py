@@ -101,8 +101,9 @@ def test_too_few_answers_do_not_trigger_same_option(мало: int) -> None:
     assert not any(f["code"] == "same_option" for f in check(ответы)["flags"])
 
 
-async def test_submit_stores_integrity(client) -> None:
+async def test_submit_stores_integrity(client, согласившийся) -> None:
     """Оценка доверия должна сохраняться вместе с результатом теста."""
+    await согласившийся("click_through")
     ответы = {f"a{i}": 5 for i in range(1, 13)}
     ответы.update(
         {f"b{n}_k1": {"selected_index": 0, "time_spent_seconds": 0.5} for n in range(1, 11)}

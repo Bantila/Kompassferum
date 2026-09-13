@@ -42,20 +42,22 @@ services:
     networks:
       - kompas
 
-  nginx:
-    image: nginx:alpine
+  caddy:
+    image: caddy:2.11.4-alpine
     restart: unless-stopped
+    environment:
+      CADDY_SITE_ADDRESS: ":80"
     depends_on:
       backend:
         condition: service_healthy
     ports:
       - "80:80"
-      # - "443:443"   # раскомментировать вместе с ssl-блоком в nginx.conf
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # - ./nginx/certs:/etc/nginx/certs:ro
+      - ./caddy:/etc/caddy:ro
+      - caddy_data:/data
+      - caddy_config:/config
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -64,6 +66,8 @@ services:
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
 
 networks:
   kompas:

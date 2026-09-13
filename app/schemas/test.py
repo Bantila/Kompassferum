@@ -65,6 +65,10 @@ class PlanResponse(BaseModel):
     planned_by_model: bool
     # предметы, которые не вошли в план: их можно пройти по желанию
     optional_subjects: list[PlannedSubject]
+    # номер попытки (с нуля) и доставшаяся ей пара сложностей: повторное
+    # прохождение получает другие задачи, и это должно быть видно снаружи
+    attempt: int = 0
+    difficulties: list[str] = []
 
 
 class CheckAnswerRequest(BaseModel):
@@ -105,3 +109,5 @@ class TestSubmitResponse(BaseModel):
     recommendations: list[ProfessionOut]
     fallback: bool
     model_used: str
+    # какие сложности задач достались этому прохождению
+    difficulties: list[str] = []

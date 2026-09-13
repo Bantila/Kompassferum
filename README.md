@@ -27,15 +27,16 @@
 | ИИ | GigaChat через GigaChain, ответ по строгой JSON-схеме |
 | HTTP | httpx (async) |
 | Фронтенд | Статика без сборки: HTML + ванильный JS, светлая и тёмная темы на токенах |
-| Инфраструктура | Docker (multistage), docker compose, nginx |
+| Инфраструктура | Docker (multistage), docker compose, Caddy |
 
-Наружу торчит только nginx. uvicorn и PostgreSQL живут внутри docker-сети и портов
+Наружу публикуется только Caddy. uvicorn и PostgreSQL живут внутри docker-сети и портов
 не пробрасывают.
 
 ## Живой стенд
 
 **https://testmaxapp.vltx.eu.cc** — развёрнутая версия со всем стеком:
-FastAPI, PostgreSQL и nginx в Docker, HTTPS от Let's Encrypt.
+Текущая доступность стенда и его переход на Caddy локальной проверкой
+конфигурации не подтверждаются.
 
 | Адрес | Что там |
 |---|---|
@@ -62,6 +63,12 @@ python demo/build_demo.py
 не покидает бэкенд. Рекомендации всегда приходят от запасного rule-based
 алгоритма, а сводка по классу — снимок реального ответа
 `/api/teacher/{id}/class-summary` на восьми сгенерированных учениках.
+
+## Участникам
+
+Правила коммитов, работы с ветками и подготовки к отправке — в
+[CONTRIBUTING.md](CONTRIBUTING.md). Пять минут чтения избавляют от разбора
+истории перед сдачей.
 
 ## Требования
 
@@ -104,6 +111,14 @@ curl http://localhost/health
 
 Демо-доступ педагога: `teacher@demo.ru` / `demo1234`. Код класса для учеников —
 `DEMO7B`.
+
+Зарегистрировать **своего** педагога можно только по коду приглашения — роль
+teacher открывает сводку по классу, и раньше её назначал себе сам заявитель.
+Первый код выписывается из консоли, дальше педагоги приглашают коллег сами:
+
+```bash
+docker compose exec backend python -m app.invite "Иванова, 7Б"
+```
 
 Остановить: `docker compose down`. Вместе с данными: `docker compose down -v`.
 
@@ -240,15 +255,8 @@ curl -fsSL https://get.docker.com | sh
 `-S` всё же показать ошибку, `-L` следовать редиректам. Скрипт ставит и Docker
 Engine, и плагин Compose.
 
-Поставить Certbot для сертификатов Let's Encrypt:
-
-```bash
-apt install certbot python3-certbot-nginx -y
-certbot --version
-```
-
-Оба пакета идут через пробел в одной команде `apt install` — если поставить
-между ними `&&`, второй попытается выполниться как отдельная команда.
+Caddy запускается контейнером из Compose и сам получает и продлевает
+сертификаты. Установка Certbot и веб-сервера на хост не требуется.
 
 ### 2. Защита сервера
 
@@ -357,49 +365,77 @@ openssl rand -hex 32
 | `MAX_WEBHOOK_SECRET` | сгенерированный секрет вебхука |
 | `APP_PUBLIC_URL` | адрес мини-приложения, вместе с `https://` |
 
-### 4. Сертификат и запуск
+### 4. Caddy: HTTP локально и HTTPS на домене
 
-Сертификат выпускается до первого старта, пока порт 80 свободен:
+Для локального HTTP: `docker compose up -d --build`, затем откройте
+`http://localhost`. Для HTTPS направьте DNS домена на сервер и обеспечьте
+доступность 80/tcp и 443/tcp. Если есть AAAA-запись, она тоже должна вести
+на этот сервер. Для HTTP/3 дополнительно откройте 443/udp.
 
-```bash
-certbot certonly --standalone   -d example.ru -d www.example.ru   --email you@example.ru --agree-tos -n
+В существующем `.env` задайте один домен без схемы и пути:
+
+```dotenv
+DOMAIN=example.ru
+APP_PUBLIC_URL=https://example.ru
 ```
 
-`certonly` только выпускает сертификат, не трогая конфигурацию веб-сервера.
-`--standalone` поднимает временный сервер на 80 порту для проверки домена —
-поэтому его и нужно выполнять до `docker compose up`. Домены указываются без
-`https://`, `-n` отключает интерактивные вопросы.
-
-Запуск с SSL-оверлеем:
+Проверка, запуск и диагностика HTTPS:
 
 ```bash
-mkdir -p certbot-webroot
-echo "DOMAIN=example.ru" >> .env
-
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml config --quiet
 docker compose -f docker-compose.yml -f docker-compose.ssl.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml ps
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml logs --tail=100 caddy
+curl --fail https://example.ru/health
 ```
 
-Два файла конфигурации складываются: базовый описывает сервисы, `.ssl.yml`
-добавляет проброс сертификатов и 443 порт. `-d` уводит контейнеры в фон,
-`--build` пересобирает образы после изменений в коде.
+Caddy получает и продлевает сертификат автоматически и перенаправляет HTTP
+на HTTPS. [Документация Caddy](https://caddyserver.com/docs/automatic-https).
+Сертификаты хранятся в `caddy_data`, конфигурация — в `caddy_config`.
+Сохраняйте тома при обновлении: `docker compose down -v` удаляет также БД.
+Миграции выполняются автоматически при старте backend.
 
-Миграции накатываются автоматически при старте контейнера — отдельный
-`alembic upgrade head` выполнять не нужно.
+Healthcheck Caddy использует `127.0.0.1:8080/health` внутри контейнера и
+проверяет backend и БД. Этот порт не опубликован. Публичный TLS проверяется
+отдельно запросом выше: healthcheck не подтверждает выпуск сертификата.
 
-Проверить:
+Все маршруты идут на `backend:8000` без изменения URI. Лимит тела — 1 МиБ;
+для `/api/bot/max`, его подпутей и прежнего префикса `/api/webhook/max` — 5 МиБ.
+Старый путь передаётся как есть и не создаёт новый обработчик API.
+`X-Real-IP` перезаписывается адресом соединения. Таймаут подключения — 5 с,
+ожидания заголовков ответа и операций чтения/записи — 35 с.
+Access-логи идут в stdout; MAX имеет logger `http.log.access.webhook`,
+healthcheck пропускается, секреты вебхуков удаляются из заголовков в логах.
+
+После изменения Caddyfile:
 
 ```bash
-docker compose ps
-docker compose logs -f
-curl https://example.ru/health
-# {"status":"ok","database":"ok"}
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 ```
 
-HTTP редиректит на HTTPS, а `/.well-known/acme-challenge/` остаётся доступным,
-поэтому продление сертификата проходит без остановки nginx. Чтобы nginx
-подхватил обновлённый сертификат, положите в
-`/etc/letsencrypt/renewal-hooks/deploy/` скрипт с
-`docker compose -f ... exec nginx nginx -s reload`.
+После изменения DOMAIN вместо reload выполните `up -d --force-recreate caddy`
+с теми же двумя Compose-файлами: окружение перечитывается при создании контейнера.
+
+#### Переход существующего стенда с Nginx
+
+До обновления файлов остановите и удалите только старый proxy-контейнер:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml stop nginx
+docker compose -f docker-compose.yml -f docker-compose.ssl.yml rm -f nginx
+```
+
+Затем обновите файлы и запустите HTTPS-командой выше. Если файлы уже обновлены,
+найдите старый контейнер через `docker ps -a --filter label=com.docker.compose.service=nginx`,
+проверьте принадлежность проекту и остановите/удалите именно его по ID.
+Backend и БД останавливать не требуется. Если порты заняты системным Nginx,
+перед его остановкой проверьте, не обслуживает ли он другие сайты.
+
+Уберите Certbot renewal/deploy hook, перезагружавший Nginx этого проекта;
+задания других доменов сохраните. Caddy выпускает свои сертификаты, старые
+из `/etc/letsencrypt` не импортирует. При переключении и первом выпуске
+сертификата возможен перерыв в доступности сайта.
 
 ### 5. Подписка на вебхук и мини-приложение
 
@@ -514,7 +550,7 @@ soft skills. Черновик теста лежит на сервере и пр�
 слабые предметы и средние баллы. Индивидуальных результатов там нет.
 
 Фронтенд — три файла в `app/static/`, без npm, сборки и внешних зависимостей:
-статику отдаёт сам FastAPI, снаружи её проксирует nginx.
+статику отдаёт сам FastAPI, снаружи её проксирует Caddy.
 
 ## API
 
@@ -635,9 +671,9 @@ strict=True)`): API сам не пропустит ответ, где профе
 │   └── tests_data/questions.json   # банк из 74 вопросов, в тесте задаётся 37
 ├── tests/                          # pytest, БД — SQLite во временном файле
 ├── alembic/                        # миграции
-├── nginx/nginx.conf                # reverse proxy, единственная точка входа
+├── caddy/Caddyfile                # reverse proxy, единственная точка входа
 ├── Dockerfile                      # multistage: builder → runtime
-└── docker-compose.yml              # nginx + backend + postgres
+└── docker-compose.yml              # Caddy + backend + postgres
 ```
 
 ## Тесты

@@ -25,10 +25,26 @@ from app.services.test_scoring import load_questions
 logger = logging.getLogger(__name__)
 
 SUBJECTS_IN_PLAN = 5
-# Две задачи вместо трёх: лёгкая и сложная. Такая пара различает три уровня —
-# не решил ничего, знает базу, разбирается — а средний вопрос почти дублирует
-# лёгкий и стоит ученику лишней минуты.
-DIFFICULTIES_IN_PLAN = ("easy", "hard")
+
+# Две задачи вместо трёх: пара различает три уровня — не решил ничего, знает
+# базу, разбирается, — а третья стоила бы ученику лишней минуты.
+#
+# Пара меняется от попытки к попытке. Иначе повторное прохождение состоит из
+# тех же самых задач (ученик помнит ответы, и замер ничего не стоит), а средние
+# вопросы банка не задаются никогда — треть задач лежит мёртвым грузом.
+#
+# Первая попытка остаётся прежней парой: для большинства учеников тест
+# выглядит ровно так же, как раньше.
+DIFFICULTY_ROTATION = (
+    ("easy", "hard"),
+    ("medium", "hard"),
+    ("easy", "medium"),
+)
+
+
+def difficulties_for_attempt(attempt: int) -> tuple[str, str]:
+    """Пара сложностей для попытки №attempt (нумерация с нуля)."""
+    return DIFFICULTY_ROTATION[max(attempt, 0) % len(DIFFICULTY_ROTATION)]
 
 SUBJECT_CODES = tuple(load_questions()["subject_titles"])
 
@@ -180,23 +196,51 @@ async def plan_subjects(interests: dict[str, float]) -> dict[str, Any]:
     }
 
 
-def questions_for_plan(subjects: list[str]) -> list[dict[str, Any]]:
+def questions_for_plan(subjects: list[str], attempt: int = 0) -> list[dict[str, Any]]:
     """Вопросы блока B по выбранным предметам, без правильных ответов.
 
     На предмет — две задачи и вопрос про интерес: пятнадцать вопросов вместо
     пятидесяти двух. Интерес оставляем, потому что итоговый балл предмета
     считается из знания и интереса вместе.
+
+    Пара сложностей одна на все предметы прохождения: балл предмета — это доля
+    верных ответов, сложность в него не входит, поэтому разные пары у разных
+    предметов сделали бы предметы несравнимыми между собой. А ровно на этом
+    сравнении строится совет, что подтягивать.
     """
     банк = load_questions()["block_b_subjects"]
     отобранные: list[dict[str, Any]] = []
+    сложности = difficulties_for_attempt(attempt)
 
     for предмет in subjects:
         вопросы = [q for q in банк if q["subject"] == предмет]
         задачи = [q for q in вопросы if q["type"] == "knowledge"]
-        for сложность in DIFFICULTIES_IN_PLAN:
+        for сложность in сложности:
             подходящие = [q for q in задачи if q.get("difficulty") == сложность]
             if подходящие:
                 отобранные.append(подходящие[0])
         отобранные.extend(q for q in вопросы if q["type"] == "interest")
 
     return [{k: v for k, v in q.items() if k != "correct_index"} for q in отобранные]
+
+
+def asked_difficulties(raw_answers: dict[str, Any]) -> list[str]:
+    """Какие сложности задач достались прохождению — по самим ответам.
+
+    Хранить это отдельным полем не нужно: сложность однозначно выводится из
+    того, на какие вопросы человек отвечал. Нужно оно ради честности истории —
+    балл считается как доля верных ответов, сложность в него не входит, и
+    падение результата между попытками может означать не «стал хуже», а
+    «достались задачи потруднее».
+    """
+    if not isinstance(raw_answers, dict):
+        return []
+
+    банк = {q["id"]: q for q in load_questions()["block_b_subjects"]}
+    найдено = {
+        банк[qid].get("difficulty")
+        for qid in raw_answers
+        if qid in банк and банк[qid]["type"] == "knowledge"
+    }
+    порядок = ("easy", "medium", "hard")
+    return [d for d in порядок if d in найдено]
