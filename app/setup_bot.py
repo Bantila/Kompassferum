@@ -104,11 +104,14 @@ async def _setup_telegram(client: httpx.AsyncClient, url: str, use_webhook: bool
 
 
 async def main() -> int:
-    if len(sys.argv) < 2:
+    # --webhook — флаг, может стоять и до, и после адреса; адресом считаем
+    # первый аргумент, который флагом не является
+    args = [a for a in sys.argv[1:] if a != "--webhook"]
+    if not args:
         print("Укажите адрес: python -m app.setup_bot https://example.trycloudflare.com")
         return 1
 
-    url = sys.argv[1].rstrip("/")
+    url = args[0].rstrip("/")
     if not url.startswith("https://"):
         print("Нужен адрес по HTTPS — мессенджер открывает мини-приложение только по нему.")
         return 1
