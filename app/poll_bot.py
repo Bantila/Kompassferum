@@ -80,7 +80,7 @@ async def poll_telegram() -> None:
 async def poll_max() -> None:
     settings = get_settings()
     headers = {"Authorization": settings.max_bot_token}
-    async with httpx.AsyncClient(timeout=LONG_POLL_SECONDS + 10) as client:
+    async with httpx.AsyncClient(timeout=LONG_POLL_SECONDS + 10, verify=bot_transport.max_ssl_context()) as client:
         # вебхук и опрос несовместимы — снимаем все текущие подписки бота
         subscriptions = await client.get(f"{settings.max_api_base}/subscriptions", headers=headers)
         for sub in subscriptions.json().get("subscriptions", []):

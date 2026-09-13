@@ -25,6 +25,7 @@ from pathlib import Path
 import httpx
 
 from app.config import get_settings
+from app.services.bot_transport import max_ssl_context
 
 ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 
@@ -141,7 +142,9 @@ async def main() -> int:
     _set_env("APP_PUBLIC_URL", url)
     print(f"адрес записан в .env: {url}")
 
-    async with httpx.AsyncClient(timeout=20) as client:
+    # общий SSL-контекст: обычные доверенные корни плюс НУЦ Минцифры —
+    # безопасен и для Telegram-вызовов, доверие только добавляется, не сужается
+    async with httpx.AsyncClient(timeout=20, verify=max_ssl_context()) as client:
         if settings.max_bot_token:
             await _setup_max(client, url, use_webhook)
         else:
