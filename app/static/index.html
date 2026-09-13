@@ -37,9 +37,13 @@
   </nav>
 </div>
 
-<!-- мост мессенджера: даёт подписанные данные пользователя и тему оформления -->
+<!-- мост мессенджера: даёт подписанные данные пользователя и тему оформления.
+     MAX — целевая платформа, поэтому его бридж первым; Telegram остаётся
+     для отладки и подключается тоже — messengerBridge() в app.js сам
+     выбирает, какой из двух окажется внутри мессенджера. -->
+<script src="https://st.max.ru/js/max-web-app.js"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="/static/shared.js?v=11"></script>
-<script src="/static/app.js?v=11"></script>
+<script src="/static/shared.js?v=12"></script>
+<script src="/static/app.js?v=12"></script>
 </body>
 </html>
