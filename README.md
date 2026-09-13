@@ -455,7 +455,7 @@ docker compose exec backend python -m app.seed
 | `GIGACHAT_CREDENTIALS` | Authorization key из личного кабинета developers.sber.ru. Пустой → всегда rule-based рекомендации |
 | `GIGACHAT_SCOPE` | `GIGACHAT_API_PERS` для физлиц, `_B2B` и `_CORP` для компаний |
 | `GIGACHAT_MODEL` | `GigaChat`, `GigaChat-2-Pro` или `GigaChat-2-Max` |
-| `GIGACHAT_CA_BUNDLE` / `GIGACHAT_VERIFY_SSL` | Сбер подписан НУЦ Минцифры, которого нет в стандартном наборе сертификатов. Путь к сертификату — или, для пробы, отключение проверки TLS |
+| `GIGACHAT_CA_BUNDLE` / `GIGACHAT_VERIFY_SSL` | Сбер подписан НУЦ Минцифры — сертификат уже вшит в репозиторий (`app/certs/`, тот же, что и для MAX) и подключается сам, заполнять не нужно. Переменные — только для переопределения пути или (для отладки) отключения проверки |
 | `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | Запасной провайдер, slug по умолчанию `moonshotai/kimi-k2` |
 | `MAX_BOT_TOKEN` | Токен бота MAX — целевой платформы. Пустой → адаптер выключен |
 | `MAX_BOT_USERNAME` | Имя бота без `@` — нужно для диплинка `max.ru/<имя>` и кнопки `open_app` |
