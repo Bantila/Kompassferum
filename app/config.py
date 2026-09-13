@@ -2,9 +2,16 @@
 
 import secrets
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# НУЦ Минцифры — общий корень для GigaChat (api.giga.chat) и MAX
+# (platform-api2.max.ru): оба выпускают сертификаты через Russian Trusted
+# Sub CA, которого нет в стандартном наборе (certifi). Вшит в репозиторий
+# один раз, используют оба клиента.
+RUSSIAN_TRUSTED_CA_BUNDLE = Path(__file__).resolve().parent / "certs" / "russian_trusted_ca_bundle.pem"
 
 
 class Settings(BaseSettings):
@@ -23,14 +30,13 @@ class Settings(BaseSettings):
     gigachat_scope: str = "GIGACHAT_API_PERS"
     gigachat_model: str = "GigaChat"
     gigachat_base_url: str = "https://api.giga.chat/v1"
-    # Сбер отдаёт TLS-цепочку, подписанную НУЦ Минцифры: в стандартном
-    # наборе сертификатов её нет. Пока корневой сертификат не установлен
-    # на машине или сервере, запрос падает на проверке TLS — тогда
-    # проверку приходится отключать этой настройкой. Для боевого стенда
-    # правильнее поставить сертификат, а не выключать проверку.
+    # Сбер отдаёт TLS-цепочку, подписанную НУЦ Минцифры — сертификат уже
+    # вшит в репозиторий (RUSSIAN_TRUSTED_CA_BUNDLE) и подключается сам,
+    # заполнять не нужно. false отключает проверку TLS целиком — только
+    # для отладки, для боевого стенда не годится.
     gigachat_verify_ssl: bool = True
-    # Путь к корневому сертификату НУЦ Минцифры, если он установлен на сервере.
-    # Задан — проверка TLS работает штатно и отключать её не нужно.
+    # Переопределение пути к сертификату — например, если на сервере уже
+    # стоит свежее обновление корня и вшитый файл устарел.
     gigachat_ca_bundle: str = ""
 
     # OpenRouter

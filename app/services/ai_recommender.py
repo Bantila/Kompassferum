@@ -21,7 +21,7 @@ from typing import Any, Literal
 import httpx
 from pydantic import BaseModel, Field
 
-from app.config import get_settings
+from app.config import RUSSIAN_TRUSTED_CA_BUNDLE, get_settings
 from app.services.test_scoring import load_questions
 
 logger = logging.getLogger(__name__)
@@ -387,7 +387,13 @@ async def _ask_gigachat(scores: dict[str, Any]) -> tuple[list[dict[str, Any]], d
         model=settings.gigachat_model,
         base_url=settings.gigachat_base_url,
         verify_ssl_certs=settings.gigachat_verify_ssl,
-        ca_bundle_file=settings.gigachat_ca_bundle or None,
+        # api.giga.chat подписан тем же НУЦ Минцифры, что и MAX — используем
+        # тот же вшитый сертификат, если явно не переопределили и не
+        # выключили проверку целиком (тогда путь ни на что не влияет)
+        ca_bundle_file=(
+            settings.gigachat_ca_bundle
+            or (str(RUSSIAN_TRUSTED_CA_BUNDLE) if settings.gigachat_verify_ssl else None)
+        ),
         timeout=settings.openrouter_timeout_seconds,
         temperature=0.3,
     )

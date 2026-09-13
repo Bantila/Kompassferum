@@ -11,23 +11,18 @@ from __future__ import annotations
 
 import logging
 import ssl
-from pathlib import Path
 from typing import Any
 
 import certifi
 import httpx
 
-from app.config import get_settings
+from app.config import RUSSIAN_TRUSTED_CA_BUNDLE, get_settings
 from app.services.bot_core import BotEvent, BotReply
 
 logger = logging.getLogger(__name__)
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 TIMEOUT_SECONDS = 15.0
-
-# Вшитый сертификат НУЦ Минцифры — без него любой запрос к MAX падает на
-# проверке TLS (см. max_ca_bundle в app/config.py).
-DEFAULT_MAX_CA_BUNDLE = Path(__file__).resolve().parent.parent / "certs" / "russian_trusted_ca_bundle.pem"
 
 _max_ssl_context: ssl.SSLContext | bool | None = None
 
@@ -43,7 +38,7 @@ def max_ssl_context() -> ssl.SSLContext | bool:
             _max_ssl_context = False
         else:
             context = ssl.create_default_context(cafile=certifi.where())
-            bundle = settings.max_ca_bundle or str(DEFAULT_MAX_CA_BUNDLE)
+            bundle = settings.max_ca_bundle or str(RUSSIAN_TRUSTED_CA_BUNDLE)
             context.load_verify_locations(cafile=bundle)
             _max_ssl_context = context
     return _max_ssl_context
